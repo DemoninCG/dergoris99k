@@ -1,0 +1,86 @@
+@font-face{
+    font-family:"NES";
+    font-style:normal;
+    font-weight:400;
+    src:url(nintendo-nes-font.woff) format("woff");
+}
+
+@font-face{
+    font-family:"GameBoy";
+    font-style:normal;
+    font-weight:400;
+    src:url(GameBoy.woff) format("woff");
+}
+
+body {
+    background-color: #555;
+    image-rendering: pixelated;
+    background-position: center;
+}
+
+p {
+    font-family: "NES";
+    font-size: 8px;
+    color: white;
+    margin: 0;
+    user-select: none;
+}
+
+label {
+    font-family: "NES";
+    font-size: 16px;
+    color: white;
+    margin: 0;
+}
+
+button {
+    border: 4px solid black;
+    background-color: white;
+    color: black;
+    font-family: "NES";
+    font-size: 16px;
+    margin: 0;
+    margin-top: 8px;
+    cursor: pointer;
+}
+
+#game {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(4);
+    /*background-color: rgba(0,0,0,0.2);*/
+    display: none;
+}
+
+#textOverlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 320px;
+    height: 240px;
+    padding: 0;
+    transform: translate(-50%, -50%) scale(4);
+    display: none;
+}
+
+/*Game-specific things*/
+
+.GBText {
+    color: #081810;
+    position: absolute;
+    font-family: "GameBoy";
+}
+
+.NESText {
+    color: white;
+    position: absolute;
+    font-family: "NES";
+    line-height: 8px;
+}
+
+.DXText {
+    color: #081810;
+    position: absolute;
+    font-family: "GameBoy";
+}

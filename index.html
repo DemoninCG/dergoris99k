@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris 99k</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="img/icon.png">
+    <!--Preload board-->
+    <img src="img/gb/boardSmall.png" style="display: none">
+    <img src="img/gb/tiles.png" style="display: none">
+    <img src="img/gb/hardDropTile.png" style="display: none">
+    <img src="img/gb/sideInfo.png" style="display: none">
+    <img src="img/nes/boardSmall.png" style="display: none">
+    <img src="img/nes/tiles.png" style="display: none">
+    <img src="img/nes/hardDropTile.png" style="display: none">
+    <img src="img/nes/sideInfo.png" style="display: none">
+    <img src="img/nes/linesBoxSmall.png" style="display: none">
+    <img src="img/nes/statistics.png" style="display: none">
+    <img src="img/nes/statPieces.png" style="display: none">
+    <img src="img/dx/boardSmall.png" style="display: none">
+    <img src="img/dx/tiles.png" style="display: none">
+    <img src="img/dx/hardDropTile.png" style="display: none">
+    <img src="img/dx/sideInfo.png" style="display: none">
+</head>
+<body>
+    <div id="settings">
+        <img src="img/title.png" style="width: 376px"><br><p style="margin-top: 4px; color: #ddd">v0.1.0</p><br><br>
+        <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
+        <select id="presetsSetting" onchange="setPreset()">
+            <option value="gb">Game Boy</option>
+            <option value="nes" selected>NES</option>
+            <option value="dx">Tetris DX</option>
+            <option value="sega">Sega (arcade)</option>
+            <option value="tgm">The Grand Master</option>
+        </select><br><br>
+        <label for="startingLevelSetting">STARTING LEVEL - </label>
+        <input type="number" id="startingLevelSetting" value="0" min="0" max="30" onchange="setStartingLevel()"><br>
+        <label for="boardWidthSetting">BOARD WIDTH - </label>
+        <input type="number" id="boardWidthSetting" value="10" min="4" max="20" onchange="setBoardWidth()"><br>
+        <label for="boardHeightsetting">BOARD HEIGHT - </label>
+        <input type="number" id="boardHeightSetting" value="20" min="4" max="25" onchange="setBoardHeight()"><br><br>
+
+        <label for="visualsSetting">VISUALS - </label>
+        <select id="visualsSetting" onchange="setVisuals()">
+            <option value="gb">Game Boy</option>
+            <option value="nes" selected>NES</option>
+            <option value="dx">Tetris DX</option>
+            <option value="sega">Sega (arcade)</option>
+            <option value="tgm">The Grand Master</option>
+        </select><br>
+        <label for="gameMechanicsSetting">GAME MECHANICS - </label>
+        <select id="gameMechanicsSetting" onchange="setGameMechanics()">
+            <option value="gb">Game Boy</option>
+            <option value="nes" selected>NES</option>
+            <option value="dx">Tetris DX</option>
+        </select><br>
+        <p>MAIN GAME MECHANICS. INCLDUES ARE, ROTATION, WALLKICK AND SCORING SYSTEM.</p><br>
+        <label for="randomizerSetting">RANDOMIZER - </label>
+        <select id="randomizerSetting" onchange="setRandomizer()">
+            <option value="random">Random</option>
+            <option value="nes" selected>NES</option>
+            <option value="dx">Tetris DX</option>
+        </select><br>
+        <p>HOW PIECES ARE CHOSEN.</p><br>
+        <label for="pieceColouringSetting">PIECE COLOURING - </label>
+        <select id="pieceColouringSetting" onchange="setPieceColouring()">
+            <option value="regular" selected>Regular</option>
+            <option value="monotoneFixed">Monotone (fixed)</option>
+            <option value="monotoneAll">Monotone (all)</option>
+        </select><br>
+        <p>HOW PIECES ARE COLOURED.<br>REGULAR = COLOURS BASED ON PIECE.<br>MONOTONE (FIXED) = FIXED BLOCKS ARE MONOTONE.<br>MONOTONE (ALL) = ALL BLOCKS ARE MONOTONE</p><br>
+
+        <label for="softDropSetting">SOFT DROP</label>
+        <input type="checkbox" id="softDropSetting" onchange="setSoftDrop()" checked /><br>
+        <label for="softDropSpeedSetting">SOFT DROP SPEED - </label>
+        <input type="number" id="softDropSpeedSetting" value="2" min="1" max="20" onchange="setSoftDropSpeed()"><br>
+        <label for="hardDropSetting">HARD DROP</label>
+        <input type="checkbox" id="hardDropSetting" onchange="setHardDrop()" /><br>
+        <label for="IRSSetting">IRS</label>
+        <input type="checkbox" id="IRSSetting" onchange="setIRS()" /><br><br>
+
+        <label for="overrideGameARESetting">OVERRIDE GAME-SPECIFIC ARE</label>
+        <input type="checkbox" id="overrideGameARESetting" onchange="setOverrideGameARE()" /><br>
+        <label for="ARESetting">ARE - NORMAL - </label>
+        <input type="number" id="ARESetting" value="10" min="0" max="60" onchange="setARE()"><br>
+        <label for="ARELineClearSetting">ARE - LINE CLEAR - </label>
+        <input type="number" id="ARELineClearSetting" value="30" min="0" max="60" onchange="setARELineClear()"><br><br>
+
+        <label for="DASInitialSetting">DAS - INITIAL - </label>
+        <input type="number" id="DASInitialSetting" value="16" min="1" max="60" onchange="setDASInitial()"><br>
+        <label for="DASSetting">DAS - REPEAT - </label>
+        <input type="number" id="DASSetting" value="6" min="1" max="60" onchange="setDAS()"><br>
+        <label for="lockDelaySetting">LOCK DELAY - </label>
+        <input type="number" id="lockDelaySetting" value="0" min="0" max="180" onchange="setLockDelay()"><br>
+        <p>SET TO 0 TO DISABLE.</p><br>
+        <label for="lockResetSetting">LOCK DELAY RESET - </label>
+        <select id="lockResetSetting" onchange="setLockReset()">
+            <option value="move">Move</option>
+            <option value="step" selected>Step</option>
+        </select><br>
+        <p>MOVE = RESET LOCK DELAY WHEN PIECE MOVES.<br>STEP = RESET LOCK DELAY WHEN PIECE MOVES DOWN.</p><br><br>
+        <label for="timeDisplaySetting">TIME DISPLAY</label>
+        <input type="checkbox" id="timeDisplaySetting" onchange="setTimeDisplay()" /><br><br>
+        <button onclick="startGame()">START GAME</button>
+    </div>
+    <canvas id="game" width="320" height="240"></canvas>
+    <div id="textOverlay"></div>
+    <script src="constants.js"></script>
+    <script src="script.js"></script>
+    <script src="settings.js"></script>
+</body>
+</html>
