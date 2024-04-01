@@ -4,6 +4,11 @@
 
 //To do:
 //Make time display always on
+//Sega line clear
+//Sega rotation
+//Sega ghost pieces
+//Sega text displays
+//Sega level up/background rebuild
 //DX line piece rotation
 //Write essay about SEMIPRO/TGM
 
@@ -618,6 +623,12 @@ function getDropInterval() {
     if (settings.gameMechanics == "gb") return gameboyDropIntervals[Math.min(level, 20)]
     else if (settings.gameMechanics == "nes") return nesDropIntervals[Math.min(level, 29)]
     else if (settings.gameMechanics == "dx") return dxDropIntervals[Math.min(level, 30)]
+    else if (settings.gameMechanics == "sega") {
+        if (settings.segaDifficulty == "easy") return segaEasyDropIntervals[Math.min(level, 15)]
+        else if (settings.segaDifficulty == "normal") return segaNormalDropIntervals[Math.min(level, 15)]
+        else if (settings.segaDifficulty == "hard") return segaHardDropIntervals[Math.min(level, 15)]
+        else if (settings.segaDifficulty == "hardest") return segaHardestDropIntervals[Math.min(level, 15)]
+    }
 }
 
 function landPiece() {
@@ -659,6 +670,8 @@ function landPiece() {
     else if (settings.gameMechanics == "nes") {currentDropTime = calculateNESARELevel(Math.max(pieceTopCorner[0], 0))} //NES ARE, 10 frames of ARE if piece lands in bottom row, going up to 18 at top
     else if (settings.gameMechanics == "dx" && checkFullLines().length > 0) {currentDropTime = 50} //DX line clear ARE
     else if (settings.gameMechanics == "dx") {currentDropTime = 2} //DX ARE
+    else if (settings.gameMechanics == "sega" && checkFullLines().length > 0) {currentDropTime = 42} //Sega line clear ARE
+    else if (settings.gameMechanics == "sega") {currentDropTime = 30} //Sega ARE
     else {currentDropTime = 60} //Backup
     waitingForNextPiece = true
     lastDroppedPieces.unshift(currentPiece)
@@ -687,7 +700,7 @@ function placePiece(x) {
         case "dx":
         case "gb":
             for (let i=0;i<4;i++) {
-                piecePositions[i] = [...nesPiecePlacements[x][i]]
+                piecePositions[i] = [...piecePlacements[x][i]]
                 if (x=="gb") piecePositions[i][0]++
                 piecePositions[i][1] += settings.boardWidth/2-3
             }
@@ -698,13 +711,23 @@ function placePiece(x) {
             break
         case "nes":
             for (let i=0;i<4;i++) {
-                piecePositions[i] = [...nesPiecePlacements[x][i]]
+                piecePositions[i] = [...piecePlacements[x][i]]
                 piecePositions[i][1] += settings.boardWidth/2-2
             }
             if (x==0) {pieceTopCorner = [-2,0]}
             else if (x==1) {pieceTopCorner = [0,1]}
             else {pieceTopCorner = [-1,1]}
             pieceTopCorner[1] += settings.boardWidth/2-2
+            break
+        case "sega":
+            for (let i=0;i<4;i++) {
+                piecePositions[i] = [...piecePlacements[x][i]]
+                piecePositions[i][1] += settings.boardWidth/2-3
+            }
+            if (x==0) {pieceTopCorner = [-2,0]}
+            else if (x==1) {pieceTopCorner = [0,1]}
+            else {pieceTopCorner = [-1,1]}
+            pieceTopCorner[1] += settings.boardWidth/2-3
             break
     }
     currentPiece = x
@@ -895,6 +918,55 @@ function setNextPieceVisuals(x) {
                 ctx.drawImage(images.tiles, 0, 40, 8, 8, 8*settings.boardWidth+leftSide+48, 32, 8, 8);
                 ctx.drawImage(images.tiles, 0, 40, 8, 8, 8*settings.boardWidth+leftSide+56, 32, 8, 8);
                 ctx.drawImage(images.tiles, 0, 40, 8, 8, 8*settings.boardWidth+leftSide+40, 40, 8, 8);
+                break
+        }
+    }
+    else if (settings.visuals == "sega") {
+        let leftSide = 120-settings.boardWidth*4
+        let currentBackground = segaBackgroundLevels[Math.min(level, 15)]
+        ctx.drawImage(images.background, currentBackground*320+leftSide+64, 8, 32, 16, leftSide+64, 8, 32, 16)
+        switch (x) {
+            case 0:
+                ctx.drawImage(images.tiles, 0, 0, 8, 8, 8*settings.boardWidth+leftSide-16, 16, 8, 8);
+                ctx.drawImage(images.tiles, 0, 0, 8, 8, 8*settings.boardWidth+leftSide-8, 16, 8, 8);
+                ctx.drawImage(images.tiles, 0, 0, 8, 8, 8*settings.boardWidth+leftSide, 16, 8, 8);
+                ctx.drawImage(images.tiles, 0, 0, 8, 8, 8*settings.boardWidth+leftSide+8, 16, 8, 8);
+                break
+            case 1:
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, 8*settings.boardWidth+leftSide-8, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, 8*settings.boardWidth+leftSide, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, 8*settings.boardWidth+leftSide-8, 16, 8, 8);
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, 8*settings.boardWidth+leftSide, 16, 8, 8);
+                break
+            case 2:
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, 8*settings.boardWidth+leftSide-16, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, 8*settings.boardWidth+leftSide-8, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, 8*settings.boardWidth+leftSide, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, 8*settings.boardWidth+leftSide-8, 16, 8, 8);
+                break
+            case 3:
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, 8*settings.boardWidth+leftSide-8, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, 8*settings.boardWidth+leftSide, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, 8*settings.boardWidth+leftSide-16, 16, 8, 8);
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, 8*settings.boardWidth+leftSide-8, 16, 8, 8);
+                break
+            case 4:
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, 8*settings.boardWidth+leftSide-16, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, 8*settings.boardWidth+leftSide-8, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, 8*settings.boardWidth+leftSide-8, 16, 8, 8);
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, 8*settings.boardWidth+leftSide, 16, 8, 8);
+                break
+            case 5:
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, 8*settings.boardWidth+leftSide-16, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, 8*settings.boardWidth+leftSide-8, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, 8*settings.boardWidth+leftSide, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, 8*settings.boardWidth+leftSide, 16, 8, 8);
+                break
+            case 6:
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, 8*settings.boardWidth+leftSide-16, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, 8*settings.boardWidth+leftSide-8, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, 8*settings.boardWidth+leftSide, 8, 8, 8);
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, 8*settings.boardWidth+leftSide-16, 16, 8, 8);
                 break
         }
     }
