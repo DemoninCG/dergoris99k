@@ -171,6 +171,12 @@ function initialiseCanvasBoard() {
         ctx.drawImage(images.sideInfo4, (level%10)*24, 0, 24, 112, leftSide-64, 72, 24, 112);
 
         //Add the text
+        let timeText = document.createElement("p")
+        timeText.classList = "NESText"
+        timeText.innerText = "0:00"
+        timeText.style.top = "24px"
+        timeText.style.left = (leftSide+104) + "px"
+        document.getElementById("textOverlay").appendChild(timeText)
         let scoreText = document.createElement("p")
         scoreText.classList = "NESText"
         scoreText.innerText = "000000"
@@ -221,20 +227,10 @@ function initialiseCanvasBoard() {
         ctx.fillRect(leftSide+16, 0, (8*settings.boardWidth), (8*settings.boardHeight))
         //Draw the side info
         images.sideInfo1.src = "img/dx/sideInfo.png";
-        if (settings.timeDisplay) {
-            ctx.drawImage(images.sideInfo1, 0, 0, 56, 160, (8*settings.boardWidth)+leftSide+24, 0, 56, 160)
-            if (settings.boardHeight > 20) {
-                for (let i=20;i<settings.boardHeight;i++) {
-                    ctx.drawImage(images.sideInfo1, 0, 160+(i*8)%16, 56, 8, (8*settings.boardWidth)+leftSide+24, i*8, 56, 8)
-                }
-            }
-        }
-        else {
-            ctx.drawImage(images.sideInfo1, 0, 0, 56, 144, (8*settings.boardWidth)+leftSide+24, 0, 56, 144)
-            if (settings.boardHeight > 18) {
-                for (let i=18;i<settings.boardHeight;i++) {
-                    ctx.drawImage(images.sideInfo1, 0, 160+(i*8)%16, 56, 8, (8*settings.boardWidth)+leftSide+24, i*8, 56, 8)
-                }
+        ctx.drawImage(images.sideInfo1, 0, 0, 56, 144, (8*settings.boardWidth)+leftSide+24, 0, 56, 144)
+        if (settings.boardHeight > 18) {
+            for (let i=18;i<settings.boardHeight;i++) {
+                ctx.drawImage(images.sideInfo1, 0, 160+(i*8)%16, 56, 8, (8*settings.boardWidth)+leftSide+24, i*8, 56, 8)
             }
         }
 
@@ -336,6 +332,7 @@ function startGame() {
 function updateVariables() {
     if (!gamePlaying) {timeOfLastUpdate = Date.now(); return}
     let timeMultiplier = Math.max(Date.now() - timeOfLastUpdate, 1) / 1000
+    time += timeMultiplier
 
     //Update DAS
     if (keysHeld[0]) {
@@ -554,9 +551,10 @@ function updateVisuals() {
         }
 
         //Text
-        document.getElementsByClassName("NESText")[0].innerText = score.toString().padStart(6, "0")
-        document.getElementsByClassName("NESText")[1].innerText = level.toString().padStart(2, "0")
-        document.getElementsByClassName("NESText")[2].innerText = "LINES-" + lines.toString().padStart(3, "0")
+        document.getElementsByClassName("NESText")[0].innerText = Math.floor(time/60) + ":" + Math.floor(time%60).toString().padStart(2, "0")
+        document.getElementsByClassName("NESText")[1].innerText = score.toString().padStart(6, "0")
+        document.getElementsByClassName("NESText")[2].innerText = level.toString().padStart(2, "0")
+        document.getElementsByClassName("NESText")[3].innerText = "LINES-" + lines.toString().padStart(3, "0")
     }
     else if (settings.visuals == "sega") {
         //Clear the canvas
