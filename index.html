@@ -54,11 +54,21 @@
             <option value="gb">Game Boy</option>
             <option value="nes" selected>NES</option>
             <option value="dx">Tetris DX</option>
+            <option value="sega">Sega (arcade)</option>
+            <option value="tgm">The Grand Master</option>
         </select><br>
         <p>MAIN GAME MECHANICS. INCLDUES ARE, ROTATION, WALLKICK AND SCORING SYSTEM.</p><br>
+        <label for="segaDifficultySetting">SEGA DIFFICULTY - </label>
+        <select id="segaDifficultySetting" onchange="setSegaDifficulty()" disabled>
+            <option value="easy">Easy</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Hard</option>
+            <option value="hardest">Hardest</option>
+        </select><br>
         <label for="randomizerSetting">RANDOMIZER - </label>
         <select id="randomizerSetting" onchange="setRandomizer()">
             <option value="random">Random</option>
+            <option value="gb">Game Boy</option>
             <option value="nes" selected>NES</option>
             <option value="dx">Tetris DX</option>
         </select><br>
@@ -100,8 +110,6 @@
             <option value="step" selected>Step</option>
         </select><br>
         <p>MOVE = RESET LOCK DELAY WHEN PIECE MOVES.<br>STEP = RESET LOCK DELAY WHEN PIECE MOVES DOWN.</p><br><br>
-        <label for="timeDisplaySetting">TIME DISPLAY</label>
-        <input type="checkbox" id="timeDisplaySetting" onchange="setTimeDisplay()" /><br><br>
         <button onclick="startGame()">START GAME</button>
     </div>
     <canvas id="game" width="320" height="240"></canvas>

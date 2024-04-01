@@ -4,6 +4,8 @@ function updateSettingVisuals() {
     document.getElementById("boardHeightSetting").value = settings.boardHeight;
     document.getElementById("visualsSetting").value = settings.visuals;
     document.getElementById("gameMechanicsSetting").value = settings.gameMechanics;
+    document.getElementById("segaDifficultySetting").value = settings.segaDifficulty;
+    document.getElementById("segaDifficultySetting").disabled = (settings.gameMechanics != "sega")
     document.getElementById("randomizerSetting").value = settings.randomizer;
     document.getElementById("pieceColouringSetting").value = settings.pieceColouring;
     document.getElementById("softDropSetting").checked = settings.softDrop;
@@ -19,7 +21,6 @@ function updateSettingVisuals() {
     document.getElementById("DASSetting").value = settings.DAS;
     document.getElementById("lockDelaySetting").value = settings.lockDelay;
     document.getElementById("lockResetSetting").value = settings.lockReset;
-    document.getElementById("timeDisplaySetting").checked = settings.timeDisplay;
 }
 
 updateSettingVisuals()
@@ -79,6 +80,22 @@ function setPreset() {
             settings.DAS = 3;
             settings.lockDelay = 32;
             break;
+        case "sega":
+            settings.boardWidth = 10;
+            settings.boardHeight = 20;
+            settings.visuals = "sega";
+            settings.gameMechanics = "sega";
+            settings.randomizer = "random";
+            settings.pieceColouring = "regular";
+            settings.softDrop = true;
+            settings.softDropSpeed = 1;
+            settings.hardDrop = false;
+            settings.IRS = false;
+            settings.overrideGameARE = false;
+            settings.DASInitial = 20;
+            settings.DAS = 1;
+            settings.lockDelay = 30;
+            break;
     }
     updateSettingVisuals()
 }
@@ -127,6 +144,12 @@ function setVisuals() {
 function setGameMechanics() {
     let gameMechanics = document.getElementById("gameMechanicsSetting").value;
     settings.gameMechanics = gameMechanics;
+    document.getElementById("segaDifficultySetting").disabled = (settings.gameMechanics != "sega")
+}
+
+function setSegaDifficulty() {
+    let segaDifficulty = document.getElementById("segaDifficultySetting").value;
+    settings.segaDifficulty = segaDifficulty;
 }
 
 function setRandomizer() {
@@ -238,9 +261,4 @@ function setLockDelay() {
 function setLockReset() {
     let lockReset = document.getElementById("lockResetSetting").value;
     settings.lockReset = lockReset;
-}
-
-function setTimeDisplay() {
-    let timeDisplay = document.getElementById("timeDisplaySetting").checked;
-    settings.timeDisplay = timeDisplay;
 }

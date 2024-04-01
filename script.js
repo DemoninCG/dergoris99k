@@ -3,6 +3,7 @@
 //DX uses NES font (should use its own font but no tff/woff exists afaik)
 
 //To do:
+//Make time display always on
 //DX line piece rotation
 //Write essay about SEMIPRO/TGM
 
@@ -14,6 +15,7 @@ function reset() {
         boardHeight: 20,
         visuals: "nes",
         gameMechanics: "nes",
+        segaDifficulty: "normal",
         randomizer: "nes",
         pieceColouring: "regular",
         softDrop: true,
@@ -64,6 +66,7 @@ const images = {
 	tiles: new Image(),
     hardDropTile: new Image(),
     board: new Image(),
+    background: new Image(),
     sideInfo1: new Image(),
     sideInfo2: new Image(),
     sideInfo3: new Image(),
@@ -258,6 +261,46 @@ function initialiseCanvasBoard() {
         scoreText.style.textAlign = "right"
         document.getElementById("textOverlay").appendChild(linesText)
     }
+    if (settings.visuals === "sega") {
+        canvas.height = Math.max(settings.boardHeight*8+48, 225)
+        document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8+48, 225) + "px"
+        let leftSide = 152-settings.boardWidth*4;
+        document.body.style.backgroundColor = "#333"
+        images.tiles.src = "img/sega/tiles.png";
+        images.hardDropTile.src = "img/sega/hardDropTile.png";
+        images.board.src = "img/sega/board.png";
+        images.background.src = "img/sega/backgrounds.png";
+        let currentBackground = segaBackgroundLevels[Math.min(level, 15)]
+        ctx.drawImage(images.background, currentBackground*320, 0, 320, 225, 0, 0, 320, 225)
+        //Draw the corners
+        ctx.drawImage(images.board, 0, 0, 8, 8, leftSide, 24, 8, 8);
+        ctx.drawImage(images.board, 88, 0, 8, 8, 8*settings.boardWidth+leftSide+8, 24, 8, 8);
+        ctx.drawImage(images.board, 0, 168, 8, 16, leftSide, 8*settings.boardHeight+32, 8, 16);
+        ctx.drawImage(images.board, 88, 168, 8, 16, 8*settings.boardWidth+leftSide+8, 8*settings.boardHeight+32, 8, 16);
+        ctx.fillStyle = "black"
+        ctx.fillRect(leftSide+8, 32, settings.boardWidth*8, settings.boardHeight*8);
+        //Draw the sides
+        for (let i=0;i<Math.min(settings.boardHeight,20);i++) {
+            ctx.drawImage(images.board, 0, i*8+8, 8, 8, leftSide, i*8+32, 8, 8);
+            ctx.drawImage(images.board, 88, i*8+8, 8, 8, 8*settings.boardWidth+leftSide+8, i*8+32, 8, 8);
+        }
+        if (settings.boardHeight > 20) {
+            for (let i=20;i<settings.boardHeight;i++) {
+                ctx.drawImage(images.board, 0, 160, 8, 8, leftSide, i*8+32, 8, 8);
+                ctx.drawImage(images.board, 88, 160, 8, 8, 8*settings.boardWidth+leftSide+8, i*8+32, 8, 8);
+            }
+        
+        }
+        for (let i=0;i<settings.boardWidth/2;i++) {
+            ctx.drawImage(images.board, 8+Math.min(i,5)*8, 0, 8, 8, leftSide+i*8+8, 24, 8, 8);
+            ctx.drawImage(images.board, 80-Math.min(i,5)*8, 0, 8, 8, 8*settings.boardWidth+leftSide-i*8, 24, 8, 8);
+            ctx.drawImage(images.board, 8+Math.min(i,5)*8, 168, 8, 16, leftSide+i*8+8, 8*settings.boardHeight+32, 8, 16);
+            ctx.drawImage(images.board, 80-Math.min(i,5)*8, 168, 8, 16, 8*settings.boardWidth+leftSide-i*8, 8*settings.boardHeight+32, 8, 16);
+        }
+        //Draw the side info
+        images.sideInfo1.src = "img/sega/sideInfo.png";
+        ctx.drawImage(images.sideInfo1, leftSide-56, 16);
+    }
 }
 
 function startGame() {
@@ -276,6 +319,10 @@ function startGame() {
     else if (settings.gameMechanics == "dx") {
         linesUntilNextLevel = level*10+10
         currentDropTime = 32
+    }
+    else if (settings.gameMechanics == "sega") {
+        linesUntilNextLevel = 4
+        //currentDropTime = 32
     }
     gamePlaying = true
     initialiseCanvasBoard()
@@ -511,6 +558,62 @@ function updateVisuals() {
         document.getElementsByClassName("NESText")[1].innerText = level.toString().padStart(2, "0")
         document.getElementsByClassName("NESText")[2].innerText = "LINES-" + lines.toString().padStart(3, "0")
     }
+    else if (settings.visuals == "sega") {
+        //Clear the canvas
+        let leftSide = 160-settings.boardWidth*4;
+        ctx.fillStyle = "black"
+        ctx.fillRect(leftSide, 32, settings.boardWidth*8, settings.boardHeight*8);
+        //Draw the board
+        //ctx.drawImage(images.tiles, 0, 0, 8, 8, pieceTopCorner[1]*8+leftSide+8, pieceTopCorner[0]*8+32, 4, 4);
+        if (!waitingForNextPiece) {
+            //Draw the ghost piece if hard drop is enabled
+            if (settings.hardDrop) {
+                let tempPiecePositions = []
+                for (let i=0;i<4;i++) tempPiecePositions.push([...piecePositions[i]])
+                while (!checkPieceLanded(tempPiecePositions)) {
+                    for (let i=0;i<4;i++) tempPiecePositions[i][0]++
+                }
+                for (let i=0;i<4;i++) {
+                    if (tempPiecePositions[i][0] < 0) continue
+                    ctx.drawImage(images.hardDropTile, tempPiecePositions[i][1]*8+leftSide, tempPiecePositions[i][0]*8+32, 8, 8)
+                }
+            }
+            //Regular piece
+            for (let i=0;i<piecePositions.length;i++) {
+                if (piecePositions[i][0] < 0) continue
+                if (settings.pieceColouring === "monotoneAll") {
+                    ctx.drawImage(images.tiles, 0, 64, 8, 8, piecePositions[i][1]*8+leftSide, piecePositions[i][0]*8+32, 8, 8);
+                }
+                else {
+                    ctx.drawImage(images.tiles, 0, currentPiece*8, 8, 8, piecePositions[i][1]*8+leftSide, piecePositions[i][0]*8+32, 8, 8);
+                }
+            }
+        }
+        //Board pieces
+        if (settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll") {
+            for (let i=0;i<settings.boardHeight;i++) {
+                for (let j=0;j<settings.boardWidth;j++) {
+                    if (board[i][j] != 0) {
+                        ctx.drawImage(images.tiles, 0, 64, 8, 8, j*8+leftSide, i*8+32, 8, 8);
+                    }
+                }
+            }
+        }
+        else {
+            for (let i=0;i<settings.boardHeight;i++) {
+                for (let j=0;j<settings.boardWidth;j++) {
+                    if (board[i][j] != 0) {
+                        ctx.drawImage(images.tiles, 0, (board[i][j]-1)*8, 8, 8, j*8+leftSide, i*8+32, 8, 8);
+                    }
+                }
+            }
+        }
+
+        //Text
+        //document.getElementsByClassName("NESText")[0].innerText = score.toString().padStart(6, "0")
+        //document.getElementsByClassName("NESText")[1].innerText = level.toString().padStart(2, "0")
+        //document.getElementsByClassName("NESText")[2].innerText = "LINES-" + lines.toString().padStart(3, "0")
+    }
 }
 
 function getDropInterval() {
@@ -540,6 +643,11 @@ function landPiece() {
     }
     }
     else if (settings.visuals == "nes") {
+        for (let i=0;i<piecePositions.length;i++) {
+            if (board[piecePositions[i][0]]) board[piecePositions[i][0]][piecePositions[i][1]] = currentPiece+1
+        }
+    }
+    else if (settings.visuals == "sega") {
         for (let i=0;i<piecePositions.length;i++) {
             if (board[piecePositions[i][0]]) board[piecePositions[i][0]][piecePositions[i][1]] = currentPiece+1
         }
