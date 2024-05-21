@@ -1214,6 +1214,33 @@ function rotatePiece(clockwise=true, override=false) {
     }
 }
 
+function rotatePieceAroundPoint(piecePositions,x,y,clockwise=true) {
+    //Shift the piece positions to be around 0,0
+    let tempPiecePositions = []
+    for (let i=0;i<piecePositions.length;i++) {
+        tempPiecePositions.push([piecePositions[i][0]-y,piecePositions[i][1]-x])
+    }
+    //Rotate each tile around 0,0
+    for (let i=0;i<tempPiecePositions.length;i++) {
+        if (clockwise) {
+            let temp = tempPiecePositions[i][0]
+            tempPiecePositions[i][0] = -tempPiecePositions[i][1]
+            tempPiecePositions[i][1] = temp
+        }
+        else {
+            let temp = tempPiecePositions[i][0]
+            tempPiecePositions[i][0] = tempPiecePositions[i][1]
+            tempPiecePositions[i][1] = -temp
+        }
+    }
+    //Shift the piece positions back to the original position
+    for (let i=0;i<tempPiecePositions.length;i++) {
+        tempPiecePositions[i][0] += y
+        tempPiecePositions[i][1] += x
+    }
+    return tempPiecePositions
+}
+
 function softDrop() {
     if (gamePlaying && settings.softDrop && !keysHeld[3] && !softDropping && !waitingForNextPiece) {
         currentDropTime = 0
