@@ -30,7 +30,7 @@
 </head>
 <body>
     <div id="settings">
-        <img src="img/title.png" style="width: 376px"><br><p style="margin-top: 4px; color: #ddd">v0.1.0</p><br><br>
+        <img src="img/title.png" style="width: 376px"><br><p style="margin-top: 4px; color: #ddd">v0.1.1</p><br><br>
         <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
         <select id="presetsSetting" onchange="setPreset()">
             <option value="gb">Game Boy</option>
@@ -40,7 +40,7 @@
             <option value="tgm">The Grand Master</option>
         </select><br><br>
         <label for="startingLevelSetting">STARTING LEVEL - </label>
-        <input type="number" id="startingLevelSetting" value="0" min="0" max="30" onchange="setStartingLevel()"><br>
+        <input type="number" id="startingLevelSetting" value="0" min="0" max="99" onchange="setStartingLevel()"><br>
         <label for="boardWidthSetting">BOARD WIDTH - </label>
         <input type="number" id="boardWidthSetting" value="10" min="4" max="20" onchange="setBoardWidth()"><br>
         <label for="boardHeightsetting">BOARD HEIGHT - </label>
@@ -84,7 +84,9 @@
             <option value="monotoneFixed">Monotone (fixed)</option>
             <option value="monotoneAll">Monotone (all)</option>
         </select><br>
-        <p>HOW PIECES ARE COLOURED.<br>REGULAR = COLOURS BASED ON PIECE.<br>MONOTONE (FIXED) = FIXED BLOCKS ARE MONOTONE.<br>MONOTONE (ALL) = ALL BLOCKS ARE MONOTONE</p><br>
+        <p>HOW PIECES ARE COLOURED.<br>REGULAR = COLOURS BASED ON PIECE.<br>MONOTONE (FIXED) = FIXED BLOCKS ARE MONOTONE.<br>MONOTONE (ALL) = ALL BLOCKS ARE MONOTONE</p>
+        <label for="invisibleSetting">INVISIBLE BOARD</label>
+        <input type="checkbox" id="invisibleSetting" onchange="setInvisible()" /><br><br>
 
         <label for="softDropSetting">SOFT DROP</label>
         <input type="checkbox" id="softDropSetting" onchange="setSoftDrop()" checked /><br>

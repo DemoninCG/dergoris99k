@@ -108,6 +108,7 @@ function setStartingLevel() {
     if (settings.gameMechanics == "gb" && startingLevel > 20) {startingLevel = 20}
     else if (settings.gameMechanics == "nes" && startingLevel > 29) {startingLevel = 29}
     else if (settings.gameMechanics == "dx" && startingLevel > 30) {startingLevel = 30}
+    else if (settings.gameMechanics == "sega" && startingLevel > 99) {startingLevel = 99}
     document.getElementById("startingLevelSetting").value = startingLevel;
     settings.startingLevel = startingLevel;
 }
@@ -160,6 +161,11 @@ function setRandomizer() {
 function setPieceColouring() {
     let pieceColouring = document.getElementById("pieceColouringSetting").value;
     settings.pieceColouring = pieceColouring;
+}
+
+function setInvisible() {
+    let invisible = document.getElementById("invisibleSetting").checked;
+    settings.invisible = invisible;
 }
 
 function setSoftDrop() {
