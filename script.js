@@ -1,21 +1,17 @@
 //Unresolved issues:
-//DX's stupid alternate rotation point rotation
-//DX uses NES font (should use its own font but no tff/woff exists afaik)
+//DX uses GB font (should use its own font but no tff/woff exists afaik)
 
 //To do:
-//Make time display always on
-//Sega line clear
-//Sega rotation
+//TGM backgrounds
+//TGM board
+//Fix sega and NES board width problems
+//Work out what to do with the time display
 //Sega ghost pieces
-//Sega text displays
-//Sega level up/background rebuild
-//DX line piece rotation
-//Write essay about SEMIPRO/TGM
 
 function reset() {
     //Game settings
     settings = {
-        startingLevel: 15,
+        startingLevel: 0,
         boardWidth: 10,
         boardHeight: 20,
         visuals: "nes",
@@ -73,6 +69,7 @@ const images = {
     hardDropTile: new Image(),
     board: new Image(),
     background: new Image(),
+    background2: new Image(),
     sideInfo1: new Image(),
     sideInfo2: new Image(),
     sideInfo3: new Image(),
@@ -211,7 +208,7 @@ function initialiseCanvasBoard() {
         statsText.style.left = (leftSide-40) + "px";
         document.getElementById("textOverlay").appendChild(statsText);
     }
-    if (settings.visuals === "dx") {
+    else if (settings.visuals === "dx") {
         if (settings.timeDisplay) {
             canvas.height = Math.max(settings.boardHeight*8, 160);
             document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8, 160) + "px";
@@ -265,7 +262,7 @@ function initialiseCanvasBoard() {
         scoreText.style.textAlign = "right";
         document.getElementById("textOverlay").appendChild(linesText);
     }
-    if (settings.visuals === "sega") {
+    else if (settings.visuals === "sega") {
         canvas.height = Math.max(settings.boardHeight*8+48, 225);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8+48, 225) + "px";
         let leftSide = 152-settings.boardWidth*4;
@@ -307,6 +304,25 @@ function initialiseCanvasBoard() {
         images.sideInfo1.src = "img/sega/sideInfo.png";
         ctx.drawImage(images.sideInfo1, leftSide-56, 16);
     }
+    else if (settings.visuals === "tgm") {
+        canvas.height = Math.max(settings.boardHeight*8+48, 240);
+        document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8+48, 240) + "px";
+        let leftSide = 160-settings.boardWidth*4;
+        document.body.style.backgroundColor = "#333";
+        images.tiles.src = "img/tgm/tiles.png";
+        images.hardDropTile.src = "img/tgm/ghostTiles.png";
+        images.board.src = "img/tgm/board.png";
+        images.background.src = "img/tgm/backgrounds.png";
+        images.background2.src = "img/tgm/backgroundsDark.png";
+        images.sideInfo1.src = "img/tgm/sideInfo.png";
+        let currentBackground = Math.floor(level/100);
+        ctx.drawImage(images.background, currentBackground*320, 0, 320, 240, 0, 0, 320, 240);
+        //Draw the board (to be improved)
+        ctx.drawImage(images.board, 114, 34);
+        ctx.drawImage(images.background2, currentBackground*320+120, 40, 80, 160, 120, 40, 80, 160);
+        //Draw the side info
+        ctx.drawImage(images.sideInfo1, 71, 26);
+    }
 }
 
 function startGame() {
@@ -329,6 +345,9 @@ function startGame() {
     else if (settings.gameMechanics == "sega") {
         linesUntilNextLevel = 4;
         //currentDropTime = 32
+    }
+    else if (settings.gameMechanics == "tgm") {
+        linesUntilNextLevel = 100;
     }
     gamePlaying = true;
     initialiseCanvasBoard();
@@ -544,7 +563,7 @@ function updateVisuals() {
             }
         }
         //Board pieces
-        if (settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll" && (!settings.invisible || waitingForNextPiece)) {
+        if (settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll" && !settings.invisible) {
             for (let i=0;i<settings.boardHeight;i++) {
                 for (let j=0;j<settings.boardWidth;j++) {
                     if (board[i][j] != 0) {
@@ -553,7 +572,7 @@ function updateVisuals() {
                 }
             }
         }
-        else if ((!settings.invisible || waitingForNextPiece)) {
+        else if (!settings.invisible) {
             for (let i=0;i<settings.boardHeight;i++) {
                 for (let j=0;j<settings.boardWidth;j++) {
                     if (board[i][j] != 0) {
@@ -729,7 +748,7 @@ function calculateNESARELevel(x) {
 
 function placePiece(x) {
     switch (settings.gameMechanics) {
-        case "gb":
+        case "gb": //Left-handed
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
                 piecePositions[i][0]++;
@@ -741,7 +760,7 @@ function placePiece(x) {
             else {pieceTopCorner = [0,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
             break;
-        case "nes":
+        case "nes": //Right-handed
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
                 piecePositions[i][1] += settings.boardWidth/2-2;
@@ -751,7 +770,7 @@ function placePiece(x) {
             else {pieceTopCorner = [-1,1];}
             pieceTopCorner[1] += settings.boardWidth/2-2;
             break;
-        case "dx":
+        case "dx": //Left-handed
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
                 if (x==0 || x==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
@@ -763,8 +782,18 @@ function placePiece(x) {
             else {pieceTopCorner = [0,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
             break;
-        case "sega":
-
+        case "sega": //Left-handed
+            for (let i=0;i<4;i++) {
+                piecePositions[i] = [...piecePlacements[x][i]];
+                if (x==0 || x==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
+                else {piecePositions[i][1] += settings.boardWidth/2-3;}
+            }
+            if (x==0) {pieceTopCorner = [-2,0];}
+            else if (x==1) {pieceTopCorner = [0,1];}
+            else {pieceTopCorner = [-1,1];}
+            pieceTopCorner[1] += settings.boardWidth/2-3;
+            break;
+        case "tgm": //Left-handed
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
                 if (x==0 || x==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
@@ -807,10 +836,11 @@ function placePiece(x) {
 
     //Update dropped piece statistics
     if (settings.visuals == "nes") {
-        document.getElementsByClassName("NESText")[3].innerHTML = "";
+        let scoreVisuals = [];
         for (let i=0; i<7; i++) {
-            document.getElementsByClassName("NESText")[3].innerHTML += piecesDropped[i].toString().padStart(3, "0") + "<br><br>";
+            scoreVisuals.push(piecesDropped[i].toString().padStart(3, "0") + "<br><br>");
         }
+        document.getElementsByClassName("NESText")[4].innerHTML = scoreVisuals[2] + scoreVisuals[5] + scoreVisuals[4] + scoreVisuals[1] + scoreVisuals[3] + scoreVisuals[6] + scoreVisuals[0];
     }
 
     //Check for game over
@@ -1580,6 +1610,12 @@ function NESVisualClearLines(width) {
     if (width < roundedWidth/2) {
         for (let i=0;i<fullLines.length;i++) {
             let line = fullLines[i];
+            //Redraw all the tiles in the line (makes them visible if invisible board is enabled)
+            for (let j=0;j<settings.boardWidth;j++) {
+                if (settings.pieceColouring == "monotoneFixed" || settings.pieceColouring == "monotoneAll") {ctx.drawImage(images.tiles, nesPieceTiles[board[line][j]-1]*8, 80, 8, 8, j*8+leftSide+8, line*8+32, 8, 8);}
+                else {ctx.drawImage(images.tiles, nesPieceTiles[board[line][j]-1]*8, (level%10)*8, 8, 8, j*8+leftSide+8, line*8+32, 8, 8);}
+            }
+            //Draw the blacked out section
             ctx.fillRect(leftSide+(roundedWidth*4)-(width*8)+8, line*8+32, width*16, 8);
         }
         visualInterval = setTimeout(function() {NESVisualClearLines(width+1)}, 1000/15);

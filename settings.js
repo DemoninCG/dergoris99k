@@ -96,6 +96,22 @@ function setPreset() {
             settings.DAS = 1;
             settings.lockDelay = 30;
             break;
+            case "tgm":
+                settings.boardWidth = 10;
+                settings.boardHeight = 20;
+                settings.visuals = "tgm";
+                settings.gameMechanics = "tgm";
+                settings.randomizer = "random";
+                settings.pieceColouring = "regular";
+                settings.softDrop = true;
+                settings.softDropSpeed = 1;
+                settings.hardDrop = false;
+                settings.IRS = true;
+                settings.overrideGameARE = false;
+                settings.DASInitial = 16;
+                settings.DAS = 1;
+                settings.lockDelay = 30;
+                break;
     }
     updateSettingVisuals()
 }
