@@ -27,6 +27,17 @@
     <img src="img/sega/tiles.png" style="display: none">
     <img src="img/sega/hardDropTile.png" style="display: none">
     <img src="img/sega/sideInfo.png" style="display: none">
+    <img src="img/sega/tileVanish.png" style="display: none">
+    <img src="img/sega/digits.png" style="display: none">
+    <img src="img/tgm/backgrounds.png" style="display: none">
+    <img src="img/tgm/backgroundsDark.png" style="display: none">
+    <img src="img/tgm/board.png" style="display: none">
+    <img src="img/tgm/tiles.png" style="display: none">
+    <img src="img/tgm/ghostTiles.png" style="display: none">
+    <img src="img/tgm/sideInfo.png" style="display: none">
+    <img src="img/tgm/levelBars.png" style="display: none">
+    <img src="img/tgm/digits.png" style="display: none">
+    <img src="img/tgm/grades.png" style="display: none">
 </head>
 <body>
     <div id="settings">
@@ -40,7 +51,7 @@
             <option value="tgm">The Grand Master</option>
         </select><br><br>
         <label for="startingLevelSetting">STARTING LEVEL - </label>
-        <input type="number" id="startingLevelSetting" value="0" min="0" max="99" onchange="setStartingLevel()"><br>
+        <input type="number" id="startingLevelSetting" value="0" min="0" max="999" onchange="setStartingLevel()"><br>
         <label for="boardWidthSetting">BOARD WIDTH - </label>
         <input type="number" id="boardWidthSetting" value="10" min="4" max="20" step="2" onchange="setBoardWidth()"><br>
         <label for="boardHeightsetting">BOARD HEIGHT - </label>
@@ -76,6 +87,7 @@
             <option value="gb">Game Boy</option>
             <option value="nes" selected>NES</option>
             <option value="dx">Tetris DX</option>
+            <option value="tgm">The Grand Master</option>
         </select><br>
         <p>HOW PIECES ARE CHOSEN.</p><br>
         <label for="pieceColouringSetting">PIECE COLOURING - </label>

@@ -101,7 +101,7 @@ function setPreset() {
                 settings.boardHeight = 20;
                 settings.visuals = "tgm";
                 settings.gameMechanics = "tgm";
-                settings.randomizer = "random";
+                settings.randomizer = "tgm";
                 settings.pieceColouring = "regular";
                 settings.softDrop = true;
                 settings.softDropSpeed = 1;
@@ -113,7 +113,7 @@ function setPreset() {
                 settings.lockDelay = 30;
                 break;
     }
-    updateSettingVisuals()
+    updateSettingVisuals();
 }
 
 function setStartingLevel() {
@@ -121,10 +121,11 @@ function setStartingLevel() {
     if (startingLevel < 0) {
         startingLevel = 0;
     }
-    if (settings.gameMechanics == "gb" && startingLevel > 20) {startingLevel = 20}
-    else if (settings.gameMechanics == "nes" && startingLevel > 29) {startingLevel = 29}
-    else if (settings.gameMechanics == "dx" && startingLevel > 30) {startingLevel = 30}
-    else if (settings.gameMechanics == "sega" && startingLevel > 99) {startingLevel = 99}
+    if (settings.gameMechanics == "gb" && startingLevel > 20) {startingLevel = 20;}
+    else if (settings.gameMechanics == "nes" && startingLevel > 29) {startingLevel = 29;}
+    else if (settings.gameMechanics == "dx" && startingLevel > 30) {startingLevel = 30;}
+    else if (settings.gameMechanics == "sega" && startingLevel > 99) {startingLevel = 99;}
+    else if (settings.gameMechanics == "tgm" && startingLevel > 998) {startingLevel = 998;}
     document.getElementById("startingLevelSetting").value = startingLevel;
     settings.startingLevel = startingLevel;
 }
@@ -161,7 +162,7 @@ function setVisuals() {
 function setGameMechanics() {
     let gameMechanics = document.getElementById("gameMechanicsSetting").value;
     settings.gameMechanics = gameMechanics;
-    document.getElementById("segaDifficultySetting").disabled = (settings.gameMechanics != "sega")
+    document.getElementById("segaDifficultySetting").disabled = (settings.gameMechanics != "sega");
 }
 
 function setSegaDifficulty() {
