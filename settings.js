@@ -29,6 +29,23 @@ document.getElementById("presetsSetting").value = "nes";
 function setPreset() {
     let preset = document.getElementById("presetsSetting").value;
     switch (preset) {
+        case "classicStyle":
+            settings.boardWidth = 10;
+            settings.boardHeight = 20;
+            settings.visuals = "classicStyle";
+            settings.gameMechanics = "classicStyle";
+            settings.randomizer = "tgm";
+            settings.pieceColouring = "regular";
+            settings.softDrop = true;
+            settings.softDropSpeed = 2;
+            settings.hardDrop = true;
+            settings.IRS = false;
+            settings.twentyGOverride = false,
+            settings.overrideGameARE = false;
+            settings.DASInitial = 16;
+            settings.DAS = 6;
+            settings.lockDelay = 0;
+            break;
         case "gb":
             if (settings.startingLevel > 20) {settings.startingLevel = 20}
             settings.boardWidth = 10;
@@ -41,6 +58,7 @@ function setPreset() {
             settings.softDropSpeed = 3;
             settings.hardDrop = false;
             settings.IRS = false;
+            settings.twentyGOverride = false,
             settings.overrideGameARE = false;
             settings.DASInitial = 24;
             settings.DAS = 9;
@@ -58,6 +76,7 @@ function setPreset() {
             settings.softDropSpeed = 2;
             settings.hardDrop = false;
             settings.IRS = false;
+            settings.twentyGOverride = false,
             settings.overrideGameARE = false;
             settings.DASInitial = 16;
             settings.DAS = 6;
@@ -75,12 +94,14 @@ function setPreset() {
             settings.softDropSpeed = 2;
             settings.hardDrop = false;
             settings.IRS = false;
+            settings.twentyGOverride = false,
             settings.overrideGameARE = false;
             settings.DASInitial = 9;
             settings.DAS = 3;
             settings.lockDelay = 32;
             break;
         case "sega":
+            if (settings.startingLevel > 99) {settings.startingLevel = 99}
             settings.boardWidth = 10;
             settings.boardHeight = 20;
             settings.visuals = "sega";
@@ -91,27 +112,29 @@ function setPreset() {
             settings.softDropSpeed = 1;
             settings.hardDrop = false;
             settings.IRS = false;
+            settings.twentyGOverride = false,
             settings.overrideGameARE = false;
             settings.DASInitial = 20;
             settings.DAS = 1;
             settings.lockDelay = 30;
             break;
-            case "tgm":
-                settings.boardWidth = 10;
-                settings.boardHeight = 20;
-                settings.visuals = "tgm";
-                settings.gameMechanics = "tgm";
-                settings.randomizer = "tgm";
-                settings.pieceColouring = "regular";
-                settings.softDrop = true;
-                settings.softDropSpeed = 1;
-                settings.hardDrop = false;
-                settings.IRS = true;
-                settings.overrideGameARE = false;
-                settings.DASInitial = 16;
-                settings.DAS = 1;
-                settings.lockDelay = 30;
-                break;
+        case "tgm":
+            settings.boardWidth = 10;
+            settings.boardHeight = 20;
+            settings.visuals = "tgm";
+            settings.gameMechanics = "tgm";
+            settings.randomizer = "tgm";
+            settings.pieceColouring = "regular";
+            settings.softDrop = true;
+            settings.softDropSpeed = 1;
+            settings.hardDrop = false;
+            settings.IRS = true;
+            settings.twentyGOverride = false,
+            settings.overrideGameARE = false;
+            settings.DASInitial = 16;
+            settings.DAS = 1;
+            settings.lockDelay = 30;
+            break;
     }
     updateSettingVisuals();
 }
@@ -211,7 +234,11 @@ function setHardDrop() {
 function setIRS() {
     let IRS = document.getElementById("IRSSetting").checked;
     settings.IRS = IRS;
+}
 
+function setTwentyGOverride() {
+    let twentyGOverride = document.getElementById("twentyGSetting").checked;
+    settings.twentyGOverride = twentyGOverride;
 }
 
 function setOverrideGameARE() {

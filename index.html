@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="img/icon2.png">
     <!--Preload board-->
+    <img src="img/classic/board.png" style="display: none">
     <img src="img/gb/boardSmall.png" style="display: none">
     <img src="img/gb/tiles.png" style="display: none">
     <img src="img/gb/hardDropTile.png" style="display: none">
@@ -37,6 +38,7 @@
     <img src="img/tgm/sideInfo.png" style="display: none">
     <img src="img/tgm/levelBars.png" style="display: none">
     <img src="img/tgm/digits.png" style="display: none">
+    <img src="img/tgm/readyGo.png" style="display: none">
     <img src="img/tgm/timeDigits.png" style="display: none">
     <img src="img/tgm/grades.png" style="display: none">
 </head>
@@ -45,6 +47,7 @@
         <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.2</p><br><br>
         <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
         <select id="presetsSetting" onchange="setPreset()">
+            <option value="classicStyle">Classic Style</option>
             <option value="gb">Game Boy</option>
             <option value="nes" selected>NES</option>
             <option value="dx">Tetris DX</option>
@@ -60,6 +63,7 @@
 
         <label for="visualsSetting">VISUALS - </label>
         <select id="visualsSetting" onchange="setVisuals()">
+            <option value="classicStyle">Classic Style</option>
             <option value="gb">Game Boy</option>
             <option value="nes" selected>NES</option>
             <option value="dx">Tetris DX</option>
@@ -68,6 +72,7 @@
         </select><br>
         <label for="gameMechanicsSetting">GAME MECHANICS - </label>
         <select id="gameMechanicsSetting" onchange="setGameMechanics()">
+            <option value="classicStyle">Classic Style</option>
             <option value="gb">Game Boy</option>
             <option value="nes" selected>NES</option>
             <option value="dx">Tetris DX</option>
@@ -96,6 +101,7 @@
             <option value="regular" selected>Regular</option>
             <option value="monotoneFixed">Monotone (fixed)</option>
             <option value="monotoneAll">Monotone (all)</option>
+            <option value="border">Border only</option>
         </select><br>
         <p>HOW PIECES ARE COLOURED.<br>REGULAR = COLOURS BASED ON PIECE.<br>MONOTONE (FIXED) = FIXED BLOCKS ARE MONOTONE.<br>MONOTONE (ALL) = ALL BLOCKS ARE MONOTONE</p>
         <label for="invisibleSetting">INVISIBLE BOARD</label>
@@ -109,6 +115,9 @@
         <input type="checkbox" id="hardDropSetting" onchange="setHardDrop()" /><br>
         <label for="IRSSetting">IRS</label>
         <input type="checkbox" id="IRSSetting" onchange="setIRS()" /><br><br>
+
+        <label for="twentyGSetting">20G MODE</label>
+        <input type="checkbox" id="twentyGSetting" onchange="setTwentyGOverride()" /><br><br>
 
         <label for="overrideGameARESetting">OVERRIDE GAME-SPECIFIC ARE</label>
         <input type="checkbox" id="overrideGameARESetting" onchange="setOverrideGameARE()" /><br>

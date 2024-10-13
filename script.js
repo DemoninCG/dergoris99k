@@ -27,6 +27,7 @@ function reset() {
         softDrop: true,
         hardDrop: false,
         IRS: false,
+        twentyGOverride: false,
         ARE: 10,
         ARELineClear: 30,
         overrideGameARE: false,
@@ -98,11 +99,24 @@ const ctx = canvas && canvas.getContext("2d");
 if (ctx) ctx.imageSmoothingEnabled = false; //Disable image smoothing for pixelated look
 
 function initialiseCanvasBoard() {
-    if (settings.visuals === "gb") {
+    if (settings.visuals === "classicStyle") {
+        canvas.height = Math.max(settings.boardHeight*8, 240);
+        document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8, 240) + "px";
+        let leftSide = 160-settings.boardWidth*4;
+        document.body.style.backgroundImage = "url('img/main/background1.png')";
+        images.tiles.src = "img/main/tiles.png";
+        images.board.src = "img/main/board.png";
+        //Draw the board (to be improved)
+        ctx.drawImage(images.board, 112, 32);
+        ctx.fillStyle = "rgba(0,0,0,0.7)";
+        ctx.fillRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+    }
+    else if (settings.visuals === "gb") {
         canvas.height = Math.max(settings.boardHeight*8, 144);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8, 144) + "px";
         let leftSide = 120-settings.boardWidth*4;
         document.body.style.backgroundColor = "#84a563";
+        document.body.style.backgroundImage = "none";
         images.tiles.src = "img/gb/tiles.png";
         images.hardDropTile.src = "img/gb/hardDropTile.png";
         images.board.src = "img/gb/boardSmall.png";
@@ -150,6 +164,7 @@ function initialiseCanvasBoard() {
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8+40, 200) + "px";
         let leftSide = 160-settings.boardWidth*4;
         document.body.style.backgroundColor = "#747474";
+        document.body.style.backgroundImage = "none";
         images.tiles.src = "img/nes/tiles.png";
         images.hardDropTile.src = "img/nes/hardDropTile.png";
         images.board.src = "img/nes/boardSmall.png";
@@ -231,6 +246,7 @@ function initialiseCanvasBoard() {
         }
         let leftSide = 120-settings.boardWidth*4;
         document.body.style.backgroundColor = "#28a078";
+        document.body.style.backgroundImage = "none";
         images.tiles.src = "img/dx/tiles.png";
         images.hardDropTile.src = "img/dx/hardDropTile.png";
         images.board.src = "img/dx/boardSmall.png";
@@ -279,6 +295,7 @@ function initialiseCanvasBoard() {
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8+48, 225) + "px";
         let leftSide = 152-settings.boardWidth*4;
         document.body.style.backgroundColor = "#333";
+        document.body.style.backgroundImage = "none";
         images.tiles.src = "img/sega/tiles.png";
         images.hardDropTile.src = "img/sega/hardDropTile.png";
         images.board.src = "img/sega/board.png";
@@ -321,6 +338,7 @@ function initialiseCanvasBoard() {
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8+48, 240) + "px";
         let leftSide = 160-settings.boardWidth*4;
         document.body.style.backgroundColor = "#333";
+        document.body.style.backgroundImage = "none";
         images.tiles.src = "img/tgm/tiles.png";
         images.hardDropTile.src = "img/tgm/ghostTiles.png";
         images.board.src = "img/tgm/board.png";
@@ -329,6 +347,7 @@ function initialiseCanvasBoard() {
         images.sideInfo1.src = "img/tgm/sideInfo.png";
         images.sideInfo2.src = "img/tgm/levelBars.png";
         images.sideInfo3.src = "img/tgm/timeDigits.png";
+        images.sideInfo4.src = "img/tgm/readyGo.png";
         images.digits.src = "img/tgm/digits.png";
         images.grades.src = "img/tgm/grades.png";
         let currentBackground = Math.floor(level/100);
@@ -367,13 +386,104 @@ function startGame() {
         linesUntilNextLevel = 100;
         lastDroppedPieces = [4, 4, 4, 4];
     }
-    gamePlaying = true;
+    
     initialiseCanvasBoard();
     for (let i=0;i<settings.boardHeight;i++) board.push(Array(settings.boardWidth).fill(0));
-    placePiece(getRandomPiece());
-    nextPiece = getRandomPiece();
-    setNextPieceVisuals(nextPiece);
-    updateVisuals();
+    if (settings.visuals == "tgm") {TGMReadyGo(1);}
+    else {
+        gamePlaying = true;
+        placePiece(getRandomPiece());
+        nextPiece = getRandomPiece();
+        setNextPieceVisuals(nextPiece);
+        updateVisuals();
+    }
+}
+
+function TGMReadyGo(stage) {
+    if (stage == 1) {
+        let leftSide = 160-settings.boardWidth*4;
+        //Clear the canvas
+        let currentBackground = Math.floor(level/100);
+        ctx.drawImage(images.background2, currentBackground*320+120, 40, 80, 160, 120, 40, 80, 160);
+        //Display "Ready"
+        ctx.drawImage(images.sideInfo4, 0, 0, 76, 19, 122, 110, 76, 19);
+        setTimeout(TGMReadyGo, 1000, 2);
+
+        //Grade
+        ctx.drawImage(images.grades, 27*grade, 0, 27, 26, 84, 34, 27, 26);
+
+        //Text (Copied from updateVisuals, any change there should also happen here)
+        let nextGradeString;
+        let nextGradeLength;
+        if (grade >= 17) {
+            nextGradeString = "??????";
+            nextGradeLength = 6;
+            ctx.drawImage(images.background, currentBackground*320+leftSide-8-nextGradeLength*8, 80, nextGradeLength*8, 9, leftSide-8-nextGradeLength*8, 79, nextGradeLength*8, 9);
+            for (let i=0;i<nextGradeLength;i++) {
+                if (level >= 500) {ctx.drawImage(images.digits, 80, 9, 8, 9, leftSide-8-nextGradeLength*8+i*8, 80, 8, 9);}
+                else {ctx.drawImage(images.digits, 80, 0, 8, 9, leftSide-8-nextGradeLength*8+i*8, 80, 8, 9);}
+            }
+        }
+        else {
+            nextGradeString = tgmGradeConditions[grade+1].toString();
+            nextGradeLength = nextGradeString.length;
+            ctx.drawImage(images.background, currentBackground*320+leftSide-8-nextGradeLength*8, 80, nextGradeLength*8, 9, leftSide-8-nextGradeLength*8, 79, nextGradeLength*8, 9);
+            for (let i=0;i<nextGradeLength;i++) {
+                if (level >= 500) {ctx.drawImage(images.digits, parseInt(nextGradeString[i])*8, 9, 8, 9, leftSide-8-nextGradeLength*8+i*8, 80, 8, 9);}
+                else {ctx.drawImage(images.digits, parseInt(nextGradeString[i])*8, 0, 8, 9, leftSide-8-nextGradeLength*8+i*8, 80, 8, 9);}
+            }
+        }
+
+        let scoreString = score.toString();
+        let scoreLength = scoreString.length;
+        ctx.drawImage(images.background, currentBackground*320+leftSide-9-scoreLength*8, 144, scoreLength*8, 9, leftSide-9-scoreLength*8, 144, scoreLength*8, 9);
+        for (let i=0;i<scoreLength;i++) {
+            if (level >= 500) {ctx.drawImage(images.digits, parseInt(scoreString[i])*8, 9, 8, 9, leftSide-9-scoreLength*8+i*8, 144, 8, 9);}
+            else {ctx.drawImage(images.digits, parseInt(scoreString[i])*8, 0, 8, 9, leftSide-9-scoreLength*8+i*8, 144, 8, 9);}
+        }
+
+        let levelString = level.toString();
+        let levelLength = levelString.length;
+        ctx.drawImage(images.background, currentBackground*320+leftSide-9-levelLength*8, 181, levelLength*8, 9, leftSide-9-levelLength*8, 181, levelLength*8, 9);
+        for (let i=0;i<levelLength;i++) {
+            if (level >= 500) {ctx.drawImage(images.digits, parseInt(levelString[i])*8, 9, 8, 9, leftSide-9-levelLength*8+i*8, 181, 8, 9);}
+            else {ctx.drawImage(images.digits, parseInt(levelString[i])*8, 0, 8, 9, leftSide-9-levelLength*8+i*8, 181, 8, 9);}
+        }
+
+        let levelString2 = (level >= 900 ? "999" : ((Math.floor(level/100)+1)*100).toString());
+        let levelLength2 = levelString2.length;
+        ctx.drawImage(images.background, currentBackground*320+leftSide-9-levelLength2*8, 197, levelLength2*8, 9, leftSide-9-levelLength2*8, 197, levelLength2*8, 9);
+        for (let i=0;i<levelLength2;i++) {
+            if (level >= 500) {ctx.drawImage(images.digits, parseInt(levelString2[i])*8, 9, 8, 9, leftSide-9-levelLength2*8+i*8, 197, 8, 9);}
+            else {ctx.drawImage(images.digits, parseInt(levelString2[i])*8, 0, 8, 9, leftSide-9-levelLength2*8+i*8, 197, 8, 9);}
+        }
+
+        //Level bar
+        if (level >= 500) {ctx.drawImage(images.sideInfo2, 0, 14, 22, 2, leftSide-32, 192, 22, 2);}
+        else if (level >= 450) {ctx.drawImage(images.sideInfo2, 0, 6, 22, 2, leftSide-32, 192, 22, 2);}
+        else if (level >= 420) {ctx.drawImage(images.sideInfo2, 0, 8, 22, 2, leftSide-32, 192, 22, 2);}
+        else if (level >= 400) {ctx.drawImage(images.sideInfo2, 0, 10, 22, 2, leftSide-32, 192, 22, 2);}
+        else if (level >= 360) {ctx.drawImage(images.sideInfo2, 0, 8, 22, 2, leftSide-32, 192, 22, 2);}
+        else if (level >= 330) {ctx.drawImage(images.sideInfo2, 0, 6, 22, 2, leftSide-32, 192, 22, 2);}
+        else if (level >= 300) {ctx.drawImage(images.sideInfo2, 0, 4, 22, 2, leftSide-32, 192, 22, 2);}
+        else if (level >= 251) {ctx.drawImage(images.sideInfo2, 0, 2, 22, 2, leftSide-32, 192, 22, 2);}
+        else {ctx.drawImage(images.sideInfo2, 0, 0, 22, 2, leftSide-32, 192, 22, 2);}
+    }
+    else if (stage == 2) {
+        //Clear the canvas
+        let currentBackground = Math.floor(level/100);
+        ctx.drawImage(images.background2, currentBackground*320+120, 40, 80, 160, 120, 40, 80, 160);
+        //Display "Go"
+        ctx.drawImage(images.sideInfo4, 100, 0, 45, 19, 138, 110, 45, 19);
+        setTimeout(TGMReadyGo, 1000, 3);
+    }
+    else if (stage == 3) {
+        gamePlaying = true;
+        placePiece(getRandomPiece());
+        nextPiece = getRandomPiece();
+        setNextPieceVisuals(nextPiece);
+        updateVisuals();
+    }
 }
 
 function updateVariables() {
@@ -552,6 +662,16 @@ function updateVisuals() {
                 for (let j=0;j<settings.boardWidth;j++) {
                     if (board[i][j] != 0) {
                         if (settings.visuals == "dx" && (settings.pieceColouring == "monotoneFixed" || settings.pieceColouring == "monotoneAll")) {ctx.drawImage(images.tiles, 8, board[i][j]*8-16, 8, 8, j*8+leftSide+16, i*8, 8, 8);}
+                        else if (settings.pieceColouring == "border") {
+                            if (settings.visuals == "dx") {ctx.fillStyle = "black";}
+                            else {ctx.fillStyle = "#081810";}
+                            if (board[i-1] && board[i-1][j] == 0) ctx.fillRect(j*8+leftSide+16, i*8, 8, 1); //Top border
+                            if (board[i+1] && board[i+1][j] == 0) ctx.fillRect(j*8+leftSide+16, i*8+8, 8, 1); //Bottom border
+                            if (board[i][j-1] == 0) ctx.fillRect(j*8+leftSide+16, i*8, 1, 8); //Left border
+                            if (board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+24, i*8, 1, 8); //Right border
+                            if (board[i-1] && board[i-1][j] != 0 && board[i-1][j-1] == 0 && board[i][j-1] != 0) ctx.fillRect(j*8+leftSide+16, i*8, 1, 1); //Top corner border 1
+                            if (board[i+1] && board[i+1][j] == 0 && board[i+1][j+1] == 0 && board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+24, i*8+8, 1, 1); //Top corner border 2
+                        }
                         else {ctx.drawImage(images.tiles, 0, board[i][j]*8-16, 8, 8, j*8+leftSide+16, i*8, 8, 8);}
                     }
                 }
@@ -609,7 +729,16 @@ function updateVisuals() {
         for (let i=0;i<settings.boardHeight;i++) {
             for (let j=0;j<settings.boardWidth;j++) {
                 if (board[i][j] != 0) {
-                    if (settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll" && !settings.invisible) {ctx.drawImage(images.tiles, nesPieceTiles[board[i][j]-1]*8, 80, 8, 8, j*8+leftSide+8, i*8+32, 8, 8);}
+                    if ((settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll") && !settings.invisible) {ctx.drawImage(images.tiles, nesPieceTiles[board[i][j]-1]*8, 80, 8, 8, j*8+leftSide+8, i*8+32, 8, 8);}
+                    else if (settings.pieceColouring === "border" && !settings.invisible) {
+                        ctx.fillStyle = "white";
+                        if (board[i-1] && board[i-1][j] == 0) ctx.fillRect(j*8+leftSide+8, i*8+32, 8, 1); //Top border
+                        if (board[i+1] && board[i+1][j] == 0) ctx.fillRect(j*8+leftSide+8, i*8+40, 8, 1); //Bottom border
+                        if (board[i][j-1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+32, 1, 8); //Left border
+                        if (board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+16, i*8+32, 1, 8); //Right border
+                        if (board[i-1] && board[i-1][j] != 0 && board[i-1][j-1] == 0 && board[i][j-1] != 0) ctx.fillRect(j*8+leftSide+8, i*8+32, 1, 1); //Top corner border 1
+                        if (board[i+1] && board[i+1][j] == 0 && board[i+1][j+1] == 0 && board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+16, i*8+40, 1, 1); //Top corner border 2
+                    }
                     else if (!settings.invisible) {ctx.drawImage(images.tiles, nesPieceTiles[board[i][j]-1]*8, (level%10)*8, 8, 8, j*8+leftSide+8, i*8+32, 8, 8);}
                 }
             }
@@ -656,8 +785,17 @@ function updateVisuals() {
         for (let i=0;i<settings.boardHeight;i++) {
             for (let j=0;j<settings.boardWidth;j++) {
                 if (board[i][j] != 0) {
-                    if (settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll" && !settings.invisible) {ctx.drawImage(images.tiles, 0, 64, 8, 8, j*8+leftSide, i*8+32, 8, 8);}
-                        else if (!settings.invisible) {ctx.drawImage(images.tiles, 0, (board[i][j]-1)*8, 8, 8, j*8+leftSide, i*8+32, 8, 8);}
+                    if ((settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll") && !settings.invisible) {ctx.drawImage(images.tiles, 0, 64, 8, 8, j*8+leftSide, i*8+32, 8, 8);}
+                    else if (settings.pieceColouring === "border" && !settings.invisible) {
+                        ctx.fillStyle = "white";
+                        if (board[i-1] && board[i-1][j] == 0) ctx.fillRect(j*8+leftSide, i*8+32, 8, 1); //Top border
+                        if (board[i+1] && board[i+1][j] == 0) ctx.fillRect(j*8+leftSide, i*8+40, 8, 1); //Bottom border
+                        if (board[i][j-1] == 0) ctx.fillRect(j*8+leftSide, i*8+32, 1, 8); //Left border
+                        if (board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+32, 1, 8); //Right border
+                        if (board[i-1] && board[i-1][j] != 0 && board[i-1][j-1] == 0 && board[i][j-1] != 0) ctx.fillRect(j*8+leftSide, i*8+32, 1, 1); //Top corner border 1
+                        if (board[i+1] && board[i+1][j] == 0 && board[i+1][j+1] == 0 && board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+40, 1, 1); //Top corner border 2
+                    }
+                    else if (!settings.invisible) {ctx.drawImage(images.tiles, 0, (board[i][j]-1)*8, 8, 8, j*8+leftSide, i*8+32, 8, 8);}
                 }
             }
         }
@@ -722,7 +860,7 @@ function updateVisuals() {
                 if (board[i][j] != 0) {
                     if (settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll" && !settings.invisible) {ctx.drawImage(images.tiles, 8, 0, 8, 8, j*8+leftSide, i*8+40, 8, 8);}
                     else if (!settings.invisible) {
-                        ctx.drawImage(images.tiles, 8, (board[i][j])*8, 8, 8, j*8+leftSide, i*8+40, 8, 8);
+                        if (settings.pieceColouring != "border") ctx.drawImage(images.tiles, 8, (board[i][j])*8, 8, 8, j*8+leftSide, i*8+40, 8, 8);
                         ctx.fillStyle = "#848484";
                         if (board[i-1] && board[i-1][j] == 0) ctx.fillRect(j*8+leftSide, i*8+40, 8, 1); //White top border
                         if (board[i+1] && board[i+1][j] == 0) ctx.fillRect(j*8+leftSide, i*8+48, 8, 1); //White bottom border
@@ -796,7 +934,8 @@ function updateVisuals() {
 }
 
 function getDropInterval() {
-    if (settings.gameMechanics == "gb") return gameboyDropIntervals[Math.min(level, 20)];
+    if (settings.twentyGOverride) return 0.05;
+    else if (settings.gameMechanics == "gb") return gameboyDropIntervals[Math.min(level, 20)];
     else if (settings.gameMechanics == "nes") return nesDropIntervals[Math.min(level, 29)];
     else if (settings.gameMechanics == "dx") return dxDropIntervals[Math.min(level, 30)];
     else if (settings.gameMechanics == "sega") {
@@ -894,7 +1033,7 @@ function placePiece(x) {
                 if (x==0 || x==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
                 else {piecePositions[i][1] += settings.boardWidth/2-3;}
             }
-            if (x==0) {pieceTopCorner = [-1,0];}
+            if (x==0) {pieceTopCorner = [-1,1];}
             else if (x==1) {pieceTopCorner = [1,1];}
             else {pieceTopCorner = [0,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
@@ -1903,8 +2042,10 @@ function GBVisualClearLines(stage) {
     else if (stage == 2 || stage == 4 || stage == 6) {
         for (let i = 0; i < fullLines.length; i++) {
             let line = fullLines[i];
+            ctx.fillStyle = "#c6de86";
             for (let j = 0; j < settings.boardWidth; j++) {
-                ctx.drawImage(images.tiles, 0, board[line][j] * 8 - 16, 8, 8, j * 8 + leftSide + 16, line * 8, 8, 8);
+                if (settings.pieceColouring == "border") {ctx.fillRect(leftSide + 16, fullLines[i] * 8, settings.boardWidth * 8, 8);}
+                else {ctx.drawImage(images.tiles, 0, board[line][j] * 8 - 16, 8, 8, j * 8 + leftSide + 16, line * 8, 8, 8);}
             }
         }
         visualInterval = setTimeout(function() {GBVisualClearLines(stage + 1)}, 1000 / 6);
@@ -1932,10 +2073,10 @@ function NESVisualClearLines(width) {
             //Redraw all the tiles in the line (makes them visible if invisible board is enabled)
             for (let j=0;j<settings.boardWidth;j++) {
                 if (settings.pieceColouring == "monotoneFixed" || settings.pieceColouring == "monotoneAll") {ctx.drawImage(images.tiles, nesPieceTiles[board[line][j]-1]*8, 80, 8, 8, j*8+leftSide+8, line*8+32, 8, 8);}
-                else {ctx.drawImage(images.tiles, nesPieceTiles[board[line][j]-1]*8, (level%10)*8, 8, 8, j*8+leftSide+8, line*8+32, 8, 8);}
+                else if (settings.pieceColouring != "border") {ctx.drawImage(images.tiles, nesPieceTiles[board[line][j]-1]*8, (level%10)*8, 8, 8, j*8+leftSide+8, line*8+32, 8, 8);}
             }
             //Draw the blacked out section
-            ctx.fillRect(leftSide+(roundedWidth*4)-(width*8)+8, line*8+32, width*16, 8);
+            if (settings.pieceColouring != "border") ctx.fillRect(leftSide+(roundedWidth*4)-(width*8)+8, line*8+32, width*16, 8);
         }
         visualInterval = setTimeout(function() {NESVisualClearLines(width+1)}, 1000/15);
     }
@@ -1960,10 +2101,13 @@ function DXVisualClearLines(stage) {
         visualInterval = setTimeout(function() {DXVisualClearLines(stage + 1)}, 1000 / 4);
     }
     else if (stage == 2) {
+        let backgroundColor = Math.floor(Math.min(level,30)/5);
+        ctx.fillStyle = dxBackgroundColours[backgroundColor];
         for (let i = 0; i < fullLines.length; i++) {
             let line = fullLines[i];
             for (let j = 0; j < settings.boardWidth; j++) {
                 if (settings.pieceColouring == "monotoneFixed" || settings.pieceColouring == "monotoneAll") {ctx.drawImage(images.tiles, 8, board[line][j] * 8 - 16, 8, 8, j * 8 + leftSide + 16, line * 8, 8, 8);}
+                else if (settings.pieceColouring == "border") {ctx.fillRect(leftSide + 16, fullLines[i] * 8, settings.boardWidth * 8, 8);}
                 else {ctx.drawImage(images.tiles, 0, board[line][j] * 8 - 16, 8, 8, j * 8 + leftSide + 16, line * 8, 8, 8);}
             }
         }
