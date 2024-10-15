@@ -7,12 +7,14 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="img/icon2.png">
     <!--Preload board-->
+    <img src="img/main/background1.png" style="display: none">
     <img src="img/main/board.png" style="display: none">
     <img src="img/main/tiles.png" style="display: none">
     <img src="img/main/ghostTiles.png" style="display: none">
     <img src="img/main/sideInfo.png" style="display: none">
     <img src="img/main/digits.png" style="display: none">
     <img src="img/main/grades.png" style="display: none">
+    <img src="img/main/finish.png" style="display: none">
     <img src="img/gb/boardSmall.png" style="display: none">
     <img src="img/gb/tiles.png" style="display: none">
     <img src="img/gb/hardDropTile.png" style="display: none">
@@ -48,11 +50,14 @@
     <img src="img/tgm/grades.png" style="display: none">
 </head>
 <body>
-    <div id="settings">
-        <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.3</p><br><br>
+    <canvas id="backgroundCanvas" style="display: none"></canvas>
+    <div id="settings" style="overflow: auto; max-height: 98vh;">
+        <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.4</p><br><br>
         <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
         <select id="presetsSetting" onchange="setPreset()">
             <option value="classicStyle" selected>Classic Style</option>
+            <!--<option value="masterStyle">Master Style</option>
+            <option value="dragonStyle">Dragon Style</option>-->
             <option value="gb">Game Boy</option>
             <option value="nes">NES</option>
             <option value="dx">Tetris DX</option>
@@ -69,6 +74,8 @@
         <label for="visualsSetting">VISUALS - </label>
         <select id="visualsSetting" onchange="setVisuals()">
             <option value="classicStyle" selected>Classic Style</option>
+            <!--<option value="masterStyle">Master Style</option>
+            <option value="dragonStyle">Dragon Style</option>-->
             <option value="gb">Game Boy</option>
             <option value="nes">NES</option>
             <option value="dx">Tetris DX</option>
@@ -78,6 +85,8 @@
         <label for="gameMechanicsSetting">GAME MECHANICS - </label>
         <select id="gameMechanicsSetting" onchange="setGameMechanics()">
             <option value="classicStyle" selected>Classic Style</option>
+            <!--<option value="masterStyle">Master Style</option>
+            <option value="dragonStyle">Dragon Style</option>-->
             <option value="gb">Game Boy</option>
             <option value="nes">NES</option>
             <option value="dx">Tetris DX</option>
@@ -151,5 +160,6 @@
     <script src="constants.js"></script>
     <script src="script.js"></script>
     <script src="settings.js"></script>
+    <script src="background.js"></script>
 </body>
 </html>

@@ -17,6 +17,17 @@ body {
     image-rendering: pixelated;
     background-position: center;
     background-size: 64px 64px;
+    overflow: hidden;
+}
+
+#backgroundCanvas {
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: block;
+    z-index: -1;
+    transform-origin: top left;
+    transform: scale(4.01);
 }
 
 p {

@@ -12,6 +12,17 @@
 //Work out what to do with the time display
 //Sega ghost pieces
 
+//Smaller game canvas sizes
+if (window.innerHeight < 750) {
+    document.getElementById("game").style.transform = "translate(-50%, -50%) scale(2)";
+    document.getElementById("textOverlay").style.transform = "translate(-50%, -50%) scale(2)";
+}
+else if (window.innerHeight < 1000) {
+    document.getElementById("game").style.transform = "translate(-50%, -50%) scale(3)";
+    document.getElementById("textOverlay").style.transform = "translate(-50%, -50%) scale(3)";
+}
+
+
 function reset() {
     //Game settings
     settings = {
@@ -372,6 +383,7 @@ function initialiseCanvasBoard() {
 
 function startGame() {
     document.getElementById("settings").style.display = "none";
+    if (settings.visuals == "classicStyle") document.getElementById("backgroundCanvas").style.display = "block";
     document.getElementById("game").style.display = "block";
     document.getElementById("textOverlay").style.display = "block";
     level = settings.startingLevel
@@ -587,10 +599,10 @@ function updateVariables() {
         timeString += Math.floor(time%60).toString().padStart(2, "0") + ":"; //seconds
         timeString += Math.floor((time%1)*100).toString().padStart(2, "0"); //Hundredths of a second
         let timeLength = 8;
-        ctx.clearRect(leftSide-74, 58, 64, 9)
+        ctx.clearRect(leftSide-74, 82, 64, 9);
         for (let i=0;i<timeLength;i++) {
-            if (timeString[i] == ":") {ctx.drawImage(images.digits, 88, 0, 8, 9, leftSide-74+i*8, 58, 8, 9);}
-            else {ctx.drawImage(images.digits, parseInt(timeString[i])*8, 0, 8, 9, leftSide-74+i*8, 58, 8, 9);}
+            if (timeString[i] == ":") {ctx.drawImage(images.digits, 88, 0, 8, 9, leftSide-74+i*8, 82, 8, 9);}
+            else {ctx.drawImage(images.digits, parseInt(timeString[i])*8, 0, 8, 9, leftSide-74+i*8, 82, 8, 9);}
         }
     }
     //TGM time display
@@ -2053,7 +2065,7 @@ function displaySectionTime(x) {
 
     let levelString = (x*100+100).toString().padStart(2, "0");
     if (levelString == "1000") {levelString = "999";}
-    for (let i=0;i<3;i++) ctx.drawImage(images.sideInfo2, levelString[i]*4, 0, 4, 6, 61+4*i, 93+7*x, 4, 6);
+    for (let i=0;i<3;i++) ctx.drawImage(images.sideInfo2, levelString[i]*4, 0, 4, 6, 61+4*i, 117+7*x, 4, 6);
 
     let timeString = ""
     timeString += Math.floor(sectionTime/60).toString().padStart(2, "0") + ":"; //minutes
@@ -2066,8 +2078,8 @@ function displaySectionTime(x) {
     else if (sectionTime < 65) {sectionTimeColor = 1;}
     else {sectionTimeColor = 0;}
     for (let i=0;i<8;i++) {
-        if (timeString[i] == ":") {ctx.drawImage(images.sideInfo2, 40, sectionTimeColor*6, 4, 6, 77+4*i, 93+7*x, 4, 6);}
-        else {ctx.drawImage(images.sideInfo2, timeString[i]*4, sectionTimeColor*6, 4, 6, 77+4*i, 93+7*x, 4, 6);}
+        if (timeString[i] == ":") {ctx.drawImage(images.sideInfo2, 40, sectionTimeColor*6, 4, 6, 77+4*i, 117+7*x, 4, 6);}
+        else {ctx.drawImage(images.sideInfo2, timeString[i]*4, sectionTimeColor*6, 4, 6, 77+4*i, 117+7*x, 4, 6);}
     }
 }
 
@@ -2479,7 +2491,7 @@ function moveLineDown(line) {
 function endGame() {
     gamePlaying = false;
     if (settings.visuals == "classicStyle") {
-        landPiece();
+        if (level < 999) landPiece();
         let leftSide = 160-settings.boardWidth*4;
         //Clear the canvas
         ctx.fillStyle = "black";
@@ -2502,7 +2514,7 @@ function endGame() {
     else if (settings.visuals == "dx") {setTimeout(function() {displayEndingLine(0)}, 1000);}
     else if (settings.visuals == "sega") {return;} //to do
     else if (settings.visuals == "tgm") {
-        landPiece();
+        if (level < 999) landPiece();
         let leftSide = 160-settings.boardWidth*4;
         //Clear the canvas
         let currentBackground = Math.floor(level/100);
@@ -2585,6 +2597,7 @@ function returnToMenu() {
     GMQualifying = true;
     TGMBarState = 0;
     document.getElementById("game").style.display = "none";
+    document.getElementById("backgroundCanvas").style.display = "none";
     document.getElementById("textOverlay").style.display = "none";
     document.getElementById("textOverlay").innerHTML = "";
     document.getElementById("settings").style.display = "block";
