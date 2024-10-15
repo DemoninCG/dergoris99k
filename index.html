@@ -53,6 +53,7 @@
     <canvas id="backgroundCanvas" style="display: none"></canvas>
     <div id="settings" style="overflow: auto; max-height: 98vh;">
         <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.4</p><br><br>
+        <button onclick="startGame()">START GAME</button><br><br>
         <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
         <select id="presetsSetting" onchange="setPreset()">
             <option value="classicStyle" selected>Classic Style</option>
@@ -153,7 +154,6 @@
             <option value="step" selected>Step</option>
         </select><br>
         <p>MOVE = RESET LOCK DELAY WHEN PIECE MOVES.<br>STEP = RESET LOCK DELAY WHEN PIECE MOVES DOWN.</p><br><br>
-        <button onclick="startGame()">START GAME</button>
     </div>
     <canvas id="game" width="320" height="240"></canvas>
     <div id="textOverlay"></div>
