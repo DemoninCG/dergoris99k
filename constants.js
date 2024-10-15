@@ -8,6 +8,11 @@ const piecePlacements = [
     [[0,1],[0,2],[0,3],[1,1]] //L
 ];
 
+const classicStyleDropIntervals = [20, 17, 14, 11, 8, 6, 4, 3, 2, 1.5];
+const classicStyleGradeConditions = [0, 2000, 6000, 12000, 28000, 45000, 66000, 82000, 140000, Infinity];
+const classicStyleDAS = [6, 6, 6, 5, 5, 5, 4, 4, 4, 3];
+const classicStyleDASInitial = [16, 16, 16, 13, 13, 13, 10, 10, 10, 8];
+
 const gameboyDropIntervals = [53, 49, 45, 41, 37, 33, 28, 22, 17, 11, 10, 9, 8, 7, 6, 6, 5, 5, 4, 4, 3];
 const gameboyPieceOrientations = [ //The 9 digits are the 9 tiles of the piece (3 rows 3 columns), 0 is empty, 1 is filled
     ["000111010", "010110010", "010111000", "010011010"], //T

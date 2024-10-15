@@ -24,7 +24,7 @@ function updateSettingVisuals() {
 }
 
 updateSettingVisuals()
-document.getElementById("presetsSetting").value = "nes";
+document.getElementById("presetsSetting").value = "classicStyle";
 
 function setPreset() {
     let preset = document.getElementById("presetsSetting").value;
@@ -39,7 +39,7 @@ function setPreset() {
             settings.softDrop = true;
             settings.softDropSpeed = 2;
             settings.hardDrop = true;
-            settings.IRS = false;
+            settings.IRS = true;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
             settings.DASInitial = 16;
@@ -144,7 +144,8 @@ function setStartingLevel() {
     if (startingLevel < 0) {
         startingLevel = 0;
     }
-    if (settings.gameMechanics == "gb" && startingLevel > 20) {startingLevel = 20;}
+    if (settings.gameMechanics == "classicStyle" && startingLevel > 998) {startingLevel = 998;}
+    else if (settings.gameMechanics == "gb" && startingLevel > 20) {startingLevel = 20;}
     else if (settings.gameMechanics == "nes" && startingLevel > 29) {startingLevel = 29;}
     else if (settings.gameMechanics == "dx" && startingLevel > 30) {startingLevel = 30;}
     else if (settings.gameMechanics == "sega" && startingLevel > 99) {startingLevel = 99;}

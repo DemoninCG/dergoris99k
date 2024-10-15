@@ -7,7 +7,12 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="img/icon2.png">
     <!--Preload board-->
-    <img src="img/classic/board.png" style="display: none">
+    <img src="img/main/board.png" style="display: none">
+    <img src="img/main/tiles.png" style="display: none">
+    <img src="img/main/ghostTiles.png" style="display: none">
+    <img src="img/main/sideInfo.png" style="display: none">
+    <img src="img/main/digits.png" style="display: none">
+    <img src="img/main/grades.png" style="display: none">
     <img src="img/gb/boardSmall.png" style="display: none">
     <img src="img/gb/tiles.png" style="display: none">
     <img src="img/gb/hardDropTile.png" style="display: none">
@@ -44,12 +49,12 @@
 </head>
 <body>
     <div id="settings">
-        <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.2</p><br><br>
+        <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.3</p><br><br>
         <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
         <select id="presetsSetting" onchange="setPreset()">
-            <option value="classicStyle">Classic Style</option>
+            <option value="classicStyle" selected>Classic Style</option>
             <option value="gb">Game Boy</option>
-            <option value="nes" selected>NES</option>
+            <option value="nes">NES</option>
             <option value="dx">Tetris DX</option>
             <option value="sega">Sega (arcade)</option>
             <option value="tgm">The Grand Master</option>
@@ -63,18 +68,18 @@
 
         <label for="visualsSetting">VISUALS - </label>
         <select id="visualsSetting" onchange="setVisuals()">
-            <option value="classicStyle">Classic Style</option>
+            <option value="classicStyle" selected>Classic Style</option>
             <option value="gb">Game Boy</option>
-            <option value="nes" selected>NES</option>
+            <option value="nes">NES</option>
             <option value="dx">Tetris DX</option>
             <option value="sega">Sega (arcade)</option>
             <option value="tgm">The Grand Master</option>
         </select><br>
         <label for="gameMechanicsSetting">GAME MECHANICS - </label>
         <select id="gameMechanicsSetting" onchange="setGameMechanics()">
-            <option value="classicStyle">Classic Style</option>
+            <option value="classicStyle" selected>Classic Style</option>
             <option value="gb">Game Boy</option>
-            <option value="nes" selected>NES</option>
+            <option value="nes">NES</option>
             <option value="dx">Tetris DX</option>
             <option value="sega">Sega (arcade)</option>
             <option value="tgm">The Grand Master</option>
@@ -91,9 +96,9 @@
         <select id="randomizerSetting" onchange="setRandomizer()">
             <option value="random">Random</option>
             <option value="gb">Game Boy</option>
-            <option value="nes" selected>NES</option>
+            <option value="nes">NES</option>
             <option value="dx">Tetris DX</option>
-            <option value="tgm">The Grand Master</option>
+            <option value="tgm" selected>The Grand Master</option>
         </select><br>
         <p>HOW PIECES ARE CHOSEN.</p><br>
         <label for="pieceColouringSetting">PIECE COLOURING - </label>
@@ -112,9 +117,9 @@
         <label for="softDropSpeedSetting">SOFT DROP SPEED - </label>
         <input type="number" id="softDropSpeedSetting" value="2" min="1" max="20" onchange="setSoftDropSpeed()"><br>
         <label for="hardDropSetting">HARD DROP</label>
-        <input type="checkbox" id="hardDropSetting" onchange="setHardDrop()" /><br>
+        <input type="checkbox" id="hardDropSetting" onchange="setHardDrop()" checked /><br>
         <label for="IRSSetting">IRS</label>
-        <input type="checkbox" id="IRSSetting" onchange="setIRS()" /><br><br>
+        <input type="checkbox" id="IRSSetting" onchange="setIRS()" checked /><br><br>
 
         <label for="twentyGSetting">20G MODE</label>
         <input type="checkbox" id="twentyGSetting" onchange="setTwentyGOverride()" /><br><br>

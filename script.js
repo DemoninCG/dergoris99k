@@ -18,15 +18,15 @@ function reset() {
         startingLevel: 0,
         boardWidth: 10,
         boardHeight: 20,
-        visuals: "nes",
-        gameMechanics: "nes",
+        visuals: "classicStyle",
+        gameMechanics: "classicStyle",
         segaDifficulty: "normal",
-        randomizer: "nes",
+        randomizer: "tgm",
         pieceColouring: "regular",
         invisible: false,
         softDrop: true,
-        hardDrop: false,
-        IRS: false,
+        hardDrop: true,
+        IRS: true,
         twentyGOverride: false,
         ARE: 10,
         ARELineClear: 30,
@@ -50,9 +50,11 @@ function reset() {
     piecesDropped = [0,0,0,0,0,0,0];
     lastDroppedPieces = [];
     score = 0;
+    grade = 0;
     lines = 0;
     linesUntilNextLevel = 0;
     time = 0;
+    sectionTimes = [];
     softDropping = false;
     currentPushdown = 0;
     maxPushdown = 0;
@@ -64,7 +66,6 @@ function reset() {
     //TGM-specific variables
     TGMFirstMove = true;
     combo = 1;
-    grade = 0;
     GMQualifying = true;
     TGMBarState = 0;
 
@@ -105,11 +106,19 @@ function initialiseCanvasBoard() {
         let leftSide = 160-settings.boardWidth*4;
         document.body.style.backgroundImage = "url('img/main/background1.png')";
         images.tiles.src = "img/main/tiles.png";
+        images.hardDropTile.src = "img/main/ghostTiles.png";
         images.board.src = "img/main/board.png";
+        images.sideInfo1.src = "img/main/sideInfo.png";
+        images.sideInfo2.src = "img/main/digitsSmall.png";
+        images.sideInfo3.src = "img/main/finish.png";
+        images.digits.src = "img/main/digits.png";
+        images.grades.src = "img/main/gradesClassic.png";
         //Draw the board (to be improved)
         ctx.drawImage(images.board, 112, 32);
-        ctx.fillStyle = "rgba(0,0,0,0.7)";
+        ctx.fillStyle = "black";
         ctx.fillRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        //Side info
+        ctx.drawImage(images.sideInfo1, 60, 24);
     }
     else if (settings.visuals === "gb") {
         canvas.height = Math.max(settings.boardHeight*8, 144);
@@ -366,7 +375,11 @@ function startGame() {
     document.getElementById("game").style.display = "block";
     document.getElementById("textOverlay").style.display = "block";
     level = settings.startingLevel
-    if (settings.gameMechanics == "gb") {
+    if (settings.gameMechanics == "classicStyle") {
+        linesUntilNextLevel = 100;
+        lastDroppedPieces = [3, 4, 4, 3];
+    }
+    else if (settings.gameMechanics == "gb") {
         linesUntilNextLevel = level*10+10;
         currentDropTime = getDropInterval();
     }
@@ -386,7 +399,6 @@ function startGame() {
         linesUntilNextLevel = 100;
         lastDroppedPieces = [4, 4, 4, 4];
     }
-    
     initialiseCanvasBoard();
     for (let i=0;i<settings.boardHeight;i++) board.push(Array(settings.boardWidth).fill(0));
     if (settings.visuals == "tgm") {TGMReadyGo(1);}
@@ -498,7 +510,7 @@ function updateVariables() {
             currentDASTime -= (timeMultiplier*60);
             if (currentDASTime <= 0) {
                 moveLeft();
-                currentDASTime = settings.DAS;
+                currentDASTime = getDAS();
             }
         }
     }
@@ -508,7 +520,7 @@ function updateVariables() {
             currentDASTime -= (timeMultiplier*60);
             if (currentDASTime <= 0) {
                 moveRight();
-                currentDASTime = settings.DAS;
+                currentDASTime = getDAS();
             }
         }
     }
@@ -567,8 +579,22 @@ function updateVariables() {
         let leftSide = 160-settings.boardWidth*4;
         ctx.drawImage(images.sideInfo2, 0, (TGMBarState>1 ? 14 : 12), 22, 2, leftSide-32, 192, 22, 2);
     }
+    //Classic style time display
+    if (settings.visuals == "classicStyle" && settings.timeDisplay) {
+        let leftSide = 160-settings.boardWidth*4;
+        let timeString = ""
+        timeString += Math.floor(time/60).toString().padStart(2, "0") + ":"; //minutes
+        timeString += Math.floor(time%60).toString().padStart(2, "0") + ":"; //seconds
+        timeString += Math.floor((time%1)*100).toString().padStart(2, "0"); //Hundredths of a second
+        let timeLength = 8;
+        ctx.clearRect(leftSide-74, 58, 64, 9)
+        for (let i=0;i<timeLength;i++) {
+            if (timeString[i] == ":") {ctx.drawImage(images.digits, 88, 0, 8, 9, leftSide-74+i*8, 58, 8, 9);}
+            else {ctx.drawImage(images.digits, parseInt(timeString[i])*8, 0, 8, 9, leftSide-74+i*8, 58, 8, 9);}
+        }
+    }
     //TGM time display
-    if (settings.visuals == "tgm" && settings.timeDisplay) {
+    else if (settings.visuals == "tgm" && settings.timeDisplay) {
         let leftSide = 160-settings.boardWidth*4;
         let currentBackground = Math.floor(level/100);
         ctx.drawImage(images.background, currentBackground*320+leftSide, 206, 80, 24, leftSide, 206, 80, 24);
@@ -595,7 +621,102 @@ setInterval(updateVariables, 1000/60);
 
 function updateVisuals() {
     if (!gamePlaying) return;
-    if (settings.visuals == "gb" || settings.visuals == "dx") {
+    if (settings.visuals == "classicStyle") {
+        let leftSide = 160-settings.boardWidth*4;
+        //Clear the canvas
+        //ctx.clearRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        ctx.fillStyle = "black";
+        ctx.fillRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        if (!waitingForNextPiece) {
+            //Draw the ghost piece if lower than level 200
+            if (level < 200) {
+                let tempPiecePositions = [];
+                for (let i=0;i<4;i++) tempPiecePositions.push([...piecePositions[i]])
+                while (!checkPieceLanded(tempPiecePositions)) {
+                    for (let i=0;i<4;i++) tempPiecePositions[i][0]++;
+                }
+                for (let i=0;i<4;i++) {
+                    if (tempPiecePositions[i][0] < 0) continue;
+                    if (settings.pieceColouring === "monotoneAll") {ctx.drawImage(images.hardDropTile, 0, 0, 8, 8, tempPiecePositions[i][1]*8+leftSide, tempPiecePositions[i][0]*8+40, 8, 8);}
+                    else {ctx.drawImage(images.hardDropTile, 0, currentPiece*8+8, 8, 8, tempPiecePositions[i][1]*8+leftSide, tempPiecePositions[i][0]*8+40, 8, 8);}
+                }
+            }
+            //Regular piece
+            for (let i=0;i<piecePositions.length;i++) {
+                if (piecePositions[i][0] < 0) continue;
+                if (settings.pieceColouring === "monotoneAll") {
+                    ctx.drawImage(images.tiles, 0, 0, 8, 8, piecePositions[i][1]*8+leftSide, piecePositions[i][0]*8+40, 8, 8);
+                }
+                else {
+                    ctx.drawImage(images.tiles, 0, currentPiece*8+8, 8, 8, piecePositions[i][1]*8+leftSide, piecePositions[i][0]*8+40, 8, 8);
+                }
+            }
+        }
+        //Board pieces
+        for (let i=0;i<settings.boardHeight;i++) {
+            for (let j=0;j<settings.boardWidth;j++) {
+                if (board[i][j] != 0) {
+                    if (settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll" && !settings.invisible) {ctx.drawImage(images.tiles, 8, 0, 8, 8, j*8+leftSide, i*8+40, 8, 8);}
+                    else if (!settings.invisible) {
+                        if (settings.pieceColouring != "border") ctx.drawImage(images.tiles, 8, (board[i][j])*8, 8, 8, j*8+leftSide, i*8+40, 8, 8);
+                        ctx.fillStyle = "#848484";
+                        if (board[i-1] && board[i-1][j] == 0) ctx.fillRect(j*8+leftSide, i*8+40, 8, 1); //Top border
+                        if (board[i+1] && board[i+1][j] == 0) ctx.fillRect(j*8+leftSide, i*8+48, 8, 1); //Bottom border
+                        if (board[i][j-1] == 0) ctx.fillRect(j*8+leftSide, i*8+40, 1, 8); //Left border
+                        if (board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+40, 1, 8); //Right border
+                        if (board[i-1] && board[i-1][j] != 0 && board[i-1][j-1] == 0 && board[i][j-1] != 0) ctx.fillRect(j*8+leftSide, i*8+40, 1, 1); //Top corner border 1
+                            if (board[i+1] && board[i+1][j] == 0 && board[i+1][j+1] == 0 && board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+48, 1, 1); //Top corner border 2
+                    }
+                }
+            }
+        }
+
+        //Grade
+        ctx.clearRect(211, 34, 48, 32);
+        ctx.drawImage(images.grades, 0, 32*grade, 48, 32, 211, 34, 48, 32);
+
+        //Text
+        let nextGradeString;
+        let nextGradeLength;
+        if (grade >= 8) {
+            nextGradeString = "??????";
+            nextGradeLength = 6;
+            ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
+            for (let i=0;i<nextGradeLength;i++) {
+                ctx.drawImage(images.digits, 80, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 80, 8, 9)
+            }
+        }
+        else {
+            nextGradeString = classicStyleGradeConditions[grade+1].toString();
+            nextGradeLength = nextGradeString.length;
+            ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
+            for (let i=0;i<nextGradeLength;i++) {
+                ctx.drawImage(images.digits, parseInt(nextGradeString[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 80, 8, 9)
+            }
+        }
+
+        let scoreString = score.toString();
+        let scoreLength = scoreString.length;
+        ctx.clearRect(leftSide+settings.boardWidth*8+11, 142, scoreLength*8, 9);
+        for (let i=0;i<scoreLength;i++) {
+            ctx.drawImage(images.digits, parseInt(scoreString[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 142, 8, 9);
+        }
+
+        let levelString = level.toString();
+        let levelLength = levelString.length;
+        ctx.clearRect(leftSide+settings.boardWidth*8+11, 181, levelLength*8, 9);
+        for (let i=0;i<levelLength;i++) {
+            ctx.drawImage(images.digits, parseInt(levelString[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 181, 8, 9);
+        }
+
+        let levelString2 = (level >= 900 ? "999" : ((Math.floor(level/100)+1)*100).toString());
+        let levelLength2 = levelString2.length;
+        ctx.clearRect(leftSide+settings.boardWidth*8+11, 197, levelLength2*8, 9);
+        for (let i=0;i<levelLength2;i++) {
+            ctx.drawImage(images.digits, parseInt(levelString2[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 197, 8, 9);
+        }
+    }
+    else if (settings.visuals == "gb" || settings.visuals == "dx") {
         let leftSide = 120-settings.boardWidth*4;
         if (settings.visuals == "dx") {
             if (!gamePlaying) {ctx.fillStyle = "red";}
@@ -935,6 +1056,7 @@ function updateVisuals() {
 
 function getDropInterval() {
     if (settings.twentyGOverride) return 0.05;
+    else if (settings.gameMechanics == "classicStyle") return classicStyleDropIntervals[Math.floor(level/100)];
     else if (settings.gameMechanics == "gb") return gameboyDropIntervals[Math.min(level, 20)];
     else if (settings.gameMechanics == "nes") return nesDropIntervals[Math.min(level, 29)];
     else if (settings.gameMechanics == "dx") return dxDropIntervals[Math.min(level, 30)];
@@ -949,6 +1071,16 @@ function getDropInterval() {
         while (tgmIntervalLevels[currentLevelPoint+1] < level) currentLevelPoint++;
         return tgmIntervals[currentLevelPoint]
     }
+}
+
+function getDAS() {
+    if (settings.gameMechanics == "classicStyle") {return classicStyleDAS[Math.floor(level/100)];}
+    return settings.DAS;
+}
+
+function getDASInitial() {
+    if (settings.gameMechanics == "classicStyle") {return classicStyleDASInitial[Math.floor(level/100)];}
+    return settings.DASInitial;
 }
 
 function landPiece() {
@@ -971,7 +1103,7 @@ function landPiece() {
         for (let i=0;i<piecePositions.length;i++) board[piecePositions[i][0]][piecePositions[i][1]] = currentPiece+1;
     }
     }
-    else if (settings.visuals == "nes" || settings.visuals == "sega" || settings.visuals == "tgm") {
+    else {
         for (let i=0;i<piecePositions.length;i++) {
             if (board[piecePositions[i][0]]) board[piecePositions[i][0]][piecePositions[i][1]] = currentPiece+1;
         }
@@ -979,6 +1111,8 @@ function landPiece() {
     
     if (settings.overrideGameARE && checkFullLines().length > 0) {currentDropTime = settings.ARELineClear;} //ARE line clear override
     else if (settings.overrideGameARE) {currentDropTime = settings.ARE;} //ARE override
+    else if (settings.gameMechanics == "classicStyle" && checkFullLines().length > 0) {currentDropTime = 40;} //Classic style line clear ARE
+    else if (settings.gameMechanics == "classicStyle") {currentDropTime = 20;} //Classic style ARE
     else if (settings.gameMechanics == "gb" && checkFullLines().length > 0) {currentDropTime = 93;} //Game boy line clear ARE
     else if (settings.gameMechanics == "gb") {currentDropTime = 2;} //Game boy ARE
     else if (settings.gameMechanics == "nes" && checkFullLines().length > 0) {currentDropTime = ((settings.boardWidth+1)*2+5);} //NES line clear ARE
@@ -1018,7 +1152,7 @@ function calculateNESARELevel(x) {
 }
 
 function placePiece(x) {
-    if (settings.gameMechanics == "tgm" && level == 999) {
+    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "tgm") && level == 999) {
         endGame();
         return;
     }
@@ -1026,6 +1160,19 @@ function placePiece(x) {
     waitingForNextPiece = false;
 
     switch (settings.gameMechanics) {
+        case "classicStyle": //Left-handed
+            if (!TGMFirstMove && level % 100 != 99 && level != 998) level++;
+            for (let i=0;i<4;i++) {
+                piecePositions[i] = [...piecePlacements[x][i]];
+                if (x==0 || x==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
+                else {piecePositions[i][1] += settings.boardWidth/2-3;}
+            }
+            if (x==0) {pieceTopCorner = [-2,1];}
+            else if (x==1) {pieceTopCorner = [0,1];}
+            else {pieceTopCorner = [-1,1];}
+            pieceTopCorner[1] += settings.boardWidth/2-3;
+            TGMFirstMove = false;
+            break;
         case "gb": //Left-handed
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
@@ -1100,11 +1247,11 @@ function placePiece(x) {
     if (getDropInterval() <= 0.05) maxDrop(); //20G
 
     //Setting to the initial DAS (For GB and DX) 
-    if (settings.gameMechanics == "gb" || settings.gameMechanics == "dx") {currentDASTime = settings.DASInitial;}
+    if (settings.gameMechanics == "gb" || settings.gameMechanics == "dx") {currentDASTime = getDASInitial();}
 
-    //Overriding the initial DAS if arrow keys are held (For TGM, assumed for Sega)
-    if ((settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[0]) {currentDASTime = settings.DAS;}
-    else if ((settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[1]) {currentDASTime = settings.DAS;}
+    //Overriding the initial DAS if arrow keys are held (For classic style and TGM, assumed for Sega)
+    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[0]) {currentDASTime = getDAS();}
+    else if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[1]) {currentDASTime = getDAS();}
 
     //Cancel the visual line clears if the piece is placed before the animation is finished
     if (visualInterval) {
@@ -1140,7 +1287,69 @@ function placePiece(x) {
 //TODO: create lookup table for the tile positions to condense this
 function setNextPieceVisuals(x) {
     //Draw the piece in the next box
-    if (settings.visuals == "gb") {
+    if (settings.visuals == "classicStyle") {
+        let leftSide = 160-settings.boardWidth*4;
+        ctx.clearRect(leftSide+24, 12, 32, 17);
+        ctx.fillStyle = "#080808"
+        switch (x) {
+            case 0:
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+24, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+48, 12, 8, 8);
+                ctx.fillRect(leftSide+24, 20, 32, 1);
+                break
+            case 1:
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+32, 20, 8, 8);
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+40, 20, 8, 8);
+                ctx.fillRect(leftSide+32, 28, 16, 1);
+                break
+            case 2:
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+24, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+32, 20, 8, 8);
+                ctx.fillRect(leftSide+24, 20, 8, 1);
+                ctx.fillRect(leftSide+40, 20, 8, 1);
+                ctx.fillRect(leftSide+32, 28, 8, 1);
+                break
+            case 3:
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+24, 20, 8, 8);
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+32, 20, 8, 8);
+                ctx.fillRect(leftSide+40, 20, 8, 1);
+                ctx.fillRect(leftSide+24, 28, 16, 1);
+                break
+            case 4:
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+24, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+32, 20, 8, 8);
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+40, 20, 8, 8);
+                ctx.fillRect(leftSide+24, 20, 8, 1);
+                ctx.fillRect(leftSide+32, 28, 16, 1);
+                break
+            case 5:
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+24, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+40, 20, 8, 8);
+                ctx.fillRect(leftSide+24, 20, 16, 1);
+                ctx.fillRect(leftSide+40, 28, 8, 1);
+                break
+            case 6:
+                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+24, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+24, 20, 8, 8);
+                ctx.fillRect(leftSide+32, 20, 16, 1);
+                ctx.fillRect(leftSide+24, 28, 8, 1);
+                break
+        }
+    }
+    else if (settings.visuals == "gb") {
         let leftSide = 120-settings.boardWidth*4;
         ctx.fillStyle = "#c6de86";
         ctx.fillRect(leftSide+(settings.boardWidth*8)+40, 104, 32, 32);
@@ -1539,7 +1748,7 @@ function rotatePiece(clockwise=true, override=false) {
                     updateVisuals();
                 }
             }
-            else if (settings.gameMechanics == "nes") {
+            else if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "nes") {
                 if (pieceOrientation == 0 || pieceOrientation == 2) {
                     tempPiecePositions = [[tempY,tempX+2],[tempY+1,tempX+2],[tempY+2,tempX+2],[tempY+3,tempX+2]];
                 }
@@ -1656,7 +1865,7 @@ function rotatePiece(clockwise=true, override=false) {
                     updateVisuals();
                 }
             }
-            else if (settings.gameMechanics == "nes") {
+            else if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "nes") {
                 for (let j=0;j<9;j++) {
                     if (nesPieceOrientations[currentPiece-2][rotatedOrientation][j] == 1) {
                         tempPiecePositions.push([tempY+Math.floor(j/3),tempX+j%3]);
@@ -1798,6 +2007,7 @@ function hardDrop() {
         for (let i=0;i<4;i++) tempPiecePositions.push([...piecePositions[i]]);
         while (!checkPieceLanded(tempPiecePositions)) {
             for (let i=0;i<4;i++) tempPiecePositions[i][0]++;
+            if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "tgm") maxPushdown++;
         }
         for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
         landPiece();
@@ -1819,12 +2029,45 @@ function maxDrop() {
 
 function setInitialDAS(x) {
     if (gamePlaying && x==0 && !keysHeld[0] && !waitingForNextPiece) {
-        currentDASTime = settings.DASInitial;
+        currentDASTime = getDASInitial();
         moveLeft();
     }
     else if (gamePlaying && x==1 && !keysHeld[1] && !waitingForNextPiece) {
-        currentDASTime = settings.DASInitial;
+        currentDASTime = getDASInitial();
         moveRight();
+    }
+}
+
+//Unused
+function moveBackground() {
+    if (!gamePlaying) return;
+    document.body.style.backgroundPosition = ((Date.now()/50) % 64)  + "px " + ((Date.now()/50) % 64)   + "px";
+    setTimeout(moveBackground, 1000/60);
+}
+
+function displaySectionTime(x) {
+    if (!sectionTimes[x]) return;
+    let sectionTime;
+    if (x == 0 || !sectionTimes[x-1]) {sectionTime = sectionTimes[x];}
+    else {sectionTime = sectionTimes[x] - sectionTimes[x-1];}
+
+    let levelString = (x*100+100).toString().padStart(2, "0");
+    if (levelString == "1000") {levelString = "999";}
+    for (let i=0;i<3;i++) ctx.drawImage(images.sideInfo2, levelString[i]*4, 0, 4, 6, 61+4*i, 93+7*x, 4, 6);
+
+    let timeString = ""
+    timeString += Math.floor(sectionTime/60).toString().padStart(2, "0") + ":"; //minutes
+    timeString += Math.floor(sectionTime%60).toString().padStart(2, "0") + ":"; //seconds
+    timeString += Math.floor((sectionTime%1)*100).toString().padStart(2, "0"); //Hundredths of a second
+
+    let sectionTimeColor;
+    if (sectionTime < 55) {sectionTimeColor = 3;}
+    else if (sectionTime < 60) {sectionTimeColor = 2;}
+    else if (sectionTime < 65) {sectionTimeColor = 1;}
+    else {sectionTimeColor = 0;}
+    for (let i=0;i<8;i++) {
+        if (timeString[i] == ":") {ctx.drawImage(images.sideInfo2, 40, sectionTimeColor*6, 4, 6, 77+4*i, 93+7*x, 4, 6);}
+        else {ctx.drawImage(images.sideInfo2, timeString[i]*4, sectionTimeColor*6, 4, 6, 77+4*i, 93+7*x, 4, 6);}
     }
 }
 
@@ -1914,7 +2157,11 @@ function clearLines() {
     //Check for full lines
     let linesCleared = checkFullLines().length;
     lines += linesCleared;
-    if (settings.visuals == "tgm" && Math.floor(level/100) < Math.floor((level+linesCleared)/100)) { //TGM level up
+    if (settings.visuals == "classicStyle" && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || level+linesCleared >= 999)) { //classic style level up
+        sectionTimes[Math.floor(level/100)] = time;
+        displaySectionTime(Math.floor(level/100));
+    }
+    else if (settings.visuals == "tgm" && Math.floor(level/100) < Math.floor((level+linesCleared)/100)) { //TGM level up
         let currentBackground = Math.floor((level+linesCleared)/100);
         ctx.drawImage(images.background, currentBackground*320, 0, 320, 240, 0, 0, 320, 240);
         //Draw the board (to be improved)
@@ -1929,7 +2176,7 @@ function clearLines() {
         if ((level+linesCleared) >= 300 && (score < 12000 || time > 255)) {GMQualifying = false;}
         if ((level+linesCleared) >= 500 && (score < 40000 || time > 450)) {GMQualifying = false;}
     }
-    else if (settings.gameMechanics != "tgm") {linesUntilNextLevel -= linesCleared;}
+    else if (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "tgm") {linesUntilNextLevel -= linesCleared;}
     if (linesUntilNextLevel <= 0) {
         level++;
         //Sega level 99 cap
@@ -1962,8 +2209,8 @@ function clearLines() {
 
     //Update score
     let scoreToGain = 0;
-    if (!linesCleared && settings.gameMechanics == "tgm") {combo = 1;}
-    else if (linesCleared && settings.gameMechanics == "tgm") {
+    if (!linesCleared && (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "tgm")) {combo = 1;}
+    else if (linesCleared && (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "tgm")) {
         combo += (linesCleared*2) - 2;
         let finalScore = (Math.ceil((level+linesCleared)/4) + maxPushdown)*combo*linesCleared;
         if (checkPerfectClear()) finalScore *= 4;
@@ -1995,6 +2242,14 @@ function clearLines() {
     }
     score += scoreToGain;
 
+    //Update classic style grade
+    if (settings.gameMechanics == "classicStyle" && score > classicStyleGradeConditions[grade+1]) {
+        while (score > classicStyleGradeConditions[grade+1]) {
+            grade++;
+        }
+        updateVisuals();
+    }
+
     //Update TGM grade
     if (settings.gameMechanics == "tgm" && score > tgmGradeConditions[grade+1]) {
         while (score > tgmGradeConditions[grade+1]) {
@@ -2005,7 +2260,7 @@ function clearLines() {
     if (level == 999 && GMQualifying && score >= 126000 && time < 810) {grade = 18; updateVisuals();} //GM grade
 
     //Line clear visuals
-    if (settings.ARELineClear == 0 && linesCleared > 0) { //No ARE
+    if ((settings.visuals == "classicStyle" || settings.ARELineClear == 0) && linesCleared > 0) { //No ARE
         let fullLines = checkFullLines();
         for (let i = 0; i < fullLines.length; i++) {
             let line = fullLines[i];
@@ -2223,7 +2478,26 @@ function moveLineDown(line) {
 
 function endGame() {
     gamePlaying = false;
-    if (settings.visuals == "gb") {displayEndingLine(0);}
+    if (settings.visuals == "classicStyle") {
+        landPiece();
+        let leftSide = 160-settings.boardWidth*4;
+        //Clear the canvas
+        ctx.fillStyle = "black";
+        ctx.fillRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        //Board pieces
+        for (let i=0;i<settings.boardHeight;i++) {
+            for (let j=0;j<settings.boardWidth;j++) {
+                if (board[i][j] != 0) {
+                    if (settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll") {ctx.drawImage(images.tiles, 8, 0, 8, 8, j*8+leftSide, i*8+40, 8, 8);}
+                    else {ctx.drawImage(images.tiles, 8, (board[i][j])*8, 8, 8, j*8+leftSide, i*8+40, 8, 8);}
+                }
+            }
+        }
+        //Finish text
+        if (level >= 999) {ctx.drawImage(images.sideInfo3, 127, 105);}
+        else {ctx.drawImage(images.sideInfo3, 0, 8, 67, 7, 127, 113, 67, 7);}
+    }
+    else if (settings.visuals == "gb") {displayEndingLine(0);}
     else if (settings.visuals == "nes") {setTimeout(function() {displayEndingLine(0)}, 1200);}
     else if (settings.visuals == "dx") {setTimeout(function() {displayEndingLine(0)}, 1000);}
     else if (settings.visuals == "sega") {return;} //to do
@@ -2315,4 +2589,5 @@ function returnToMenu() {
     document.getElementById("textOverlay").innerHTML = "";
     document.getElementById("settings").style.display = "block";
     document.body.style.backgroundColor = "#555";
+    document.body.style.backgroundImage = "none"
 }
