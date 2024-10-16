@@ -6,11 +6,8 @@
 //Various issues when visuals don't match game mechanics (TGM level issues known)
 
 //To do:
-//TGM backgrounds
-//TGM board
 //Fix sega and NES board width problems
-//Work out what to do with the time display
-//Sega ghost pieces
+//Work out what to do with the NES time display
 
 //Smaller game canvas sizes
 if (window.innerHeight < 750) {
@@ -37,6 +34,7 @@ function reset() {
         invisible: false,
         softDrop: true,
         hardDrop: true,
+        sonicDrop: false,
         IRS: true,
         twentyGOverride: false,
         ARE: 10,
@@ -65,6 +63,7 @@ function reset() {
     lines = 0;
     linesUntilNextLevel = 0;
     time = 0;
+    timeAtLastSection = 0;
     sectionTimes = [];
     softDropping = false;
     currentPushdown = 0;
@@ -111,23 +110,28 @@ const ctx = canvas && canvas.getContext("2d");
 if (ctx) ctx.imageSmoothingEnabled = false; //Disable image smoothing for pixelated look
 
 function initialiseCanvasBoard() {
-    if (settings.visuals === "classicStyle") {
+    if (settings.visuals === "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") {
         canvas.height = Math.max(settings.boardHeight*8, 240);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8, 240) + "px";
         let leftSide = 160-settings.boardWidth*4;
         document.body.style.backgroundImage = "url('img/main/background1.png')";
         images.tiles.src = "img/main/tiles.png";
         images.hardDropTile.src = "img/main/ghostTiles.png";
-        images.board.src = "img/main/board.png";
+        if (settings.gameMechanics == "masterStyle") {images.board.src = "img/main/board2.png";}
+        else {images.board.src = "img/main/board.png";}
         images.sideInfo1.src = "img/main/sideInfo.png";
         images.sideInfo2.src = "img/main/digitsSmall.png";
         images.sideInfo3.src = "img/main/finish.png";
+        images.sideInfo4.src = "img/main/boardBack.png";
         images.digits.src = "img/main/digits.png";
-        images.grades.src = "img/main/gradesClassic.png";
+        if (settings.visuals === "classicStyle") {images.grades.src = "img/main/gradesClassic.png";}
+        else {images.grades.src = "img/main/gradesMaster.png";}
         //Draw the board (to be improved)
         ctx.drawImage(images.board, 112, 32);
-        ctx.fillStyle = "black";
-        ctx.fillRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        //ctx.fillStyle = "black";
+        //ctx.fillRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        ctx.clearRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        ctx.drawImage(images.sideInfo4, leftSide, 40);
         //Side info
         ctx.drawImage(images.sideInfo1, 60, 24);
     }
@@ -383,11 +387,25 @@ function initialiseCanvasBoard() {
 
 function startGame() {
     document.getElementById("settings").style.display = "none";
-    if (settings.visuals == "classicStyle") document.getElementById("backgroundCanvas").style.display = "block";
+    if (settings.visuals == "classicStyle") {
+        document.getElementById("backgroundCanvas").style.display = "block";
+        seaColor = [11.0, 72.0, 142.0];
+        waveColor = [15.0, 120.0, 152.0];
+    }
+    else if (settings.visuals == "masterStyle") {
+        document.getElementById("backgroundCanvas").style.display = "block";
+        seaColor = [11.0, 122.0, 142.0];
+        waveColor = [15.0, 120.0, 152.0];
+    }
+    else if (settings.visuals == "dragonStyle") {
+        document.getElementById("backgroundCanvas").style.display = "block";
+        seaColor = [22.0, 22.0, 142.0];
+        waveColor = [15.0, 30.0, 152.0];
+    }
     document.getElementById("game").style.display = "block";
     document.getElementById("textOverlay").style.display = "block";
     level = settings.startingLevel
-    if (settings.gameMechanics == "classicStyle") {
+    if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") {
         linesUntilNextLevel = 100;
         lastDroppedPieces = [3, 4, 4, 3];
     }
@@ -591,8 +609,8 @@ function updateVariables() {
         let leftSide = 160-settings.boardWidth*4;
         ctx.drawImage(images.sideInfo2, 0, (TGMBarState>1 ? 14 : 12), 22, 2, leftSide-32, 192, 22, 2);
     }
-    //Classic style time display
-    if (settings.visuals == "classicStyle" && settings.timeDisplay) {
+    //Main modes time display
+    if ((settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle") && settings.timeDisplay) {
         let leftSide = 160-settings.boardWidth*4;
         let timeString = ""
         timeString += Math.floor(time/60).toString().padStart(2, "0") + ":"; //minutes
@@ -603,6 +621,23 @@ function updateVariables() {
         for (let i=0;i<timeLength;i++) {
             if (timeString[i] == ":") {ctx.drawImage(images.digits, 88, 0, 8, 9, leftSide-74+i*8, 82, 8, 9);}
             else {ctx.drawImage(images.digits, parseInt(timeString[i])*8, 0, 8, 9, leftSide-74+i*8, 82, 8, 9);}
+        }
+        //Current section time
+        let currentSection = Math.floor(level/100);
+        let currentSectionTime = time - timeAtLastSection;
+        ctx.clearRect(61, 117+7*currentSection, 48, 6);
+
+        let levelString = (currentSection*100+100).toString().padStart(2, "0");
+        if (levelString == "1000") {levelString = "999";}
+        for (let i=0;i<3;i++) ctx.drawImage(images.sideInfo2, levelString[i]*4, 0, 4, 6, 61+4*i, 117+7*currentSection, 4, 6);
+
+        let sectionTimeString = ""
+        sectionTimeString += Math.floor(currentSectionTime/60).toString().padStart(2, "0") + ":"; //minutes
+        sectionTimeString += Math.floor(currentSectionTime%60).toString().padStart(2, "0") + ":"; //seconds
+        sectionTimeString += Math.floor((currentSectionTime%1)*100).toString().padStart(2, "0"); //Hundredths of a second
+        for (let i=0;i<8;i++) {
+            if (sectionTimeString [i] == ":") {ctx.drawImage(images.sideInfo2, 40, 0, 4, 6, 77+4*i, 117+7*currentSection, 4, 6);}
+            else {ctx.drawImage(images.sideInfo2, sectionTimeString[i]*4, 0, 4, 6, 77+4*i, 117+7*currentSection, 4, 6);}
         }
     }
     //TGM time display
@@ -633,12 +668,13 @@ setInterval(updateVariables, 1000/60);
 
 function updateVisuals() {
     if (!gamePlaying) return;
-    if (settings.visuals == "classicStyle") {
+    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle") {
         let leftSide = 160-settings.boardWidth*4;
         //Clear the canvas
-        //ctx.clearRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
-        ctx.fillStyle = "black";
-        ctx.fillRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        //ctx.fillStyle = "black";
+        //ctx.fillRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        ctx.clearRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        ctx.drawImage(images.sideInfo4, leftSide, 40);
         if (!waitingForNextPiece) {
             //Draw the ghost piece if lower than level 200
             if (level < 200) {
@@ -690,20 +726,40 @@ function updateVisuals() {
         //Text
         let nextGradeString;
         let nextGradeLength;
-        if (grade >= 8) {
-            nextGradeString = "??????";
-            nextGradeLength = 6;
-            ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
-            for (let i=0;i<nextGradeLength;i++) {
-                ctx.drawImage(images.digits, 80, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 80, 8, 9)
+        if (settings.visuals == "classicStyle") {
+            if (grade >= 8) {
+                nextGradeString = "??????";
+                nextGradeLength = 6;
+                ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
+                for (let i=0;i<nextGradeLength;i++) {
+                    ctx.drawImage(images.digits, 80, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 80, 8, 9)
+                }
+            }
+            else {
+                nextGradeString = classicStyleGradeConditions[grade+1].toString();
+                nextGradeLength = nextGradeString.length;
+                ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
+                for (let i=0;i<nextGradeLength;i++) {
+                    ctx.drawImage(images.digits, parseInt(nextGradeString[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 80, 8, 9)
+                }
             }
         }
-        else {
-            nextGradeString = classicStyleGradeConditions[grade+1].toString();
-            nextGradeLength = nextGradeString.length;
-            ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
-            for (let i=0;i<nextGradeLength;i++) {
-                ctx.drawImage(images.digits, parseInt(nextGradeString[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 80, 8, 9)
+        else if (settings.visuals == "masterStyle") {
+            if (grade >= 12) {
+                nextGradeString = "??????";
+                nextGradeLength = 6;
+                ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
+                for (let i=0;i<nextGradeLength;i++) {
+                    ctx.drawImage(images.digits, 80, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 80, 8, 9)
+                }
+            }
+            else {
+                nextGradeString = masterStyleGradeConditions[grade+1].toString();
+                nextGradeLength = nextGradeString.length;
+                ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
+                for (let i=0;i<nextGradeLength;i++) {
+                    ctx.drawImage(images.digits, parseInt(nextGradeString[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 80, 8, 9)
+                }
             }
         }
 
@@ -1069,6 +1125,12 @@ function updateVisuals() {
 function getDropInterval() {
     if (settings.twentyGOverride) return 0.05;
     else if (settings.gameMechanics == "classicStyle") return classicStyleDropIntervals[Math.floor(level/100)];
+    else if (settings.gameMechanics == "masterStyle") {
+        let currentLevelPoint = 0;
+        while (masterStyleIntervalLevels[currentLevelPoint+1] <= level) currentLevelPoint++;
+        return masterStyleIntervals[currentLevelPoint]
+    }
+    else if (settings.gameMechanics == "dragonStyle") return 0.05;
     else if (settings.gameMechanics == "gb") return gameboyDropIntervals[Math.min(level, 20)];
     else if (settings.gameMechanics == "nes") return nesDropIntervals[Math.min(level, 29)];
     else if (settings.gameMechanics == "dx") return dxDropIntervals[Math.min(level, 30)];
@@ -1080,7 +1142,7 @@ function getDropInterval() {
     }
     else if (settings.gameMechanics == "tgm") {
         let currentLevelPoint = 0;
-        while (tgmIntervalLevels[currentLevelPoint+1] < level) currentLevelPoint++;
+        while (tgmIntervalLevels[currentLevelPoint+1] <= level) currentLevelPoint++;
         return tgmIntervals[currentLevelPoint]
     }
 }
@@ -1125,6 +1187,10 @@ function landPiece() {
     else if (settings.overrideGameARE) {currentDropTime = settings.ARE;} //ARE override
     else if (settings.gameMechanics == "classicStyle" && checkFullLines().length > 0) {currentDropTime = 40;} //Classic style line clear ARE
     else if (settings.gameMechanics == "classicStyle") {currentDropTime = 20;} //Classic style ARE
+    else if (settings.gameMechanics == "masterStyle" && checkFullLines().length > 0) {currentDropTime = 40;} //Master style line clear ARE
+    else if (settings.gameMechanics == "masterStyle") {currentDropTime = 20;} //Master style ARE
+    else if (settings.gameMechanics == "dragonStyle" && checkFullLines().length > 0) {currentDropTime = 40;} //Dragon style line clear ARE
+    else if (settings.gameMechanics == "dragonStyle") {currentDropTime = 20;} //Dragon style ARE
     else if (settings.gameMechanics == "gb" && checkFullLines().length > 0) {currentDropTime = 93;} //Game boy line clear ARE
     else if (settings.gameMechanics == "gb") {currentDropTime = 2;} //Game boy ARE
     else if (settings.gameMechanics == "nes" && checkFullLines().length > 0) {currentDropTime = ((settings.boardWidth+1)*2+5);} //NES line clear ARE
@@ -1164,7 +1230,7 @@ function calculateNESARELevel(x) {
 }
 
 function placePiece(x) {
-    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "tgm") && level == 999) {
+    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") && level == 999) {
         endGame();
         return;
     }
@@ -1173,6 +1239,8 @@ function placePiece(x) {
 
     switch (settings.gameMechanics) {
         case "classicStyle": //Left-handed
+        case "masterStyle":
+        case "dragonStyle":
             if (!TGMFirstMove && level % 100 != 99 && level != 998) level++;
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
@@ -1261,9 +1329,9 @@ function placePiece(x) {
     //Setting to the initial DAS (For GB and DX) 
     if (settings.gameMechanics == "gb" || settings.gameMechanics == "dx") {currentDASTime = getDASInitial();}
 
-    //Overriding the initial DAS if arrow keys are held (For classic style and TGM, assumed for Sega)
-    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[0]) {currentDASTime = getDAS();}
-    else if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[1]) {currentDASTime = getDAS();}
+    //Overriding the initial DAS if arrow keys are held (For main modes and TGM, assumed for Sega)
+    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[0]) {currentDASTime = getDAS();}
+    else if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[1]) {currentDASTime = getDAS();}
 
     //Cancel the visual line clears if the piece is placed before the animation is finished
     if (visualInterval) {
@@ -1299,7 +1367,7 @@ function placePiece(x) {
 //TODO: create lookup table for the tile positions to condense this
 function setNextPieceVisuals(x) {
     //Draw the piece in the next box
-    if (settings.visuals == "classicStyle") {
+    if (settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") {
         let leftSide = 160-settings.boardWidth*4;
         ctx.clearRect(leftSide+24, 12, 32, 17);
         ctx.fillStyle = "#080808"
@@ -1840,7 +1908,7 @@ function rotatePiece(clockwise=true, override=false) {
                     updateVisuals();
                 }
             }
-            else if (settings.gameMechanics == "tgm") { //Same as sega
+            else if (settings.gameMechanics == "tgm" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") { //Same as sega
                 if (pieceOrientation == 0 || pieceOrientation == 2) {
                     tempPiecePositions = [[tempY,tempX+2],[tempY+1,tempX+2],[tempY+2,tempX+2],[tempY+3,tempX+2]];
                 }
@@ -1935,7 +2003,7 @@ function rotatePiece(clockwise=true, override=false) {
                     updateVisuals();
                 }
             }
-            else if (settings.gameMechanics == "tgm") {
+            else if (settings.gameMechanics == "tgm" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") {
                 for (let j=0;j<9;j++) {
                     if (tgmPieceOrientations[currentPiece-2][rotatedOrientation][j] == 1) {
                         tempPiecePositions.push([tempY+Math.floor(j/3),tempX+j%3]);
@@ -2019,10 +2087,11 @@ function hardDrop() {
         for (let i=0;i<4;i++) tempPiecePositions.push([...piecePositions[i]]);
         while (!checkPieceLanded(tempPiecePositions)) {
             for (let i=0;i<4;i++) tempPiecePositions[i][0]++;
-            if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "tgm") maxPushdown++;
+            if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") maxPushdown++;
         }
         for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
-        landPiece();
+        if (!settings.sonicDrop) {landPiece();}
+        else {updateVisuals();}
     }
 }
 
@@ -2063,6 +2132,8 @@ function displaySectionTime(x) {
     if (x == 0 || !sectionTimes[x-1]) {sectionTime = sectionTimes[x];}
     else {sectionTime = sectionTimes[x] - sectionTimes[x-1];}
 
+    ctx.clearRect(61, 117+7*x, 48, 6);
+
     let levelString = (x*100+100).toString().padStart(2, "0");
     if (levelString == "1000") {levelString = "999";}
     for (let i=0;i<3;i++) ctx.drawImage(images.sideInfo2, levelString[i]*4, 0, 4, 6, 61+4*i, 117+7*x, 4, 6);
@@ -2083,6 +2154,7 @@ function displaySectionTime(x) {
     }
 }
 
+let mostRecentArrow = 0;
 //Event listeners
 document.addEventListener("keydown", function(event) {
     switch (event.key) {
@@ -2169,7 +2241,8 @@ function clearLines() {
     //Check for full lines
     let linesCleared = checkFullLines().length;
     lines += linesCleared;
-    if (settings.visuals == "classicStyle" && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || level+linesCleared >= 999)) { //classic style level up
+    if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || level+linesCleared >= 999)) { //classic style level up
+        timeAtLastSection = time;
         sectionTimes[Math.floor(level/100)] = time;
         displaySectionTime(Math.floor(level/100));
     }
@@ -2188,7 +2261,7 @@ function clearLines() {
         if ((level+linesCleared) >= 300 && (score < 12000 || time > 255)) {GMQualifying = false;}
         if ((level+linesCleared) >= 500 && (score < 40000 || time > 450)) {GMQualifying = false;}
     }
-    else if (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "tgm") {linesUntilNextLevel -= linesCleared;}
+    else if (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "masterStyle" && settings.gameMechanics != "dragonStyle" && settings.gameMechanics != "tgm") {linesUntilNextLevel -= linesCleared;}
     if (linesUntilNextLevel <= 0) {
         level++;
         //Sega level 99 cap
@@ -2221,8 +2294,8 @@ function clearLines() {
 
     //Update score
     let scoreToGain = 0;
-    if (!linesCleared && (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "tgm")) {combo = 1;}
-    else if (linesCleared && (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "tgm")) {
+    if (!linesCleared && (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm")) {combo = 1;}
+    else if (linesCleared && (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm")) {
         combo += (linesCleared*2) - 2;
         let finalScore = (Math.ceil((level+linesCleared)/4) + maxPushdown)*combo*linesCleared;
         if (checkPerfectClear()) finalScore *= 4;
@@ -2262,6 +2335,14 @@ function clearLines() {
         updateVisuals();
     }
 
+    //Update master style grade
+    if (settings.gameMechanics == "masterStyle" && score > masterStyleGradeConditions[grade+1]) {
+        while (score > masterStyleGradeConditions[grade+1]) {
+            grade++;
+        }
+        updateVisuals();
+    }
+
     //Update TGM grade
     if (settings.gameMechanics == "tgm" && score > tgmGradeConditions[grade+1]) {
         while (score > tgmGradeConditions[grade+1]) {
@@ -2272,7 +2353,7 @@ function clearLines() {
     if (level == 999 && GMQualifying && score >= 126000 && time < 810) {grade = 18; updateVisuals();} //GM grade
 
     //Line clear visuals
-    if ((settings.visuals == "classicStyle" || settings.ARELineClear == 0) && linesCleared > 0) { //No ARE
+    if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.ARELineClear == 0) && linesCleared > 0) { //No ARE
         let fullLines = checkFullLines();
         for (let i = 0; i < fullLines.length; i++) {
             let line = fullLines[i];
@@ -2490,12 +2571,14 @@ function moveLineDown(line) {
 
 function endGame() {
     gamePlaying = false;
-    if (settings.visuals == "classicStyle") {
+    if (settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") {
         if (level < 999) landPiece();
         let leftSide = 160-settings.boardWidth*4;
         //Clear the canvas
-        ctx.fillStyle = "black";
-        ctx.fillRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        //ctx.fillStyle = "black";
+        //ctx.fillRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        ctx.clearRect(leftSide, 40, (8*settings.boardWidth), (8*settings.boardHeight));
+        ctx.drawImage(images.sideInfo4, leftSide, 40);
         //Board pieces
         for (let i=0;i<settings.boardHeight;i++) {
             for (let j=0;j<settings.boardWidth;j++) {
@@ -2584,6 +2667,7 @@ function returnToMenu() {
     lines = 0;
     linesUntilNextLevel = 0;
     time = 0;
+    timeAtLastSection = 0;
     softDropping = false;
     currentPushdown = 0;
     maxPushdown = 0;

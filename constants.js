@@ -13,6 +13,15 @@ const classicStyleGradeConditions = [0, 2000, 6000, 12000, 28000, 45000, 66000, 
 const classicStyleDAS = [6, 6, 6, 5, 5, 5, 4, 4, 4, 3];
 const classicStyleDASInitial = [16, 16, 16, 13, 13, 13, 10, 10, 10, 8];
 
+//const masterStyleIntervals = [64, 42.667, 32, 25.6, 21.333, 16, 8, 5.333, 4, 3.2, 2.667, 2.286, 2, 1.778, 64, 8, 4, 2.667, 2, 1.6, 1.333, 1.143, 1, 0.5, 0.333, 0.25, 0.2, 0.25, 0.333, 0.05];
+//const masterStyleIntervalLevels = [0, 30, 35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 170, 200, 220, 230, 233, 236, 239, 243, 247, 251, 300, 330, 360, 400, 420, 450, 500, Infinity];
+
+const masterStyleIntervals = [21.333, 16, 10.666, 8, 5.333, 4, 3.2, 2.667, 2.286, 2, 1.6, 1.333, 1.143, 1, 0.667, 0.5, 0.333, 0.25, 0.2, 0.25, 0.333, 0.05];
+const masterStyleIntervalLevels = [0, 20, 40, 60, 80, 100, 125, 150, 175, 200, 220, 240, 260, 280, 300, 325, 350, 375, 400, 420, 450, 500, Infinity];
+const masterStyleGradeConditions = [0, 1200, 3500, 5800, 8600, 12000, 28000, 45000, 66000, 82000, 120000, 150000, 180000, Infinity];
+
+const dragonStyleDropIntervals = [3, 2, 1, 0.5, 0.333, 0.05, 0.05, 0.05, 0.05, 0.05];
+
 const gameboyDropIntervals = [53, 49, 45, 41, 37, 33, 28, 22, 17, 11, 10, 9, 8, 7, 6, 6, 5, 5, 4, 4, 3];
 const gameboyPieceOrientations = [ //The 9 digits are the 9 tiles of the piece (3 rows 3 columns), 0 is empty, 1 is filled
     ["000111010", "010110010", "010111000", "010011010"], //T

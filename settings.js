@@ -11,6 +11,8 @@ function updateSettingVisuals() {
     document.getElementById("softDropSetting").checked = settings.softDrop;
     document.getElementById("softDropSpeedSetting").value = settings.softDropSpeed;
     document.getElementById("hardDropSetting").checked = settings.hardDrop;
+    document.getElementById("sonicDropSetting").checked = settings.sonicDrop;
+    document.getElementById("sonicDropSetting").disabled = !settings.hardDrop;
     document.getElementById("IRSSetting").checked = settings.IRS;
     document.getElementById("overrideGameARESetting").checked = settings.overrideGameARE;
     document.getElementById("ARESetting").value = settings.ARE;
@@ -26,6 +28,29 @@ function updateSettingVisuals() {
 updateSettingVisuals()
 document.getElementById("presetsSetting").value = "classicStyle";
 
+/*
+Classic Style:
+Reminiscent of classic tetris versions
+- No lock delay
+- Hard drop
+- Drop speed and DAS get faster as level increases
+- Aim is to maximize score and minimize section times
+
+Master style:
+Reminiscent of the TGM series master mode
+- Lock delay
+- No hard drop
+- Drop speed gets faster until it hits 20G
+- Aim is to maximize score and minimize section times
+
+Dragon style:
+Reminiscent of the TGM series death/shirase mode
+- Lock delay
+- No hard drop
+- Drop speed gets faster until it hits 20G
+- Aim is to maximize score and minimize section times
+*/ 
+
 function setPreset() {
     let preset = document.getElementById("presetsSetting").value;
     switch (preset) {
@@ -39,12 +64,49 @@ function setPreset() {
             settings.softDrop = true;
             settings.softDropSpeed = 2;
             settings.hardDrop = true;
+            settings.sonicDrop = false;
             settings.IRS = true;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
             settings.DASInitial = 16;
             settings.DAS = 6;
             settings.lockDelay = 0;
+            break;
+        case "masterStyle":
+            settings.boardWidth = 10;
+            settings.boardHeight = 20;
+            settings.visuals = "masterStyle";
+            settings.gameMechanics = "masterStyle";
+            settings.randomizer = "tgm";
+            settings.pieceColouring = "regular";
+            settings.softDrop = true;
+            settings.softDropSpeed = 1;
+            settings.hardDrop = false;
+            settings.sonicDrop = false;
+            settings.IRS = true;
+            settings.twentyGOverride = false,
+            settings.overrideGameARE = false;
+            settings.DASInitial = 16;
+            settings.DAS = 1;
+            settings.lockDelay = 30;
+            break;
+        case "dragonStyle":
+            settings.boardWidth = 10;
+            settings.boardHeight = 20;
+            settings.visuals = "dragonStyle";
+            settings.gameMechanics = "dragonStyle";
+            settings.randomizer = "tgm";
+            settings.pieceColouring = "regular";
+            settings.softDrop = true;
+            settings.softDropSpeed = 1;
+            settings.hardDrop = false;
+            settings.sonicDrop = false;
+            settings.IRS = true;
+            settings.twentyGOverride = true,
+            settings.overrideGameARE = false;
+            settings.DASInitial = 16;
+            settings.DAS = 1;
+            settings.lockDelay = 30;
             break;
         case "gb":
             if (settings.startingLevel > 20) {settings.startingLevel = 20}
@@ -57,6 +119,7 @@ function setPreset() {
             settings.softDrop = true;
             settings.softDropSpeed = 3;
             settings.hardDrop = false;
+            settings.sonicDrop = false;
             settings.IRS = false;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -75,6 +138,7 @@ function setPreset() {
             settings.softDrop = true;
             settings.softDropSpeed = 2;
             settings.hardDrop = false;
+            settings.sonicDrop = false;
             settings.IRS = false;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -93,6 +157,7 @@ function setPreset() {
             settings.softDrop = true;
             settings.softDropSpeed = 2;
             settings.hardDrop = false;
+            settings.sonicDrop = false;
             settings.IRS = false;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -111,6 +176,7 @@ function setPreset() {
             settings.softDrop = true;
             settings.softDropSpeed = 1;
             settings.hardDrop = false;
+            settings.sonicDrop = false;
             settings.IRS = false;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -128,6 +194,7 @@ function setPreset() {
             settings.softDrop = true;
             settings.softDropSpeed = 1;
             settings.hardDrop = false;
+            settings.sonicDrop = false;
             settings.IRS = true;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -230,6 +297,12 @@ function setSoftDropSpeed() {
 function setHardDrop() {
     let hardDrop = document.getElementById("hardDropSetting").checked;
     settings.hardDrop = hardDrop;
+    document.getElementById("sonicDropSetting").disabled = (!hardDrop);
+}
+
+function setSonicDrop() {
+    let sonicDrop = document.getElementById("sonicDropSetting").checked;
+    settings.sonicDrop = sonicDrop;
 }
 
 function setIRS() {

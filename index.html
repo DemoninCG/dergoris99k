@@ -9,11 +9,14 @@
     <!--Preload board-->
     <img src="img/main/background1.png" style="display: none">
     <img src="img/main/board.png" style="display: none">
+    <img src="img/main/board2.png" style="display: none">
+    <img src="img/main/boardBack.png" style="display: none">
     <img src="img/main/tiles.png" style="display: none">
     <img src="img/main/ghostTiles.png" style="display: none">
     <img src="img/main/sideInfo.png" style="display: none">
     <img src="img/main/digits.png" style="display: none">
-    <img src="img/main/grades.png" style="display: none">
+    <img src="img/main/gradesClassic.png" style="display: none">
+    <img src="img/main/gradesMaster.png" style="display: none">
     <img src="img/main/finish.png" style="display: none">
     <img src="img/gb/boardSmall.png" style="display: none">
     <img src="img/gb/tiles.png" style="display: none">
@@ -52,13 +55,13 @@
 <body>
     <canvas id="backgroundCanvas" style="display: none"></canvas>
     <div id="settings" style="overflow: auto; max-height: 98vh;">
-        <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.4</p><br><br>
+        <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.5</p><br><br>
         <button onclick="startGame()">START GAME</button><br><br>
         <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
         <select id="presetsSetting" onchange="setPreset()">
             <option value="classicStyle" selected>Classic Style</option>
-            <!--<option value="masterStyle">Master Style</option>
-            <option value="dragonStyle">Dragon Style</option>-->
+            <option value="masterStyle">Master Style</option>
+            <option value="dragonStyle">Dragon Style</option>
             <option value="gb">Game Boy</option>
             <option value="nes">NES</option>
             <option value="dx">Tetris DX</option>
@@ -75,8 +78,8 @@
         <label for="visualsSetting">VISUALS - </label>
         <select id="visualsSetting" onchange="setVisuals()">
             <option value="classicStyle" selected>Classic Style</option>
-            <!--<option value="masterStyle">Master Style</option>
-            <option value="dragonStyle">Dragon Style</option>-->
+            <option value="masterStyle">Master Style</option>
+            <option value="dragonStyle">Dragon Style</option>
             <option value="gb">Game Boy</option>
             <option value="nes">NES</option>
             <option value="dx">Tetris DX</option>
@@ -86,8 +89,8 @@
         <label for="gameMechanicsSetting">GAME MECHANICS - </label>
         <select id="gameMechanicsSetting" onchange="setGameMechanics()">
             <option value="classicStyle" selected>Classic Style</option>
-            <!--<option value="masterStyle">Master Style</option>
-            <option value="dragonStyle">Dragon Style</option>-->
+            <option value="masterStyle">Master Style</option>
+            <option value="dragonStyle">Dragon Style</option>
             <option value="gb">Game Boy</option>
             <option value="nes">NES</option>
             <option value="dx">Tetris DX</option>
@@ -128,6 +131,9 @@
         <input type="number" id="softDropSpeedSetting" value="2" min="1" max="20" onchange="setSoftDropSpeed()"><br>
         <label for="hardDropSetting">HARD DROP</label>
         <input type="checkbox" id="hardDropSetting" onchange="setHardDrop()" checked /><br>
+        <label for="sonicDropSetting">SONIC DROP</label>
+        <input type="checkbox" id="sonicDropSetting" onchange="setSonicDrop()" /><br>
+        <p>OVERRIDES HARD DROP</p><br>
         <label for="IRSSetting">IRS</label>
         <input type="checkbox" id="IRSSetting" onchange="setIRS()" checked /><br><br>
 
@@ -158,8 +164,8 @@
     <canvas id="game" width="320" height="240"></canvas>
     <div id="textOverlay"></div>
     <script src="constants.js?v014=1"></script>
+    <script src="background.js?v014=1"></script>
     <script src="script.js?v014=1"></script>
     <script src="settings.js?v014=1"></script>
-    <script src="background.js?v014=1"></script>
 </body>
 </html>
