@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piece explosion effect</title>
+</head>
+<body style="image-rendering: pixelated;">
+    <canvas id="canvas" style="width: 500px; height: 500px;"></canvas>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas && canvas.getContext("2d");
+        canvas.width = 500;
+        canvas.height = 500;
+        let colors = ["#0729da", "#1c94fe", "#29d2eb"]
+
+        let pixelLocations = [];
+        for (let i=0;i<8;i++) {
+            pixelLocations[i] = [];
+            for (let j=0;j<8;j++) pixelLocations[i].push([i,j,Math.random()*Math.PI*2,Math.random()*2+1,Math.floor(Math.random()*colors.length)]); //X, Y, angle, speed, color
+        }
+
+        function display() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#cccccc"
+            ctx.fillRect(222, 222, 64, 64);
+            for (let i=0;i<8;i++) {
+                for (let j=0;j<8;j++) {
+                    ctx.fillStyle = colors[pixelLocations[i][j][4]];
+                    ctx.fillRect(Math.round(pixelLocations[i][j][0])+250, Math.round(pixelLocations[i][j][1])+250, 1, 1);
+                }
+            }
+        }
+        display()
+
+        function updatePixelPositions() {
+            for (let i=0;i<8;i++) {
+                for (let j=0;j<8;j++) {
+                    pixelLocations[i][j][0] += Math.cos(pixelLocations[i][j][2])*pixelLocations[i][j][3];
+                    pixelLocations[i][j][1] += Math.sin(pixelLocations[i][j][2])*pixelLocations[i][j][3];
+                }
+            }
+            display()
+        }
+    </script>
+</body>
+</html>

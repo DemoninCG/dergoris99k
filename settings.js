@@ -5,7 +5,10 @@ function updateSettingVisuals() {
     document.getElementById("visualsSetting").value = settings.visuals;
     document.getElementById("gameMechanicsSetting").value = settings.gameMechanics;
     document.getElementById("segaDifficultySetting").value = settings.segaDifficulty;
-    document.getElementById("segaDifficultySetting").disabled = (settings.gameMechanics != "sega")
+    document.getElementById("segaDifficultySetting").disabled = (settings.gameMechanics != "sega");
+    document.getElementById("DASInitialSetting").disabled = (settings.gameMechanics == "dragonStyle");
+    document.getElementById("DASSetting").disabled = (settings.gameMechanics == "dragonStyle");
+    document.getElementById("lockDelaySetting").disabled = (settings.gameMechanics == "dragonStyle");
     document.getElementById("randomizerSetting").value = settings.randomizer;
     document.getElementById("pieceColouringSetting").value = settings.pieceColouring;
     document.getElementById("softDropSetting").checked = settings.softDrop;
@@ -13,6 +16,7 @@ function updateSettingVisuals() {
     document.getElementById("hardDropSetting").checked = settings.hardDrop;
     document.getElementById("sonicDropSetting").checked = settings.sonicDrop;
     document.getElementById("sonicDropSetting").disabled = !settings.hardDrop;
+    document.getElementById("rotationSystemSetting").value = settings.rotationSystem;
     document.getElementById("IRSSetting").checked = settings.IRS;
     document.getElementById("overrideGameARESetting").checked = settings.overrideGameARE;
     document.getElementById("ARESetting").value = settings.ARE;
@@ -65,6 +69,7 @@ function setPreset() {
             settings.softDropSpeed = 2;
             settings.hardDrop = true;
             settings.sonicDrop = false;
+            settings.rotationSystem = "nintendo-r";
             settings.IRS = true;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -83,6 +88,7 @@ function setPreset() {
             settings.softDropSpeed = 1;
             settings.hardDrop = false;
             settings.sonicDrop = false;
+            settings.rotationSystem = "ars";
             settings.IRS = true;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -101,6 +107,7 @@ function setPreset() {
             settings.softDropSpeed = 1;
             settings.hardDrop = false;
             settings.sonicDrop = false;
+            settings.rotationSystem = "ars";
             settings.IRS = true;
             settings.twentyGOverride = true,
             settings.overrideGameARE = false;
@@ -120,6 +127,7 @@ function setPreset() {
             settings.softDropSpeed = 3;
             settings.hardDrop = false;
             settings.sonicDrop = false;
+            settings.rotationSystem = "nintendo-l";
             settings.IRS = false;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -139,6 +147,7 @@ function setPreset() {
             settings.softDropSpeed = 2;
             settings.hardDrop = false;
             settings.sonicDrop = false;
+            settings.rotationSystem = "nintendo-r";
             settings.IRS = false;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -158,6 +167,7 @@ function setPreset() {
             settings.softDropSpeed = 2;
             settings.hardDrop = false;
             settings.sonicDrop = false;
+            settings.rotationSystem = "dx";
             settings.IRS = false;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -177,6 +187,7 @@ function setPreset() {
             settings.softDropSpeed = 1;
             settings.hardDrop = false;
             settings.sonicDrop = false;
+            settings.rotationSystem = "sega";
             settings.IRS = false;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -195,6 +206,7 @@ function setPreset() {
             settings.softDropSpeed = 1;
             settings.hardDrop = false;
             settings.sonicDrop = false;
+            settings.rotationSystem = "ars";
             settings.IRS = true;
             settings.twentyGOverride = false,
             settings.overrideGameARE = false;
@@ -254,6 +266,9 @@ function setGameMechanics() {
     let gameMechanics = document.getElementById("gameMechanicsSetting").value;
     settings.gameMechanics = gameMechanics;
     document.getElementById("segaDifficultySetting").disabled = (settings.gameMechanics != "sega");
+    document.getElementById("DASInitialSetting").disabled = (settings.gameMechanics == "dragonStyle");
+    document.getElementById("DASSetting").disabled = (settings.gameMechanics == "dragonStyle");
+    document.getElementById("lockDelaySetting").disabled = (settings.gameMechanics == "dragonStyle");
 }
 
 function setSegaDifficulty() {
@@ -303,6 +318,11 @@ function setHardDrop() {
 function setSonicDrop() {
     let sonicDrop = document.getElementById("sonicDropSetting").checked;
     settings.sonicDrop = sonicDrop;
+}
+
+function setRotationSystem() {
+    let rotationSystem = document.getElementById("rotationSystemSetting").value;
+    settings.rotationSystem = rotationSystem;
 }
 
 function setIRS() {

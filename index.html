@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dergoris 99k</title>
-    <link rel="stylesheet" href="style.css?v014=1">
+    <link rel="stylesheet" href="style.css?v016=1">
     <link rel="icon" href="img/icon2.png">
     <!--Preload board-->
     <img src="img/main/background1.png" style="display: none">
     <img src="img/main/board.png" style="display: none">
     <img src="img/main/board2.png" style="display: none">
+    <img src="img/main/board3.png" style="display: none">
     <img src="img/main/boardBack.png" style="display: none">
     <img src="img/main/tiles.png" style="display: none">
     <img src="img/main/ghostTiles.png" style="display: none">
@@ -17,6 +18,9 @@
     <img src="img/main/digits.png" style="display: none">
     <img src="img/main/gradesClassic.png" style="display: none">
     <img src="img/main/gradesMaster.png" style="display: none">
+    <img src="img/main/gradesDragon.png" style="display: none">
+    <img src="img/main/readyGo.png" style="display: none">
+    <img src="img/main/explosionEffect.png" style="display: none">
     <img src="img/main/finish.png" style="display: none">
     <img src="img/gb/boardSmall.png" style="display: none">
     <img src="img/gb/tiles.png" style="display: none">
@@ -55,7 +59,7 @@
 <body>
     <canvas id="backgroundCanvas" style="display: none"></canvas>
     <div id="settings" style="overflow: auto; max-height: 98vh;">
-        <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.5</p><br><br>
+        <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.6</p><br><br>
         <button onclick="startGame()">START GAME</button><br><br>
         <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
         <select id="presetsSetting" onchange="setPreset()">
@@ -69,11 +73,11 @@
             <option value="tgm">The Grand Master</option>
         </select><br><br>
         <label for="startingLevelSetting">STARTING LEVEL - </label>
-        <input type="number" id="startingLevelSetting" value="0" min="0" max="999" onchange="setStartingLevel()"><br>
-        <label for="boardWidthSetting">BOARD WIDTH - </label>
-        <input type="number" id="boardWidthSetting" value="10" min="4" max="20" step="2" onchange="setBoardWidth()"><br>
-        <label for="boardHeightsetting">BOARD HEIGHT - </label>
-        <input type="number" id="boardHeightSetting" value="20" min="4" max="25" onchange="setBoardHeight()"><br><br>
+        <input type="number" id="startingLevelSetting" value="0" min="0" max="999" onchange="setStartingLevel()"><br><br>
+        <label for="boardWidthSetting" style="display: none">BOARD WIDTH - </label>
+        <input type="number" id="boardWidthSetting" value="10" min="4" max="20" step="2" onchange="setBoardWidth()" style="display: none">
+        <label for="boardHeightsetting" style="display: none">BOARD HEIGHT - </label>
+        <input type="number" id="boardHeightSetting" value="20" min="4" max="25" onchange="setBoardHeight()" style="display: none">
 
         <label for="visualsSetting">VISUALS - </label>
         <select id="visualsSetting" onchange="setVisuals()">
@@ -97,7 +101,7 @@
             <option value="sega">Sega (arcade)</option>
             <option value="tgm">The Grand Master</option>
         </select><br>
-        <p>MAIN GAME MECHANICS. INCLDUES ARE, ROTATION, WALLKICK AND SCORING SYSTEM.</p><br>
+        <p>MAIN GAME MECHANICS. INCLDUES DROP SPEED, ARE AND SCORING SYSTEM.</p><br>
         <label for="segaDifficultySetting">SEGA DIFFICULTY - </label>
         <select id="segaDifficultySetting" onchange="setSegaDifficulty()" disabled>
             <option value="easy">Easy</option>
@@ -134,6 +138,15 @@
         <label for="sonicDropSetting">SONIC DROP</label>
         <input type="checkbox" id="sonicDropSetting" onchange="setSonicDrop()" /><br>
         <p>OVERRIDES HARD DROP</p><br>
+
+        <label for="rotationSystemSetting">ROTATION SYSTEM - </label>
+        <select id="rotationSystemSetting" onchange="setRotationSystem()">
+            <option value="nintendo-l">Nintendo Rotation (Left-handed)</option>
+            <option value="nintendo-r">Nintendo Rotation (Right-handed)</option>
+            <option value="dx">DX Rotation</option>
+            <option value="sega">Sega Rotation</option>
+            <option value="ars" selected>Arika Rotation</option>
+        </select><br>
         <label for="IRSSetting">IRS</label>
         <input type="checkbox" id="IRSSetting" onchange="setIRS()" checked /><br><br>
 
@@ -163,9 +176,10 @@
     </div>
     <canvas id="game" width="320" height="240"></canvas>
     <div id="textOverlay"></div>
-    <script src="constants.js?v014=1"></script>
-    <script src="background.js?v014=1"></script>
-    <script src="script.js?v014=1"></script>
-    <script src="settings.js?v014=1"></script>
+    <canvas id="effectOverlay" width="320" height="240"></canvas>
+    <script src="constants.js?v016=1"></script>
+    <script src="background.js?v016=1"></script>
+    <script src="script.js?v016=1"></script>
+    <script src="settings.js?v016=1"></script>
 </body>
 </html>
