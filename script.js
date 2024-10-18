@@ -102,11 +102,6 @@ else if (window.innerHeight < 1000) {
  * @property {number} timeOfLastUpdate
  */
 
-
-// TODO: Refactor this huge block of variables into some objects:
-//  - Settings object
-//  - Game object (with a tgm sub-object)
-
 /**
  * @type {Settings}
  */
