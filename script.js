@@ -109,6 +109,7 @@ let settingObj;
 
 /**
  * @type {GameVars}
+ * Represents the game state.
  */
 let game = {
     board: [],
@@ -1604,6 +1605,7 @@ function updateVisuals() {
     }
 }
 
+/** @returns {number} */
 function getDropInterval() {
     if (settingObj.twentyGOverride) return 0.05;
     else if (settingObj.gameMechanics == "classicStyle") {
@@ -1631,10 +1633,13 @@ function getDropInterval() {
     }
 }
 
+/** @returns {number} */
 function getDAS() {
     if (settingObj.gameMechanics == "classicStyle") {return modeData.classic.das[Math.floor(game.level/100)];}
     return settingObj.DAS;
 }
+
+/** @returns {number} */
 
 function getDASInitial() {
     if (settingObj.gameMechanics == "classicStyle") {return modeData.classic.dasInitial[Math.floor(game.level/100)];}
@@ -1708,6 +1713,10 @@ function landPiece() {
     }
 }
 
+/**
+ * @param {number} lvl
+ * @returns {number}
+ */
 function calculateNESARELevel(lvl) {
     let tempX = settingObj.boardHeight-lvl;
     return Math.min(Math.floor(tempX/4-0.5)*2+10, 18);
@@ -2187,8 +2196,9 @@ function setNextPieceVisuals(x) {
     }
 }
 
+/** @returns {PieceCode} */
 function getRandomPiece() {
-    let chosenPiece
+    let chosenPiece;
     switch (settingObj.randomizer) {
         case "random":
             return Math.floor(Math.random()*7);
@@ -2230,6 +2240,7 @@ function getRandomPiece() {
             return Math.floor(Math.random()*7);
     }
 }
+
 /**
  * Checks if a piece is landed.
  * @param {number[][]} x - The [x, y] positions for each tile in the piece.
@@ -2300,6 +2311,9 @@ function moveRight() {
     }
 }
 
+/**
+ * @returns {false | undefined} False if the piece is invalid, else undefined.
+ */
 function rotatePiece(clockwise=true, override=false) {
     if (clockwise && game.keysHeld[4] && !override) return;
     if (!clockwise && game.keysHeld[5] && !override) return;
@@ -2545,6 +2559,13 @@ function rotatePiece(clockwise=true, override=false) {
     }
 }
 
+/**
+ * Rotates a piece around a point.
+ * @param {number[][]} piecePos - The [x, y] positions for each tile in the piece.
+ * @param {number} x - The x position of the point to rotate around.
+ * @param {number} y - The y position of the point to rotate around.
+ * @param {boolean} clockwise - Whether or not to rotate the piece clockwise. If false, rotates counterclockwise.
+ */
 function rotatePieceAroundPoint(piecePos,x,y,clockwise=true) {
     //Shift the piece positions to be around 0,0
     let tempPiecePositions = [];
@@ -2713,7 +2734,11 @@ document.addEventListener("keyup", function(event) {
     }
 })
 
-function checkFullLines() { //Return an array of the full lines
+/**
+ * Checks for full rows in the playfield.
+ * @returns {number[]} An array of the full rows.
+ */
+function checkFullLines() {
     let fullLines = [];
     for (let i=0;i<settingObj.boardHeight;i++) {
         let lineFull = true;
@@ -2725,16 +2750,19 @@ function checkFullLines() { //Return an array of the full lines
     return fullLines;
 }
 
+/**
+ * Checks for a perfect clear by checking if every non-full rows are empty.
+ * @returns {boolean} Whether or not a perfect clear occurred.
+ */
 function checkPerfectClear() { //Check for perfect clear by checking if all lines besides the full lines are empty
     let fullLines = checkFullLines();
-    let perfectClear = true;
     for (let i=0;i<settingObj.boardHeight;i++) {
         if (fullLines.includes(i)) continue;
         for (let j=0;j<settingObj.boardWidth;j++) {
-            if (game.board[i][j] != 0) {perfectClear = false; break;}
+            if (game.board[i][j] != 0) return false;
         }
     }
-    return perfectClear;
+    return true;
 }
 
 let visualInterval;
@@ -2915,6 +2943,11 @@ function clearLines() {
     else if (settingObj.visuals == "tgm" && linesCleared > 0) {visualInterval = TGMVisualClearLines(1, checkFullLines())}
 }
 
+/**
+ * @param {number} startTime - The time the line clear started.
+ * @param {number[]} fullLinesTemp - The full lines that is being cleared.
+ * @param {number[][]} piecesInFullLines - The pieces in the full lines.
+ */
 function mainVisualClearLines(startTime, fullLinesTemp, piecesInFullLines) {
     let leftSide = 160 - settingObj.boardWidth * 4;
     let dt = Date.now() - startTime;
@@ -2934,6 +2967,9 @@ function mainVisualClearLines(startTime, fullLinesTemp, piecesInFullLines) {
     }
 }
 
+/**
+ * @param {number[]} fullLinesTemp - The full lines that is being cleared.
+ */
 function mainClearLines(fullLinesTemp) {
     for (let i = 0; i < fullLinesTemp.length; i++) {
         let line = fullLinesTemp[i];
@@ -2953,6 +2989,9 @@ function mainClearLines(fullLinesTemp) {
     updateVisuals();
 }
 
+/**
+ * @param {number} stage - The current stage of the line clear animation.
+ */
 function GBVisualClearLines(stage) {
     let fullLines = checkFullLines();
     let leftSide = 120 - settingObj.boardWidth * 4;
