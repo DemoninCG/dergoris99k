@@ -1,4 +1,4 @@
-function updateSettingVisuals() {
+export function updateSettingVisuals() {
     document.getElementById("startingLevelSetting").value = settings.startingLevel;
     document.getElementById("boardWidthSetting").value = settings.boardWidth;
     document.getElementById("boardHeightSetting").value = settings.boardHeight;
@@ -55,7 +55,7 @@ Reminiscent of the TGM series death/shirase mode
 - Aim is to maximize score and minimize section times
 */ 
 
-function setPreset() {
+export function setPreset() {
     let preset = document.getElementById("presetsSetting").value;
     switch (preset) {
         case "classicStyle":
@@ -218,7 +218,7 @@ function setPreset() {
     updateSettingVisuals();
 }
 
-function setStartingLevel() {
+export function setStartingLevel() {
     let startingLevel = parseInt(document.getElementById("startingLevelSetting").value);
     if (startingLevel < 0) {
         startingLevel = 0;
@@ -233,7 +233,7 @@ function setStartingLevel() {
     settings.startingLevel = startingLevel;
 }
 
-function setBoardWidth() {
+export function setBoardWidth() {
     let boardWidth = parseInt(document.getElementById("boardWidthSetting").value);
     if (boardWidth < 4) {
         boardWidth = 4;
@@ -245,7 +245,7 @@ function setBoardWidth() {
     settings.boardWidth = boardWidth;
 }
 
-function setBoardHeight() {
+export function setBoardHeight() {
     let boardHeight = parseInt(document.getElementById("boardHeightSetting").value);
     if (boardHeight < 4) {
         boardHeight = 4;
@@ -257,12 +257,12 @@ function setBoardHeight() {
     settings.boardHeight = boardHeight;
 }
 
-function setVisuals() {
+export function setVisuals() {
     let visuals = document.getElementById("visualsSetting").value;
     settings.visuals = visuals;
 }
 
-function setGameMechanics() {
+export function setGameMechanics() {
     let gameMechanics = document.getElementById("gameMechanicsSetting").value;
     settings.gameMechanics = gameMechanics;
     document.getElementById("segaDifficultySetting").disabled = (settings.gameMechanics != "sega");
@@ -271,32 +271,32 @@ function setGameMechanics() {
     document.getElementById("lockDelaySetting").disabled = (settings.gameMechanics == "dragonStyle");
 }
 
-function setSegaDifficulty() {
+export function setSegaDifficulty() {
     let segaDifficulty = document.getElementById("segaDifficultySetting").value;
     settings.segaDifficulty = segaDifficulty;
 }
 
-function setRandomizer() {
+export function setRandomizer() {
     let randomizer = document.getElementById("randomizerSetting").value;
     settings.randomizer = randomizer;
 }
 
-function setPieceColouring() {
+export function setPieceColouring() {
     let pieceColouring = document.getElementById("pieceColouringSetting").value;
     settings.pieceColouring = pieceColouring;
 }
 
-function setInvisible() {
+export function setInvisible() {
     let invisible = document.getElementById("invisibleSetting").checked;
     settings.invisible = invisible;
 }
 
-function setSoftDrop() {
+export function setSoftDrop() {
     let softDrop = document.getElementById("softDropSetting").checked;
     settings.softDrop = softDrop;
 }
 
-function setSoftDropSpeed() {
+export function setSoftDropSpeed() {
     let softDropSpeed = parseInt(document.getElementById("softDropSpeedSetting").value);
     if (softDropSpeed < 1) {
         softDropSpeed = 1;
@@ -309,40 +309,40 @@ function setSoftDropSpeed() {
 
 }
 
-function setHardDrop() {
+export function setHardDrop() {
     let hardDrop = document.getElementById("hardDropSetting").checked;
     settings.hardDrop = hardDrop;
     document.getElementById("sonicDropSetting").disabled = (!hardDrop);
 }
 
-function setSonicDrop() {
+export function setSonicDrop() {
     let sonicDrop = document.getElementById("sonicDropSetting").checked;
     settings.sonicDrop = sonicDrop;
 }
 
-function setRotationSystem() {
+export function setRotationSystem() {
     let rotationSystem = document.getElementById("rotationSystemSetting").value;
     settings.rotationSystem = rotationSystem;
 }
 
-function setIRS() {
+export function setIRS() {
     let IRS = document.getElementById("IRSSetting").checked;
     settings.IRS = IRS;
 }
 
-function setTwentyGOverride() {
+export function setTwentyGOverride() {
     let twentyGOverride = document.getElementById("twentyGSetting").checked;
     settings.twentyGOverride = twentyGOverride;
 }
 
-function setOverrideGameARE() {
+export function setOverrideGameARE() {
     let overrideGameARE = document.getElementById("overrideGameARESetting").checked;
     settings.overrideGameARE = overrideGameARE;
     document.getElementById("ARESetting").disabled = !settings.overrideGameARE;
     document.getElementById("ARELineClearSetting").disabled = !settings.overrideGameARE;
 }
 
-function setARE() {
+export function setARE() {
     let ARE = parseInt(document.getElementById("ARESetting").value);
     if (ARE < 0) {
         ARE = 0;
@@ -354,7 +354,7 @@ function setARE() {
     settings.ARE = ARE;
 }
 
-function setARELineClear() {
+export function setARELineClear() {
     let ARELineClear = parseInt(document.getElementById("ARELineClearSetting").value);
     if (ARELineClear < 0) {
         ARELineClear = 0;
@@ -366,7 +366,7 @@ function setARELineClear() {
     settings.ARELineClear = ARELineClear;
 }
 
-function setDASInitial() {
+export function setDASInitial() {
     let DASInitial = parseInt(document.getElementById("DASInitialSetting").value);
     if (DASInitial < 1) {
         DASInitial = 1;
@@ -378,7 +378,7 @@ function setDASInitial() {
     settings.DASInitial = DASInitial;
 }
 
-function setDAS() {
+export function setDAS() {
     let DAS = parseInt(document.getElementById("DASSetting").value);
     if (DAS < 1) {
         DAS = 1;
@@ -390,7 +390,7 @@ function setDAS() {
     settings.DAS = DAS;
 }
 
-function setLockDelay() {
+export function setLockDelay() {
     let lockDelay = parseInt(document.getElementById("lockDelaySetting").value);
     if (lockDelay < 0) {
         lockDelay = 0;
@@ -402,7 +402,7 @@ function setLockDelay() {
     settings.lockDelay = lockDelay;
 }
 
-function setLockReset() {
+export function setLockReset() {
     let lockReset = document.getElementById("lockResetSetting").value;
     settings.lockReset = lockReset;
 }
