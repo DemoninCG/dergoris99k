@@ -271,9 +271,9 @@ function initShaderProgram() {
 // Initialize shaders and buffer
 initShaderProgram();    
 
-const seaColor = [11.0, 72.0, 142.0];
-const waveColor = [15.0, 120.0, 152.0];
-const backgroundEnabled = true;
+let seaColor = [11.0, 72.0, 142.0];
+let waveColor = [15.0, 120.0, 152.0];
+let backgroundEnabled = true;
 function render(timestamp) {
     if (!backgroundEnabled) { requestAnimationFrame(render); return; }
     gameCanvas.width = window.innerWidth / 4;

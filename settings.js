@@ -1,4 +1,12 @@
-export function updateSettingVisuals() {
+/**
+ * @typedef {import("./script.js").Settings} Settings
+ */
+
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function updateSettingVisuals(settings) {
     document.getElementById("startingLevelSetting").value = settings.startingLevel;
     document.getElementById("boardWidthSetting").value = settings.boardWidth;
     document.getElementById("boardHeightSetting").value = settings.boardHeight;
@@ -27,9 +35,9 @@ export function updateSettingVisuals() {
     document.getElementById("DASSetting").value = settings.DAS;
     document.getElementById("lockDelaySetting").value = settings.lockDelay;
     document.getElementById("lockResetSetting").value = settings.lockReset;
+    return settings;
 }
 
-updateSettingVisuals()
 document.getElementById("presetsSetting").value = "classicStyle";
 
 /*
@@ -55,7 +63,11 @@ Reminiscent of the TGM series death/shirase mode
 - Aim is to maximize score and minimize section times
 */ 
 
-export function setPreset() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setPreset(settings) {
     let preset = document.getElementById("presetsSetting").value;
     switch (preset) {
         case "classicStyle":
@@ -215,10 +227,14 @@ export function setPreset() {
             settings.lockDelay = 30;
             break;
     }
-    updateSettingVisuals();
+    return updateSettingVisuals(settings);
 }
 
-export function setStartingLevel() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setStartingLevel(settings) {
     let startingLevel = parseInt(document.getElementById("startingLevelSetting").value);
     if (startingLevel < 0) {
         startingLevel = 0;
@@ -231,9 +247,14 @@ export function setStartingLevel() {
     else if (settings.gameMechanics == "tgm" && startingLevel > 998) {startingLevel = 998;}
     document.getElementById("startingLevelSetting").value = startingLevel;
     settings.startingLevel = startingLevel;
+    return settings;
 }
 
-export function setBoardWidth() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setBoardWidth(settings) {
     let boardWidth = parseInt(document.getElementById("boardWidthSetting").value);
     if (boardWidth < 4) {
         boardWidth = 4;
@@ -243,9 +264,14 @@ export function setBoardWidth() {
     }
     document.getElementById("boardWidthSetting").value = boardWidth;
     settings.boardWidth = boardWidth;
+    return settings;
 }
 
-export function setBoardHeight() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setBoardHeight(settings) {
     let boardHeight = parseInt(document.getElementById("boardHeightSetting").value);
     if (boardHeight < 4) {
         boardHeight = 4;
@@ -255,154 +281,234 @@ export function setBoardHeight() {
     }
     document.getElementById("boardHeightSetting").value = boardHeight;
     settings.boardHeight = boardHeight;
+    return settings;
 }
 
-export function setVisuals() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setVisuals(settings) {
     let visuals = document.getElementById("visualsSetting").value;
     settings.visuals = visuals;
+    return settings;
 }
 
-export function setGameMechanics() {
+/**
+ * @param {Settings} settings
+ * @returns {Settings}
+ */
+export function setGameMechanics(settings) {
     let gameMechanics = document.getElementById("gameMechanicsSetting").value;
     settings.gameMechanics = gameMechanics;
     document.getElementById("segaDifficultySetting").disabled = (settings.gameMechanics != "sega");
     document.getElementById("DASInitialSetting").disabled = (settings.gameMechanics == "dragonStyle");
     document.getElementById("DASSetting").disabled = (settings.gameMechanics == "dragonStyle");
     document.getElementById("lockDelaySetting").disabled = (settings.gameMechanics == "dragonStyle");
+    return settings;
 }
 
-export function setSegaDifficulty() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setSegaDifficulty(settings) {
     let segaDifficulty = document.getElementById("segaDifficultySetting").value;
     settings.segaDifficulty = segaDifficulty;
+    return settings;
 }
 
-export function setRandomizer() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setRandomizer(settings) {
     let randomizer = document.getElementById("randomizerSetting").value;
     settings.randomizer = randomizer;
+    return settings;
 }
 
-export function setPieceColouring() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setPieceColouring(settings) {
     let pieceColouring = document.getElementById("pieceColouringSetting").value;
     settings.pieceColouring = pieceColouring;
+    return settings;
 }
 
-export function setInvisible() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setInvisible(settings) {
     let invisible = document.getElementById("invisibleSetting").checked;
     settings.invisible = invisible;
+    return settings;
 }
 
-export function setSoftDrop() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setSoftDrop(settings) {
     let softDrop = document.getElementById("softDropSetting").checked;
     settings.softDrop = softDrop;
+    return settings;
 }
 
-export function setSoftDropSpeed() {
+/**
+ * @param {number} min
+ * @param {number} val
+ * @param {number} max
+ * @returns {number}
+ */
+function clamp(min, val, max) {
+    return Math.max(min, Math.min(val, max));
+}
+
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setSoftDropSpeed(settings) {
     let softDropSpeed = parseInt(document.getElementById("softDropSpeedSetting").value);
-    if (softDropSpeed < 1) {
-        softDropSpeed = 1;
-    }
-    if (softDropSpeed > 20) {
-        softDropSpeed = 20;
-    }
+    softDropSpeed = clamp(1, softDropSpeed, 20);
     document.getElementById("softDropSpeedSetting").value = softDropSpeed;
     settings.softDropSpeed = softDropSpeed;
-
+    return settings;
 }
 
-export function setHardDrop() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setHardDrop(settings) {
     let hardDrop = document.getElementById("hardDropSetting").checked;
     settings.hardDrop = hardDrop;
     document.getElementById("sonicDropSetting").disabled = (!hardDrop);
+    return settings;
 }
 
-export function setSonicDrop() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setSonicDrop(settings) {
     let sonicDrop = document.getElementById("sonicDropSetting").checked;
     settings.sonicDrop = sonicDrop;
+    return settings;
 }
 
-export function setRotationSystem() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setRotationSystem(settings) {
     let rotationSystem = document.getElementById("rotationSystemSetting").value;
     settings.rotationSystem = rotationSystem;
+    return settings;
 }
 
-export function setIRS() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setIRS(settings) {
     let IRS = document.getElementById("IRSSetting").checked;
     settings.IRS = IRS;
+    return settings;
 }
 
-export function setTwentyGOverride() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setTwentyGOverride(settings) {
     let twentyGOverride = document.getElementById("twentyGSetting").checked;
     settings.twentyGOverride = twentyGOverride;
+    return settings;
 }
 
-export function setOverrideGameARE() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setOverrideGameARE(settings) {
     let overrideGameARE = document.getElementById("overrideGameARESetting").checked;
     settings.overrideGameARE = overrideGameARE;
     document.getElementById("ARESetting").disabled = !settings.overrideGameARE;
     document.getElementById("ARELineClearSetting").disabled = !settings.overrideGameARE;
+    return settings;
 }
 
-export function setARE() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setARE(settings) {
     let ARE = parseInt(document.getElementById("ARESetting").value);
-    if (ARE < 0) {
-        ARE = 0;
-    }
-    if (ARE > 60) {
-        ARE = 60;
-    }
+    ARE = clamp(0, ARE, 60);
     document.getElementById("ARESetting").value = ARE;
     settings.ARE = ARE;
+    return settings;
 }
 
-export function setARELineClear() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setARELineClear(settings) {
     let ARELineClear = parseInt(document.getElementById("ARELineClearSetting").value);
-    if (ARELineClear < 0) {
-        ARELineClear = 0;
-    }
-    if (ARELineClear > 60) {
-        ARELineClear = 60;
-    }
+    ARELineClear = clamp(0, ARELineClear, 60);
     document.getElementById("ARELineClearSetting").value = ARELineClear;
     settings.ARELineClear = ARELineClear;
+    return settings;
 }
 
-export function setDASInitial() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setDASInitial(settings) {
     let DASInitial = parseInt(document.getElementById("DASInitialSetting").value);
-    if (DASInitial < 1) {
-        DASInitial = 1;
-    }
-    if (DASInitial > 60) {
-        DASInitial = 60;
-    }
+    DASInitial = clamp(1, DASInitial, 60);
     document.getElementById("DASInitialSetting").value = DASInitial;
     settings.DASInitial = DASInitial;
+    return settings;
 }
 
-export function setDAS() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setDAS(settings) {
     let DAS = parseInt(document.getElementById("DASSetting").value);
-    if (DAS < 1) {
-        DAS = 1;
-    }
-    if (DAS > 60) {
-        DAS = 60;
-    }
+    DAS = clamp(1, DAS, 60);
     document.getElementById("DASSetting").value = DAS;
     settings.DAS = DAS;
+    return settings;
 }
 
-export function setLockDelay() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setLockDelay(settings) {
     let lockDelay = parseInt(document.getElementById("lockDelaySetting").value);
-    if (lockDelay < 0) {
-        lockDelay = 0;
-    }
-    if (lockDelay > 180) {
-        lockDelay = 180;
-    }
+    lockDelay = clamp(0, lockDelay, 180);
     document.getElementById("lockDelaySetting").value = lockDelay;
     settings.lockDelay = lockDelay;
+    return settings;
 }
 
-export function setLockReset() {
+/**
+ * @param {Settings} settings 
+ * @returns {Settings}
+ */
+export function setLockReset(settings) {
     let lockReset = document.getElementById("lockResetSetting").value;
     settings.lockReset = lockReset;
+    return settings;
 }
