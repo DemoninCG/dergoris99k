@@ -1,4 +1,7 @@
+/** @type {HTMLCanvasElement} */
 const gameCanvas = document.getElementById('gameCanvas');
+
+/** @type {WebGLRenderingContext} */
 const gl = gameCanvas.getContext('webgl') || gameCanvas.getContext('experimental-webgl');
 
 const vertexShaderSource = `
@@ -175,10 +178,28 @@ let fragmentShaderSource = `
     }
 `;
 
-let shaderProgram, resolutionUniformLocation, timeUniformLocation, seaColorUniformLocation, waveColorUniformLocation;
-let vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+/** @type {WebGLProgram} */
+let shaderProgram;
 
-// Function to create a shader
+/** @type {WebGLUniformLocation} */
+let resolutionUniformLocation;
+
+/** @type {WebGLUniformLocation} */
+let timeUniformLocation;
+
+/** @type {WebGLUniformLocation} */
+let seaColorUniformLocation;
+
+/** @type {WebGLUniformLocation} */
+let waveColorUniformLocation;
+
+/**
+ * Creates a shader.
+ * @param {WebGLRenderingContext} gl - The WebGL rendering context.
+ * @param {number} type - The type of shader.
+ * @param {string} source - The source code of the shader.
+ * @returns {WebGLShader | null} The shader, or null if an error occurred.
+ */
 function createShader(gl, type, source) {
     const shader = gl.createShader(type);
     gl.shaderSource(shader, source);
@@ -192,7 +213,13 @@ function createShader(gl, type, source) {
     return shader;
 }
 
-// Function to create and link a shader program
+/**
+ * Creates and links a shader program.
+ * @param {WebGLRenderingContext} gl - The WebGL rendering context.
+ * @param {string} vertexSource - The source code of the vertex shader.
+ * @param {string} fragmentSource - The source code of the fragment shader.
+ * @returns {WebGLProgram | null} The shader program, or null if an error occurred.
+ */
 function createShaderProgram(gl, vertexSource, fragmentSource) {
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexSource);
     const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
@@ -216,11 +243,11 @@ const vertices = new Float32Array([
     1, -1,
     -1, 1,
     1, 1
-  ]);
-  
-  const vertexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+]);
+
+const vertexBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
 // Function to initialize the shader program
 function initShaderProgram() {
@@ -244,11 +271,11 @@ function initShaderProgram() {
 // Initialize shaders and buffer
 initShaderProgram();    
 
-let seaColor = [11.0, 72.0, 142.0];
-let waveColor = [15.0, 120.0, 152.0];
-let backgroundDisabled = false;
+const seaColor = [11.0, 72.0, 142.0];
+const waveColor = [15.0, 120.0, 152.0];
+const backgroundEnabled = true;
 function render(timestamp) {
-    if (backgroundDisabled) { requestAnimationFrame(render); return; }
+    if (!backgroundEnabled) { requestAnimationFrame(render); return; }
     gameCanvas.width = window.innerWidth / 4;
     gameCanvas.height = window.innerHeight / 4;
     gl.uniform2f(resolutionUniformLocation, gameCanvas.width, gameCanvas.height);
@@ -272,7 +299,7 @@ function updateFragmentShader(newShaderSource) {
     initShaderProgram();
 }
 
-let fragmentShaderTest = `
+const _fragmentShaderTest = `
     #define MAX 100.
     #define EPS 4e-4
 
