@@ -1,5 +1,5 @@
-const backgroundCanvas = document.getElementById('backgroundCanvas');
-const gl = backgroundCanvas.getContext('webgl') || backgroundCanvas.getContext('experimental-webgl');
+const gameCanvas = document.getElementById('gameCanvas');
+const gl = gameCanvas.getContext('webgl') || gameCanvas.getContext('experimental-webgl');
 
 const vertexShaderSource = `
             attribute vec4 a_position;
@@ -249,15 +249,15 @@ let waveColor = [15.0, 120.0, 152.0];
 let backgroundDisabled = false;
 function render(timestamp) {
     if (backgroundDisabled) { requestAnimationFrame(render); return; }
-    backgroundCanvas.width = window.innerWidth / 4;
-    backgroundCanvas.height = window.innerHeight / 4;
-    gl.uniform2f(resolutionUniformLocation, backgroundCanvas.width, backgroundCanvas.height);
+    gameCanvas.width = window.innerWidth / 4;
+    gameCanvas.height = window.innerHeight / 4;
+    gl.uniform2f(resolutionUniformLocation, gameCanvas.width, gameCanvas.height);
     gl.uniform1f(timeUniformLocation, timestamp / 1000.0);
     gl.uniform3f(seaColorUniformLocation,  seaColor[0], seaColor[1], seaColor[2]);
     gl.uniform3f(waveColorUniformLocation, waveColor[0], waveColor[1], waveColor[2]);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.viewport(0, 0, backgroundCanvas.width, backgroundCanvas.height);
+    gl.viewport(0, 0, gameCanvas.width, gameCanvas.height);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     requestAnimationFrame(render);
 }
@@ -273,11 +273,124 @@ function updateFragmentShader(newShaderSource) {
 }
 
 let fragmentShaderTest = `
-    precision mediump float;
+    #define MAX 100.
+    #define EPS 4e-4
+
+    precision highp float;
+
     uniform vec2 u_resolution;
     uniform float u_time;
-    void main() {
-        vec2 st = gl_FragCoord.xy/u_resolution;
-        gl_FragColor = vec4(st.x, st.y, abs(sin(u_time)), 1.0);
+    uniform vec3 u_seacolor;
+    uniform vec3 u_wavecolor;
+
+#define MAX 100.
+#define EPS 4e-4
+
+// Classic pseudo-random hash
+float hash(vec2 p) {
+    return fract(sin(p.x * 75.3 + p.y * 94.2) * 4952.);
+}
+
+// Bi-cubic value noise
+float value(vec2 p) {
+    vec2 f = floor(p);
+    vec2 s = p - f;
+    s *= s * (3.0 - 2.0 * s);
+    vec2 o = vec2(0, 1);
+    
+    return mix(mix(hash(f + o.xx), hash(f + o.yx), s.x),
+               mix(hash(f + o.xy), hash(f + o.yy), s.x), s.y);
+}
+
+// Approximate SDF from fractal value noise
+float dist(vec3 p) {
+    vec2 n = p.xz * 0.6 + 1.0;
+    mat2 m = mat2(0.6754904, 0.7373688, -0.7373688, 0.6754904) * 2.0;
+    float weight = 0.3;
+    float water = 0.0;
+    float speed = 0.2;
+    for (int i = 0; i < 10; i++) {
+        water += smoothstep(0.1, 0.9, value(n + speed * u_time)) * weight;
+        n *= m;
+        speed *= 1.3;
+        weight *= 0.45;
     }
+    return (water + 0.5 - p.y);
+}
+
+// Compute normals from SDF derivative
+vec3 normal(vec3 p) {
+    vec2 e = vec2(4, -4) * EPS;
+    return normalize(dist(p + e.yxx) * e.yxx + dist(p + e.xyx) * e.xyx +
+                     dist(p + e.xxy) * e.xxy + dist(p + e.yyy) * e.yyy);
+}
+
+// Main water rendering function
+vec4 renderWater(vec2 fragCoord) {
+    vec3 ray = normalize(vec3(fragCoord * 2.0 - u_resolution.xy, u_resolution.x));
+    ray.yz *= mat2(cos(0.5 + vec4(0, 11, 33, 0)));
+    vec3 pos = vec3(u_time * 0.2, 0, 0);
+    vec4 mar = vec4(pos, 0);
+    
+    for (int i = 0; i < 50; i++) {
+        float stp = dist(mar.xyz);
+        mar += vec4(ray, 1) * stp;
+        
+        if (stp < EPS || mar.w > MAX) break;
+    }
+    vec3 nor = normal(mar.xyz);
+    vec3 sun = normalize(vec3(0, -1, 9));
+    vec3 ref = refract(ray, nor, 1.333);
+    float spec = exp(dot(ref, sun) * 9.0 - 9.0);
+    float fog = max(1.0 - mar.w / MAX, 0.0);
+
+    return vec4(vec3(sqrt(spec) * fog), 1.0 - 2.0 / mar.w);
+}
+
+// Procedural chromatic aberration and bokeh pass
+vec4 bokehPass(vec2 I) {
+    vec2 r = u_resolution.xy;
+    vec2 offset = vec2(0.003, 0.003); // Small offset to create the chromatic shift effect
+    vec4 O = vec4(0.0);
+
+    // Create chromatic aberration effect by offsetting the RGB channels separately
+    vec3 col = renderWater(I).rgb;
+    vec3 chromaR = renderWater(I + offset).rgb;
+    vec3 chromaG = renderWater(I - offset).rgb;
+    vec3 chromaB = renderWater(I + offset * 0.5).rgb;
+
+    col.r = mix(col.r, chromaR.r, 0.3);
+    col.g = mix(col.g, chromaG.g, 0.3);
+    col.b = mix(col.b, chromaB.b, 0.3);
+
+    // Procedurally add bokeh effect
+    for (float i = 1.0; i < 16.0; i += 1.0) {
+        offset *= -mat2(0.7374, 0.6755, -0.6755, 0.7374);
+        O += exp(vec4(col, 1.0)) / 0.1;
+    }
+
+    O = log(O * vec4(1.0, 1.0, 1.0, 0.1));
+    O /= O.a;
+
+    return O;
+}
+
+// Combined main function
+void main() {
+    // Get the fragment coordinates from the built-in variable
+    vec2 fragCoord = gl_FragCoord.xy;
+
+    // Render the water first
+    vec4 waterColor = renderWater(fragCoord);
+
+    // Apply the chromatic aberration and bokeh pass
+    // vec4 finalColor = bokehPass(fragCoord);
+    vec4 finalColor = vec4(u_seacolor / 255.0, 1.0);
+
+    // Combine the water and bokeh effect
+    gl_FragColor = mix(waterColor, finalColor, 0.5);
+}
+
+
+
 `;

@@ -126,7 +126,7 @@ function initialiseCanvasBoard() {
         canvas.height = Math.max(settings.boardHeight*8, 240);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8, 240) + "px";
         let leftSide = 160-settings.boardWidth*4;
-        document.body.style.backgroundImage = "url('img/main/background1.png')";
+        //document.body.style.backgroundImage = "url('img/main/background1.png')";
         images.tiles.src = "img/main/tiles.png";
         images.hardDropTile.src = "img/main/ghostTiles.png";
         if (settings.visuals === "dragonStyle" && level >= 500) {images.board.src = "img/main/board3.png";}
@@ -155,6 +155,12 @@ function initialiseCanvasBoard() {
         ctx.drawImage(images.sideInfo4, leftSide, 40);
         //Side info
         ctx.drawImage(images.sideInfo1, 60, 24);
+        if (settings.visuals === "dragonStyle") {
+            ctx.clearRect(208, 92, 26, 6);
+        }
+        else {
+            ctx.clearRect(264, 71, 12, 6);
+        }
     }
     else if (settings.visuals === "gb") {
         canvas.height = Math.max(settings.boardHeight*8, 144);
@@ -413,17 +419,18 @@ function startGame() {
     document.getElementById("effectOverlay").style.display = "block";
     document.getElementById("textOverlay").style.display = "block";
     if (settings.visuals == "classicStyle") {
-        document.getElementById("backgroundCanvas").style.display = "block";
+        document.getElementById("gameCanvas").style.display = "block";
         seaColor = [11.0, 72.0, 142.0];
         waveColor = [15.0, 120.0, 152.0];
     }
     else if (settings.visuals == "masterStyle") {
-        document.getElementById("backgroundCanvas").style.display = "block";
+        document.getElementById("gameCanvas").style.display = "block";
         seaColor = [11.0, 122.0, 142.0];
         waveColor = [15.0, 120.0, 152.0];
     }
     else if (settings.visuals == "dragonStyle") {
-        document.getElementById("backgroundCanvas").style.display = "block";
+        grade = Math.floor(level/50);
+        document.getElementById("gameCanvas").style.display = "block";
         if (level >= 500) {
             seaColor = [30.0, 30.0, 30.0];
             waveColor = [70.0, 70.0, 70.0];
@@ -605,7 +612,8 @@ function ReadyGo(stage) {
                     }
                 }
                 else {
-                    nextGradeString = dragonStyleGradeConditions[grade+1].toString();
+                    nextGradeString = (Math.floor(level/50)*50+50).toString();
+                    if (nextGradeString == "1000") {nextGradeString = "999";}
                     nextGradeLength = nextGradeString.length;
                     ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
                     for (let i=0;i<nextGradeLength;i++) {
@@ -849,7 +857,7 @@ function updateVisuals() {
                         if (board[i][j-1] == 0) ctx.fillRect(j*8+leftSide, i*8+40, 1, 8); //Left border
                         if (board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+40, 1, 8); //Right border
                         if (board[i-1] && board[i-1][j] != 0 && board[i-1][j-1] == 0 && board[i][j-1] != 0) ctx.fillRect(j*8+leftSide, i*8+40, 1, 1); //Top corner border 1
-                            if (board[i+1] && board[i+1][j] == 0 && board[i+1][j+1] == 0 && board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+48, 1, 1); //Top corner border 2
+                        if (board[i+1] && board[i+1][j] == 0 && board[i+1][j+1] == 0 && board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+48, 1, 1); //Top corner border 2
                     }
                 }
             }
@@ -899,7 +907,7 @@ function updateVisuals() {
             }
         }
         else {
-            if (grade >= 17) {
+            if (grade >= 20) {
                 nextGradeString = "??????";
                 nextGradeLength = 6;
                 ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
@@ -908,7 +916,8 @@ function updateVisuals() {
                 }
             }
             else {
-                nextGradeString = dragonStyleGradeConditions[grade+1].toString();
+                nextGradeString = (Math.floor(level/50)*50+50).toString();
+                if (nextGradeString == "1000") {nextGradeString = "999";}
                 nextGradeLength = nextGradeString.length;
                 ctx.clearRect(leftSide+settings.boardWidth*8+8, 80, 64, 9);
                 for (let i=0;i<nextGradeLength;i++) {
@@ -2236,7 +2245,7 @@ function softDrop() {
 }
 
 function hardDrop() {
-    if (gamePlaying && settings.hardDrop && !keysHeld[4] && !waitingForNextPiece) {
+    if (gamePlaying && settings.hardDrop && !waitingForNextPiece) {
         let tempPiecePositions = [];
         for (let i=0;i<4;i++) tempPiecePositions.push([...piecePositions[i]]);
         while (!checkPieceLanded(tempPiecePositions)) {
@@ -2502,16 +2511,18 @@ function clearLines() {
         updateVisuals();
     }
     //Update dragon style grade
-    else if (settings.gameMechanics == "dragonStyle" && score > dragonStyleGradeConditions[grade+1]) {
-        while (score > dragonStyleGradeConditions[grade+1]) grade++;
+    else if (settings.gameMechanics == "dragonStyle" && Math.floor(level/50) > grade && grade < 19) {
+        grade = Math.floor(level/50);
+        updateVisuals();
+    }
+    else if (settings.gameMechanics == "dragonStyle" && level >= 999 && grade == 19) {
+        grade = 20;
         updateVisuals();
     }
 
     //Update TGM grade
     if (settings.gameMechanics == "tgm" && score > tgmGradeConditions[grade+1]) {
-        while (score > tgmGradeConditions[grade+1]) {
-            grade++;
-        }
+        while (score > tgmGradeConditions[grade+1]) grade++;
         updateVisuals();
     }
     if (level == 999 && GMQualifying && score >= 126000 && time < 810) {grade = 18; updateVisuals();} //GM grade
@@ -2909,7 +2920,7 @@ function returnToMenu() {
     TGMBarState = 0;
     document.getElementById("game").style.display = "none";
     document.getElementById("effectOverlay").style.display = "none";
-    document.getElementById("backgroundCanvas").style.display = "none";
+    document.getElementById("gameCanvas").style.display = "none";
     document.getElementById("textOverlay").style.display = "none";
     document.getElementById("textOverlay").innerHTML = "";
     document.getElementById("settings").style.display = "block";

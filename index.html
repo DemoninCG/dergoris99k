@@ -58,128 +58,131 @@
 </head>
 <body>
     <canvas id="backgroundCanvas" style="display: none"></canvas>
-    <div id="settings" style="overflow: auto; max-height: 98vh;">
-        <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.6</p><br><br>
-        <button onclick="startGame()">START GAME</button><br><br>
-        <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
-        <select id="presetsSetting" onchange="setPreset()">
-            <option value="classicStyle" selected>Classic Style</option>
-            <option value="masterStyle">Master Style</option>
-            <option value="dragonStyle">Dragon Style</option>
-            <option value="gb">Game Boy</option>
-            <option value="nes">NES</option>
-            <option value="dx">Tetris DX</option>
-            <option value="sega">Sega (arcade)</option>
-            <option value="tgm">The Grand Master</option>
-        </select><br><br>
-        <label for="startingLevelSetting">STARTING LEVEL - </label>
-        <input type="number" id="startingLevelSetting" value="0" min="0" max="999" onchange="setStartingLevel()"><br><br>
-        <label for="boardWidthSetting" style="display: none">BOARD WIDTH - </label>
-        <input type="number" id="boardWidthSetting" value="10" min="4" max="20" step="2" onchange="setBoardWidth()" style="display: none">
-        <label for="boardHeightsetting" style="display: none">BOARD HEIGHT - </label>
-        <input type="number" id="boardHeightSetting" value="20" min="4" max="25" onchange="setBoardHeight()" style="display: none">
+    <canvas id="gameCanvas" style="display: none"></canvas>
+    <div class="container">
+        <div id="settings" style="overflow: auto; max-height: 98vh;">
+            <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.7</p><br><br>
+            <button onclick="startGame()">START GAME</button><br><br>
+            <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
+            <select id="presetsSetting" onchange="setPreset()">
+                <option value="classicStyle" selected>Classic Style</option>
+                <option value="masterStyle">Master Style</option>
+                <option value="dragonStyle">Dragon Style</option>
+                <option value="gb">Game Boy</option>
+                <option value="nes">NES</option>
+                <option value="dx">Tetris DX</option>
+                <option value="sega">Sega (arcade)</option>
+                <option value="tgm">The Grand Master</option>
+            </select><br><br>
+            <label for="startingLevelSetting">STARTING LEVEL - </label>
+            <input type="number" id="startingLevelSetting" value="0" min="0" max="999" onchange="setStartingLevel()"><br><br>
+            <label for="boardWidthSetting" style="display: none">BOARD WIDTH - </label>
+            <input type="number" id="boardWidthSetting" value="10" min="4" max="20" step="2" onchange="setBoardWidth()" style="display: none">
+            <label for="boardHeightsetting" style="display: none">BOARD HEIGHT - </label>
+            <input type="number" id="boardHeightSetting" value="20" min="4" max="25" onchange="setBoardHeight()" style="display: none">
 
-        <label for="visualsSetting">VISUALS - </label>
-        <select id="visualsSetting" onchange="setVisuals()">
-            <option value="classicStyle" selected>Classic Style</option>
-            <option value="masterStyle">Master Style</option>
-            <option value="dragonStyle">Dragon Style</option>
-            <option value="gb">Game Boy</option>
-            <option value="nes">NES</option>
-            <option value="dx">Tetris DX</option>
-            <option value="sega">Sega (arcade)</option>
-            <option value="tgm">The Grand Master</option>
-        </select><br>
-        <label for="gameMechanicsSetting">GAME MECHANICS - </label>
-        <select id="gameMechanicsSetting" onchange="setGameMechanics()">
-            <option value="classicStyle" selected>Classic Style</option>
-            <option value="masterStyle">Master Style</option>
-            <option value="dragonStyle">Dragon Style</option>
-            <option value="gb">Game Boy</option>
-            <option value="nes">NES</option>
-            <option value="dx">Tetris DX</option>
-            <option value="sega">Sega (arcade)</option>
-            <option value="tgm">The Grand Master</option>
-        </select><br>
-        <p>MAIN GAME MECHANICS. INCLDUES DROP SPEED, ARE AND SCORING SYSTEM.</p><br>
-        <label for="segaDifficultySetting">SEGA DIFFICULTY - </label>
-        <select id="segaDifficultySetting" onchange="setSegaDifficulty()" disabled>
-            <option value="easy">Easy</option>
-            <option value="normal" selected>Normal</option>
-            <option value="hard">Hard</option>
-            <option value="hardest">Hardest</option>
-        </select><br>
-        <label for="randomizerSetting">RANDOMIZER - </label>
-        <select id="randomizerSetting" onchange="setRandomizer()">
-            <option value="random">Random</option>
-            <option value="gb">Game Boy</option>
-            <option value="nes">NES</option>
-            <option value="dx">Tetris DX</option>
-            <option value="tgm" selected>The Grand Master</option>
-        </select><br>
-        <p>HOW PIECES ARE CHOSEN.</p><br>
-        <label for="pieceColouringSetting">PIECE COLOURING - </label>
-        <select id="pieceColouringSetting" onchange="setPieceColouring()">
-            <option value="regular" selected>Regular</option>
-            <option value="monotoneFixed">Monotone (fixed)</option>
-            <option value="monotoneAll">Monotone (all)</option>
-            <option value="border">Border only</option>
-        </select><br>
-        <p>HOW PIECES ARE COLOURED.<br>REGULAR = COLOURS BASED ON PIECE.<br>MONOTONE (FIXED) = FIXED BLOCKS ARE MONOTONE.<br>MONOTONE (ALL) = ALL BLOCKS ARE MONOTONE</p>
-        <label for="invisibleSetting">INVISIBLE BOARD</label>
-        <input type="checkbox" id="invisibleSetting" onchange="setInvisible()" /><br><br>
+            <label for="visualsSetting">VISUALS - </label>
+            <select id="visualsSetting" onchange="setVisuals()">
+                <option value="classicStyle" selected>Classic Style</option>
+                <option value="masterStyle">Master Style</option>
+                <option value="dragonStyle">Dragon Style</option>
+                <option value="gb">Game Boy</option>
+                <option value="nes">NES</option>
+                <option value="dx">Tetris DX</option>
+                <option value="sega">Sega (arcade)</option>
+                <option value="tgm">The Grand Master</option>
+            </select><br>
+            <label for="gameMechanicsSetting">GAME MECHANICS - </label>
+            <select id="gameMechanicsSetting" onchange="setGameMechanics()">
+                <option value="classicStyle" selected>Classic Style</option>
+                <option value="masterStyle">Master Style</option>
+                <option value="dragonStyle">Dragon Style</option>
+                <option value="gb">Game Boy</option>
+                <option value="nes">NES</option>
+                <option value="dx">Tetris DX</option>
+                <option value="sega">Sega (arcade)</option>
+                <option value="tgm">The Grand Master</option>
+            </select><br>
+            <p>MAIN GAME MECHANICS. INCLDUES DROP SPEED, ARE AND SCORING SYSTEM.</p><br>
+            <label for="segaDifficultySetting">SEGA DIFFICULTY - </label>
+            <select id="segaDifficultySetting" onchange="setSegaDifficulty()" disabled>
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+                <option value="hardest">Hardest</option>
+            </select><br>
+            <label for="randomizerSetting">RANDOMIZER - </label>
+            <select id="randomizerSetting" onchange="setRandomizer()">
+                <option value="random">Random</option>
+                <option value="gb">Game Boy</option>
+                <option value="nes">NES</option>
+                <option value="dx">Tetris DX</option>
+                <option value="tgm" selected>The Grand Master</option>
+            </select><br>
+            <p>HOW PIECES ARE CHOSEN.</p><br>
+            <label for="pieceColouringSetting">PIECE COLOURING - </label>
+            <select id="pieceColouringSetting" onchange="setPieceColouring()">
+                <option value="regular" selected>Regular</option>
+                <option value="monotoneFixed">Monotone (fixed)</option>
+                <option value="monotoneAll">Monotone (all)</option>
+                <option value="border">Border only</option>
+            </select><br>
+            <p>HOW PIECES ARE COLOURED.<br>REGULAR = COLOURS BASED ON PIECE.<br>MONOTONE (FIXED) = FIXED BLOCKS ARE MONOTONE.<br>MONOTONE (ALL) = ALL BLOCKS ARE MONOTONE</p>
+            <label for="invisibleSetting">INVISIBLE BOARD</label>
+            <input type="checkbox" id="invisibleSetting" onchange="setInvisible()" /><br><br>
 
-        <label for="softDropSetting">SOFT DROP</label>
-        <input type="checkbox" id="softDropSetting" onchange="setSoftDrop()" checked /><br>
-        <label for="softDropSpeedSetting">SOFT DROP SPEED - </label>
-        <input type="number" id="softDropSpeedSetting" value="2" min="1" max="20" onchange="setSoftDropSpeed()"><br>
-        <label for="hardDropSetting">HARD DROP</label>
-        <input type="checkbox" id="hardDropSetting" onchange="setHardDrop()" checked /><br>
-        <label for="sonicDropSetting">SONIC DROP</label>
-        <input type="checkbox" id="sonicDropSetting" onchange="setSonicDrop()" /><br>
-        <p>OVERRIDES HARD DROP</p><br>
+            <label for="softDropSetting">SOFT DROP</label>
+            <input type="checkbox" id="softDropSetting" onchange="setSoftDrop()" checked /><br>
+            <label for="softDropSpeedSetting">SOFT DROP SPEED - </label>
+            <input type="number" id="softDropSpeedSetting" value="2" min="1" max="20" onchange="setSoftDropSpeed()"><br>
+            <label for="hardDropSetting">HARD DROP</label>
+            <input type="checkbox" id="hardDropSetting" onchange="setHardDrop()" checked /><br>
+            <label for="sonicDropSetting">SONIC DROP</label>
+            <input type="checkbox" id="sonicDropSetting" onchange="setSonicDrop()" /><br>
+            <p>OVERRIDES HARD DROP</p><br>
 
-        <label for="rotationSystemSetting">ROTATION SYSTEM - </label>
-        <select id="rotationSystemSetting" onchange="setRotationSystem()">
-            <option value="nintendo-l">Nintendo Rotation (Left-handed)</option>
-            <option value="nintendo-r">Nintendo Rotation (Right-handed)</option>
-            <option value="dx">DX Rotation</option>
-            <option value="sega">Sega Rotation</option>
-            <option value="ars" selected>Arika Rotation</option>
-        </select><br>
-        <label for="IRSSetting">IRS</label>
-        <input type="checkbox" id="IRSSetting" onchange="setIRS()" checked /><br><br>
+            <label for="rotationSystemSetting">ROTATION SYSTEM - </label>
+            <select id="rotationSystemSetting" onchange="setRotationSystem()">
+                <option value="nintendo-l">Nintendo Rotation (Left-handed)</option>
+                <option value="nintendo-r">Nintendo Rotation (Right-handed)</option>
+                <option value="dx">DX Rotation</option>
+                <option value="sega">Sega Rotation</option>
+                <option value="ars" selected>Arika Rotation</option>
+            </select><br>
+            <label for="IRSSetting">IRS</label>
+            <input type="checkbox" id="IRSSetting" onchange="setIRS()" checked /><br><br>
 
-        <label for="twentyGSetting">20G MODE</label>
-        <input type="checkbox" id="twentyGSetting" onchange="setTwentyGOverride()" /><br><br>
+            <label for="twentyGSetting">20G MODE</label>
+            <input type="checkbox" id="twentyGSetting" onchange="setTwentyGOverride()" /><br><br>
 
-        <label for="overrideGameARESetting">OVERRIDE GAME-SPECIFIC ARE</label>
-        <input type="checkbox" id="overrideGameARESetting" onchange="setOverrideGameARE()" /><br>
-        <label for="ARESetting">ARE - NORMAL - </label>
-        <input type="number" id="ARESetting" value="10" min="0" max="60" onchange="setARE()"><br>
-        <label for="ARELineClearSetting">ARE - LINE CLEAR - </label>
-        <input type="number" id="ARELineClearSetting" value="30" min="0" max="60" onchange="setARELineClear()"><br><br>
+            <label for="overrideGameARESetting">OVERRIDE GAME-SPECIFIC ARE</label>
+            <input type="checkbox" id="overrideGameARESetting" onchange="setOverrideGameARE()" /><br>
+            <label for="ARESetting">ARE - NORMAL - </label>
+            <input type="number" id="ARESetting" value="10" min="0" max="60" onchange="setARE()"><br>
+            <label for="ARELineClearSetting">ARE - LINE CLEAR - </label>
+            <input type="number" id="ARELineClearSetting" value="30" min="0" max="60" onchange="setARELineClear()"><br><br>
 
-        <label for="DASInitialSetting">DAS - INITIAL - </label>
-        <input type="number" id="DASInitialSetting" value="16" min="1" max="60" onchange="setDASInitial()"><br>
-        <label for="DASSetting">DAS - REPEAT - </label>
-        <input type="number" id="DASSetting" value="6" min="1" max="60" onchange="setDAS()"><br>
-        <label for="lockDelaySetting">LOCK DELAY - </label>
-        <input type="number" id="lockDelaySetting" value="0" min="0" max="180" onchange="setLockDelay()"><br>
-        <p>SET TO 0 TO DISABLE.</p><br>
-        <label for="lockResetSetting">LOCK DELAY RESET - </label>
-        <select id="lockResetSetting" onchange="setLockReset()">
-            <option value="move">Move</option>
-            <option value="step" selected>Step</option>
-        </select><br>
-        <p>MOVE = RESET LOCK DELAY WHEN PIECE MOVES.<br>STEP = RESET LOCK DELAY WHEN PIECE MOVES DOWN.</p><br><br>
+            <label for="DASInitialSetting">DAS - INITIAL - </label>
+            <input type="number" id="DASInitialSetting" value="16" min="1" max="60" onchange="setDASInitial()"><br>
+            <label for="DASSetting">DAS - REPEAT - </label>
+            <input type="number" id="DASSetting" value="6" min="1" max="60" onchange="setDAS()"><br>
+            <label for="lockDelaySetting">LOCK DELAY - </label>
+            <input type="number" id="lockDelaySetting" value="0" min="0" max="180" onchange="setLockDelay()"><br>
+            <p>SET TO 0 TO DISABLE.</p><br>
+            <label for="lockResetSetting">LOCK DELAY RESET - </label>
+            <select id="lockResetSetting" onchange="setLockReset()">
+                <option value="move">Move</option>
+                <option value="step" selected>Step</option>
+            </select><br>
+            <p>MOVE = RESET LOCK DELAY WHEN PIECE MOVES.<br>STEP = RESET LOCK DELAY WHEN PIECE MOVES DOWN.</p>
+        </div>
     </div>
     <canvas id="game" width="320" height="240"></canvas>
     <div id="textOverlay"></div>
     <canvas id="effectOverlay" width="320" height="240"></canvas>
-    <script src="constants.js?v016=1"></script>
-    <script src="background.js?v016=1"></script>
-    <script src="script.js?v016=1"></script>
-    <script src="settings.js?v016=1"></script>
+    <script src="constants.js?v017=1"></script>
+    <script src="background.js?v017=1"></script>
+    <script src="script.js?v017=1"></script>
+    <script src="settings.js?v017=1"></script>
 </body>
 </html>
