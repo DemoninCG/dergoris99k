@@ -1,7 +1,7 @@
 //Unresolved issues:
 //Main game and TGM visual line clears actually clear the full lines and will cause override issues if the next piece drops sooner (hopefully shouldn't happen)
 //DX uses GB font (should use its own font but no tff/woff exists afaik)
-//TGM doesn't work with different board sizes
+//ARS center column rule isn't implemented properly
 //TGM next piece should be monochrome in monochrome (all) mode
 //TGM board doesn't have the hidden row above the board
 //TGM is missing white flash (has sprite but difficult to do in code)
@@ -11,7 +11,6 @@
 //Main menu
 //Rebinding keys
 //Music/sounds
-//Fix sega and NES board width problems
 
 //Smaller game canvas sizes
 if (window.innerHeight < 750) {
@@ -27,6 +26,11 @@ else if (window.innerHeight < 1000) {
 
 
 function reset() {
+    //Save game variables
+    game = {
+        bestPowers: [0, 0, 0],
+        bestGrades: [0, 0, 0],
+    };
     //Game settings
     settings = {
         startingLevel: 0,
@@ -130,7 +134,7 @@ function initialiseCanvasBoard() {
         images.tiles.src = "img/main/tiles.png";
         images.hardDropTile.src = "img/main/ghostTiles.png";
         if (settings.visuals === "dragonStyle" && level >= 500) {images.board.src = "img/main/board3.png";}
-        else if (settings.gameMechanics == "masterStyle") {images.board.src = "img/main/board2.png";}
+        else if (settings.visuals == "masterStyle") {images.board.src = "img/main/board2.png";}
         else {images.board.src = "img/main/board.png";}
         images.sideInfo1.src = "img/main/sideInfo.png";
         images.sideInfo2.src = "img/main/digitsSmall.png";
@@ -420,24 +424,24 @@ function startGame() {
     document.getElementById("textOverlay").style.display = "block";
     if (settings.visuals == "classicStyle") {
         document.getElementById("gameCanvas").style.display = "block";
-        seaColor = [11.0, 72.0, 142.0];
-        waveColor = [15.0, 120.0, 152.0];
+        seaColor = [11, 72, 142];
+        waveColor = [15, 120, 152];
     }
     else if (settings.visuals == "masterStyle") {
         document.getElementById("gameCanvas").style.display = "block";
-        seaColor = [11.0, 122.0, 142.0];
-        waveColor = [15.0, 120.0, 152.0];
+        seaColor = [11, 122, 142];
+        waveColor = [15, 120, 152];
     }
     else if (settings.visuals == "dragonStyle") {
         grade = Math.floor(level/50);
         document.getElementById("gameCanvas").style.display = "block";
         if (level >= 500) {
-            seaColor = [30.0, 30.0, 30.0];
-            waveColor = [70.0, 70.0, 70.0];
+            seaColor = [30, 30, 30];
+            waveColor = [70, 70, 70];
         }
         else {
-            seaColor = [22.0, 22.0, 142.0];
-            waveColor = [15.0, 30.0, 152.0];
+            seaColor = [22, 22, 142];
+            waveColor = [15, 30, 152];
         }
     }
     
@@ -767,6 +771,7 @@ function updateVariables() {
             else {ctx.drawImage(images.digits, parseInt(timeString[i])*8, 0, 8, 9, leftSide-74+i*8, 82, 8, 9);}
         }
         //Current section time
+        if (level >= 999) return;
         let currentSection = Math.floor(level/100);
         let currentSectionTime = time - timeAtLastSection;
         ctx.clearRect(61, 117+7*currentSection, 48, 6);
@@ -1373,7 +1378,7 @@ function landPiece() {
     //Disable softdrop until key is pressed again
     softDropping = false;
     //Add pushdown points
-    if (settings.gameMechanics != "dx" && settings.gameMechanics != "tgm") score += maxPushdown;
+    if (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "masterStyle" && settings.gameMechanics != "dragonStyle" && settings.gameMechanics != "dx" && settings.gameMechanics != "tgm") score += maxPushdown;
     maxPushdown = 0;
     currentPushdown = 0;
 
@@ -2173,12 +2178,26 @@ function rotatePiece(clockwise=true, override=false) {
                     }
                 }
                 canRotate = !checkPieceOverlap(tempPiecePositions);
+                
+                //Center column rule;
+                let firstFoundBlock = 0;
+                if (board[tempY] && board[tempY][tempX] && board[tempY][tempX] != 0) firstFoundBlock = 1;
+                else if (board[tempY] && board[tempY][tempX+1] && board[tempY][tempX+1] != 0) firstFoundBlock = 2;
+                else if (board[tempY] && board[tempY][tempX+2] && board[tempY][tempX+2] != 0) firstFoundBlock = 3;
+                else if (board[tempY+1] && board[tempY+1][tempX] && board[tempY+1][tempX] != 0) firstFoundBlock = 4;
+                else if (board[tempY+1] && board[tempY+1][tempX+1] && board[tempY+1][tempX+1] != 0) firstFoundBlock = 5;
+                else if (board[tempY+1] && board[tempY+1][tempX+2] && board[tempY+1][tempX+2] != 0) firstFoundBlock = 6;
+                else if (board[tempY+2] && board[tempY+2][tempX] && board[tempY+2][tempX] != 0) firstFoundBlock = 7;
+                else if (board[tempY+2] && board[tempY+2][tempX+1] && board[tempY+2][tempX+1] != 0) firstFoundBlock = 8;
+                else if (board[tempY+2] && board[tempY+2][tempX+2] && board[tempY+2][tempX+2] != 0) firstFoundBlock = 9;
+
                 if (canRotate) {
                     for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
                     pieceOrientation = rotatedOrientation;
                     if (getDropInterval() <= 0.05) maxDrop(); //20G
                     updateVisuals();
                 }
+                else if (firstFoundBlock == 2 || firstFoundBlock == 5 || firstFoundBlock == 8) {return;} //Center column rule
                 else { //Right kick
                     for (let i=0;i<4;i++) tempPiecePositions[i][1]++;
                     canRotate = !checkPieceOverlap(tempPiecePositions);
@@ -2408,9 +2427,9 @@ function clearLines() {
         timeAtLastSection = time;
         sectionTimes[Math.floor(level/100)] = time;
         displaySectionTime(Math.floor(level/100));
-        if (Math.floor(level/100) == 4) { //Switch to grey background and board
-            seaColor = [30.0, 30.0, 30.0];
-            waveColor = [70.0, 70.0, 70.0];
+        if (settings.visuals == "dragonStyle" && Math.floor(level/100) == 4) { //Switch to grey background and board
+            seaColor = [30, 30, 30];
+            waveColor = [70, 70, 70];
             images.board.src = "img/main/board3.png";
             ctx.drawImage(images.board, 112, 32);
         }

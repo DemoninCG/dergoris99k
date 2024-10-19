@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dergoris 99k</title>
-    <link rel="stylesheet" href="style.css?v016=1">
+    <link rel="stylesheet" href="style.css?v017=1">
     <link rel="icon" href="img/icon2.png">
     <!--Preload board-->
     <img src="img/main/background1.png" style="display: none">
@@ -57,11 +57,21 @@
     <img src="img/tgm/grades.png" style="display: none">
 </head>
 <body>
-    <canvas id="backgroundCanvas" style="display: none"></canvas>
+    <canvas id="backgroundCanvas"></canvas>
     <canvas id="gameCanvas" style="display: none"></canvas>
-    <div class="container">
+    <div class="container" style="padding: 40px;">
+        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V0.1.7</p>
+        <button class="menuButton" onclick="switchToTab(2)">CAMPAIGN</button><br>
+        <button class="menuButton" onclick="switchToTab(3)">CUSTOM GAME</button><br>
+        <button class="menuButton" onclick="switchToTab(4)">CREDITS</button><br>
+    </div>
+    <div class="container" style="left: 100vw; padding: 40px;">
+        <button class="menuButton" onclick="switchToTab(1)">BACK</button><br><br><br>
+        <img src="img/main/styles.png" style="width: 388px">
+    </div>
+    <div class="container" style="left: 100vw">
         <div id="settings" style="overflow: auto; max-height: 98vh;">
-            <img src="img/title.png" style="height: 44px"><br><p style="margin-top: 4px; color: #ddd">v0.1.7</p><br><br>
+            <button class="menuButton" onclick="switchToTab(1)">BACK</button><br><br>
             <button onclick="startGame()">START GAME</button><br><br>
             <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
             <select id="presetsSetting" onchange="setPreset()">
@@ -177,12 +187,21 @@
             <p>MOVE = RESET LOCK DELAY WHEN PIECE MOVES.<br>STEP = RESET LOCK DELAY WHEN PIECE MOVES DOWN.</p>
         </div>
     </div>
+    <div class="container" style="top: 100vh; padding: 40px;">
+        <button class="menuButton" onclick="switchToTab(1)">BACK</button><br><br>
+        <img src="img/azzy.png" style="position: absolute; bottom: 105px; right: 105px; height: 500px; image-rendering: auto;">
+        <p style="font-size: 48px; font-weight: bold; font-family: 'Courier New', monospace">Credits</p><br>
+        <p style="font-size: 24px; font-family: 'Courier New', monospace; width: 800px;">Created by Demonin<br>---------<br>Some main sprites taken/modified from the <i>Tetris: The Grand Master</i> series by Arika<br>Retro game sprites belong to Nintendo, Sega, and Arika<br>Background shaders created by Xor and greenbird10 on Shadertoy<br><br>Thank you to all the patrons, testers, and those in the TAP discord server who helped make this game what it is!</p>
+    </div>
+
     <canvas id="game" width="320" height="240"></canvas>
     <div id="textOverlay"></div>
     <canvas id="effectOverlay" width="320" height="240"></canvas>
     <script src="constants.js?v017=1"></script>
     <script src="background.js?v017=1"></script>
+    <script src="menuBackground.js?v017=1"></script>
     <script src="script.js?v017=1"></script>
+    <script src="menu.js?v017=1"></script>
     <script src="settings.js?v017=1"></script>
 </body>
 </html>
