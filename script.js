@@ -2336,59 +2336,81 @@ function displaySectionTime(x) {
     }
 }
 
-let mostRecentArrow = 0;
 //Event listeners
+
+// TODO: Make keymap configurable
+const keyConfig = new Map([
+    ["ArrowLeft", "left"],
+    ["ArrowRight", "right"],
+    ["ArrowUp", "hardDrop"],
+    ["ArrowDown", "softDrop"],
+    ["s", "rotClockwise"],
+    ["a", "rotAnticlockwise"],
+    ["Escape", "exit"],
+]);
+
 document.addEventListener("keydown", function(event) {
-    switch (event.key) {
-        case "ArrowLeft":
+    if(!keyConfig.has(event.key)) return;
+
+    const action = keyConfig.get(event.key);
+
+    switch (action) {
+        case "left":
             if (!waitingForNextPiece) setInitialDAS(0);
             keysHeld[0] = true;
             break;
-        case "ArrowRight":
+        case "right":
             if (!waitingForNextPiece) setInitialDAS(1);
             keysHeld[1] = true;
             break;
-        case "ArrowUp":
+        case "hardDrop":
             hardDrop();
             keysHeld[2] = true;
             break;
-        case "ArrowDown":
+        case "softDrop":
             softDrop();
             keysHeld[3] = true;
             break;
-        case "s":
+        case "rotClockwise":
             rotatePiece(true);
             keysHeld[4] = true;
             break;
-        case "a":
+        case "rotAnticlockwise":
             rotatePiece(false);
             keysHeld[5] = true;
             break;
-        case "Escape":
+        case "exit":
             if (!gamePlaying && document.getElementById("game").style.display == "block") returnToMenu();
+            break;
+        default:
+            console.warn(`Action ${action} triggered by key ${event.key} but it is missing a handler`);
             break;
     }
 })
 
 document.addEventListener("keyup", function(event) {
-    switch (event.key) {
-        case "ArrowLeft":
+    if(!keyConfig.has(event.key)) return;
+
+    const action = keyConfig.get(event.key);
+
+    switch (action) {
+        case "left":
             keysHeld[0] = false;
             break;
-        case "ArrowRight":
+        case "right":
             keysHeld[1] = false;
             break;
-        case "ArrowUp":
+        case "hardDrop":
             keysHeld[2] = false;
             break;
-        case "ArrowDown":
+        case "softDrop":
             softDropping = false;
             keysHeld[3] = false;
             break;
-        case "s":
+        case "rotClockwise":
             keysHeld[4] = false;
             break;
-        case "a":
+        case "rotAnticlockwise":
             keysHeld[5] = false;
             break;
     }
