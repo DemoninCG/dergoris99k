@@ -89,6 +89,24 @@ button {
     padding: 8px;
 }
 
+#modeSelectContainer {
+    position: absolute;
+    top: 130px;
+    width: 500px;
+    height: calc(100% - 250px);
+    background-color: rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+.menuMode {
+    position: absolute;
+    width: 400px;
+    transform: translateY(-50%);
+    transition: top cubic-bezier(.15,.67,.53,1.02) 0.5s, left cubic-bezier(.15,.67,.53,1.02) 0.5s;
+    cursor: pointer;
+    user-select: none;
+}
+
 #game, #effectOverlay {
     position: absolute;
     top: 50%;
