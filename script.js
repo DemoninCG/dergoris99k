@@ -720,26 +720,34 @@ function updateVariables() {
     time += timeMultiplier;
 
     //Update DAS
-    //Prioritizes left movement if both keys are held, difficult to fix
+    let resetDAS = false;
+    let dasChargedThisTick = false;
     if (keysHeld[0] && !waitingForNextPiece) {
         if (!checkCanMoveLeft()) {currentDASTime = 0;}
         else {
             currentDASTime -= (timeMultiplier*60);
+            dasChargedThisTick = true;
             if (currentDASTime <= 0) {
                 moveLeft();
-                currentDASTime = getDAS();
+                resetDAS = true;
             }
         }
     }
-    else if (keysHeld[1] && !waitingForNextPiece) {
+    if (keysHeld[1] && !waitingForNextPiece) {
         if (!checkCanMoveRight()) {currentDASTime = 0;}
         else {
-            currentDASTime -= (timeMultiplier*60);
+            if(!dasChargedThisTick) {
+                currentDASTime -= (timeMultiplier*60);
+                dasChargedThisTick = true;
+            }
             if (currentDASTime <= 0) {
                 moveRight();
-                currentDASTime = getDAS();
+                resetDAS = true;
             }
         }
+    }
+    if(resetDAS) {
+        currentDASTime = getDAS();
     }
 
     //Update the lock time
