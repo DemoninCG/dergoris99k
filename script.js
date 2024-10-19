@@ -1405,23 +1405,8 @@ function placePiece(x) {
 
     waitingForNextPiece = false;
 
-    switch (settings.gameMechanics) {
-        case "classicStyle": //Left-handed
-        case "masterStyle":
-        case "dragonStyle":
-            if (!TGMFirstMove && level % 100 != 99 && level != 998) level++;
-            for (let i=0;i<4;i++) {
-                piecePositions[i] = [...piecePlacements[x][i]];
-                if (x==0 || x==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
-                else {piecePositions[i][1] += settings.boardWidth/2-3;}
-            }
-            if (x==0) {pieceTopCorner = [-2,1];}
-            else if (x==1) {pieceTopCorner = [0,1];}
-            else {pieceTopCorner = [-1,1];}
-            pieceTopCorner[1] += settings.boardWidth/2-3;
-            TGMFirstMove = false;
-            break;
-        case "gb": //Left-handed
+    switch (settings.rotationSystem) {
+        case "nintendo-l": //Nintendo Rotation (left-handed)
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
                 piecePositions[i][0]++;
@@ -1433,7 +1418,7 @@ function placePiece(x) {
             else {pieceTopCorner = [0,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
             break;
-        case "nes": //Right-handed
+        case "nintendo-r": //Nintendo Rotation (right-handed)
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
                 piecePositions[i][1] += settings.boardWidth/2-2;
@@ -1443,7 +1428,7 @@ function placePiece(x) {
             else {pieceTopCorner = [-1,1];}
             pieceTopCorner[1] += settings.boardWidth/2-2;
             break;
-        case "dx": //Left-handed
+        case "dx": //DX Rotation
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
                 if (x==0 || x==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
@@ -1455,7 +1440,7 @@ function placePiece(x) {
             else {pieceTopCorner = [0,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
             break;
-        case "sega": //Left-handed
+        case "sega": //Sega Rotation
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
                 if (x==0 || x==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
@@ -1466,14 +1451,14 @@ function placePiece(x) {
             else {pieceTopCorner = [-1,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
             break;
-        case "tgm": //Left-handed
+        case "ars": //Arika Rotation System
             if (!TGMFirstMove && level % 100 != 99 && level != 998) level++;
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[x][i]];
                 if (x==0 || x==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
                 else {piecePositions[i][1] += settings.boardWidth/2-3;}
             }
-            if (x==0) {pieceTopCorner = [-2,1];}
+            if (x==0) {pieceTopCorner = [-1,1];}
             else if (x==1) {pieceTopCorner = [0,1];}
             else {pieceTopCorner = [-1,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
@@ -2349,12 +2334,22 @@ document.addEventListener("keydown", function(event) {
             keysHeld[1] = true;
             break;
         case "ArrowUp":
-            hardDrop();
-            keysHeld[2] = true;
+            if (!gamePlaying && onCampaignScreen) {
+                selectMenuMode(Math.max(1,currentMenuMode-1));
+            }
+            else {
+                hardDrop();
+                keysHeld[2] = true;
+            }
             break;
         case "ArrowDown":
-            softDrop();
-            keysHeld[3] = true;
+            if (!gamePlaying && onCampaignScreen) {
+                selectMenuMode(Math.min(4,currentMenuMode+1));
+            }
+            else {
+                softDrop();
+                keysHeld[3] = true;
+            }
             break;
         case "s":
             rotatePiece(true);
@@ -2366,6 +2361,7 @@ document.addEventListener("keydown", function(event) {
             break;
         case "Escape":
             if (!gamePlaying && document.getElementById("game").style.display == "block") returnToMenu();
+            else if (!gamePlaying) switchToTab(1);
             break;
     }
 })

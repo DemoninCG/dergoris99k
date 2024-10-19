@@ -66,8 +66,13 @@
         <button class="menuButton" onclick="switchToTab(4)">CREDITS</button><br>
     </div>
     <div class="container" style="left: 100vw; padding: 40px;">
-        <button class="menuButton" onclick="switchToTab(1)">BACK</button><br><br><br>
-        <img src="img/main/styles.png" style="width: 388px">
+        <button class="menuButton" onclick="switchToTab(1)">BACK</button>
+        <div id="modeSelectContainer">
+            <img class="menuMode" src="img/style1.png" onclick="selectMenuMode(1)">
+            <img class="menuMode" src="img/style2.png" onclick="selectMenuMode(2)">
+            <img class="menuMode" src="img/style3.png" onclick="selectMenuMode(3)">
+            <img class="menuMode" src="img/style4.png" onclick="selectMenuMode(4)">
+        </div>
     </div>
     <div class="container" style="left: 100vw">
         <div id="settings" style="overflow: auto; max-height: 98vh;">
