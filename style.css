@@ -107,6 +107,16 @@ button {
     user-select: none;
 }
 
+.menuArrow {
+    position: absolute;
+    left: 250px;
+    transform: translate(-50%, -50%);
+    transition: top cubic-bezier(.15,.67,.53,1.02) 0.5s, left cubic-bezier(.15,.67,.53,1.02) 0.5s;
+    width: 40px;
+    cursor: pointer;
+    user-select: none;
+}
+
 #game, #effectOverlay {
     position: absolute;
     top: 50%;

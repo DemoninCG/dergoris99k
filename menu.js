@@ -54,7 +54,9 @@ function switchToTab(x) {
 let currentMenuMode = 1;
 let onCampaignScreen = false;
 function selectMenuMode(x) {
-    let containerCenter = document.getElementById('modeSelectContainer').offsetHeight / 2;
+    let containerCenter = document.getElementById('modeSelectContainer').offsetHeight / 2; //Recalculate containerCenter
+    document.getElementsByClassName("menuArrow")[0].style.top = (containerCenter - 90) + "px";
+    document.getElementsByClassName("menuArrow")[1].style.top = (containerCenter + 90) + "px";
     currentMenuMode = x;
     switch(x) {
         case 1:
@@ -66,6 +68,10 @@ function selectMenuMode(x) {
             document.getElementsByClassName("menuMode")[1].style.left = "10px";
             document.getElementsByClassName("menuMode")[2].style.left = "10px";
             document.getElementsByClassName("menuMode")[3].style.left = "10px";
+            document.getElementsByClassName("menuMode")[0].style.filter = "none";
+            document.getElementsByClassName("menuMode")[1].style.filter = "brightness(0.7)";
+            document.getElementsByClassName("menuMode")[2].style.filter = "brightness(0.7)";
+            document.getElementsByClassName("menuMode")[3].style.filter = "brightness(0.7)";
             break;
         case 2:
             document.getElementsByClassName("menuMode")[0].style.top = (containerCenter - 200) + "px";
@@ -76,6 +82,10 @@ function selectMenuMode(x) {
             document.getElementsByClassName("menuMode")[1].style.left = "60px";
             document.getElementsByClassName("menuMode")[2].style.left = "10px";
             document.getElementsByClassName("menuMode")[3].style.left = "10px";
+            document.getElementsByClassName("menuMode")[0].style.filter = "brightness(0.7)";
+            document.getElementsByClassName("menuMode")[1].style.filter = "none";
+            document.getElementsByClassName("menuMode")[2].style.filter = "brightness(0.7)";
+            document.getElementsByClassName("menuMode")[3].style.filter = "brightness(0.7)";
             break;
         case 3:
             document.getElementsByClassName("menuMode")[0].style.top = (containerCenter - 400) + "px";
@@ -86,6 +96,10 @@ function selectMenuMode(x) {
             document.getElementsByClassName("menuMode")[1].style.left = "10px";
             document.getElementsByClassName("menuMode")[2].style.left = "60px";
             document.getElementsByClassName("menuMode")[3].style.left = "10px";
+            document.getElementsByClassName("menuMode")[0].style.filter = "brightness(0.7)";
+            document.getElementsByClassName("menuMode")[1].style.filter = "brightness(0.7)";
+            document.getElementsByClassName("menuMode")[2].style.filter = "none";
+            document.getElementsByClassName("menuMode")[3].style.filter = "brightness(0.7)";
             break;
         case 4:
             document.getElementsByClassName("menuMode")[0].style.top = (containerCenter - 600) + "px";
@@ -96,6 +110,10 @@ function selectMenuMode(x) {
             document.getElementsByClassName("menuMode")[1].style.left = "10px";
             document.getElementsByClassName("menuMode")[2].style.left = "10px";
             document.getElementsByClassName("menuMode")[3].style.left = "60px";
+            document.getElementsByClassName("menuMode")[0].style.filter = "brightness(0.7)";
+            document.getElementsByClassName("menuMode")[1].style.filter = "brightness(0.7)";
+            document.getElementsByClassName("menuMode")[2].style.filter = "brightness(0.7)";
+            document.getElementsByClassName("menuMode")[3].style.filter = "none";
             break;
     }
 }

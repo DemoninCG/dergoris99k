@@ -1,4 +1,5 @@
 //Unresolved issues:
+//DAS prioritizes left movement if both keys are held
 //Main game and TGM visual line clears actually clear the full lines and will cause override issues if the next piece drops sooner (hopefully shouldn't happen)
 //DX uses GB font (should use its own font but no tff/woff exists afaik)
 //ARS center column rule isn't implemented properly
@@ -12,13 +13,45 @@
 //Rebinding keys
 //Music/sounds
 
+
+//Overall power based on power from each style, overall grade 10-1 then S1-S10 then M1-M10
+//Each game presents average section time and power at the end, highest power for each style is remembered
+
+//--Classic style--
+//Scored like NES tetris (no combo)
+//Power (level, average section time, score) - Max 30000 to overall power
+//Best score
+//Best level (+ best highest section time + best average section time if 999)
+//Individual best section times
+//Medals require certain best score, best highest section time, and best average section time
+
+//--Master style--
+//Scored like TGM
+//Power (level, average section time) - Max 39000 to overall power
+//Best score
+//Best level (+ best highest section time + best average section time if 999)
+//Individual best section times
+//Medals require certain best score, best highest section time, and best average section time
+
+//--dragon style--
+//Scored like TGM
+//Power (level, average section time) - Max 30000 to overall power
+//Best score
+//Best level
+//Individual best section times
+//Bronze medal requires reaching level 500, silver medal requires reaching level 999, gold medal requires reaching level 1500
+
+//Dragon style level 1000-1500 - Requires 99000 overall power (max power from all 3 styles)
+//Rewards 1000 overall power for 100000 total (GM overall grade AKA final achievement)
+
+
 //Smaller game canvas sizes
 if (window.innerHeight < 750) {
     document.getElementById("game").style.transform = "translate(-50%, -50%) scale(2)";
     document.getElementById("effectOverlay").style.transform = "translate(-50%, -50%) scale(2)";
     document.getElementById("textOverlay").style.transform = "translate(-50%, -50%) scale(2)";
 }
-else if (window.innerHeight < 1000) {
+else if (window.innerHeight < 950) {
     document.getElementById("game").style.transform = "translate(-50%, -50%) scale(3)";
     document.getElementById("effectOverlay").style.transform = "translate(-50%, -50%) scale(3)";
     document.getElementById("textOverlay").style.transform = "translate(-50%, -50%) scale(3)";
@@ -419,6 +452,7 @@ function initialiseCanvasBoard() {
 function startGame() {
     level = settings.startingLevel
     document.getElementById("settings").style.display = "none";
+    document.getElementById("backgroundCanvas").style.display = "none";
     document.getElementById("game").style.display = "block";
     document.getElementById("effectOverlay").style.display = "block";
     document.getElementById("textOverlay").style.display = "block";
@@ -673,6 +707,10 @@ function ReadyGo(stage) {
         nextPiece = getRandomPiece();
         setNextPieceVisuals(nextPiece);
         updateVisuals();
+        if (settings.gameMechanics == "tgm" && keysHeld[3]) { //Starting soft drop if key is held
+            currentDropTime = Math.min(getDropInterval(), settings.softDropSpeed);
+            softDropping = true;
+        }
     }
 }
 
@@ -682,6 +720,7 @@ function updateVariables() {
     time += timeMultiplier;
 
     //Update DAS
+    //Prioritizes left movement if both keys are held, difficult to fix
     if (keysHeld[0] && !waitingForNextPiece) {
         if (!checkCanMoveLeft()) {currentDASTime = 0;}
         else {
@@ -716,7 +755,11 @@ function updateVariables() {
             nextPiece = getRandomPiece();
             setNextPieceVisuals(nextPiece);
             updateVisuals();
-            if (settings.gameMechanics == "dx") {currentDropTime = 32;}
+            if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") && keysHeld[3]) { //Starting soft drop if key is held
+                currentDropTime = Math.min(getDropInterval(), settings.softDropSpeed);
+                softDropping = true;
+            }
+            else if (settings.gameMechanics == "dx") {currentDropTime = 32;}
             else {currentDropTime = getDropInterval()}
             
         }
@@ -1418,6 +1461,7 @@ function placePiece(pieceType) {
             pieceTopCorner[1] += settings.boardWidth/2-3;
             break;
         case "nintendo-r": //Nintendo Rotation (right-handed)
+            if (!TGMFirstMove && settings.gameMechanics == "classicStyle" && level % 100 != 99 && level != 998) level++;
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[pieceType][i]];
                 piecePositions[i][1] += settings.boardWidth/2-2;
@@ -1426,6 +1470,7 @@ function placePiece(pieceType) {
             else if (pieceType==1) {pieceTopCorner = [0,1];}
             else {pieceTopCorner = [-1,1];}
             pieceTopCorner[1] += settings.boardWidth/2-2;
+            TGMFirstMove = false;
             break;
         case "dx": //DX Rotation
             for (let i=0;i<4;i++) {
@@ -1847,7 +1892,7 @@ function setNextPieceVisuals(index) {
 }
 
 function getRandomPiece() {
-    let chosenPiece
+    let chosenPiece;
     switch (settings.randomizer) {
         case "random":
             return Math.floor(Math.random()*7);
@@ -2505,7 +2550,7 @@ function clearLines() {
     //Update score
     let scoreToGain = 0;
     if (!linesCleared && (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm")) {combo = 1;}
-    else if (linesCleared && (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm")) {
+    else if (linesCleared && (settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm")) {
         combo += (linesCleared*2) - 2;
         let finalScore = (Math.ceil((level+linesCleared)/4) + maxPushdown)*combo*linesCleared;
         if (checkPerfectClear()) finalScore *= 4;
@@ -2513,6 +2558,22 @@ function clearLines() {
         level += linesCleared;
         if (level > 999) level = 999;
         updateVisuals();
+    }
+    else if (linesCleared && settings.gameMechanics == "classicStyle") { //Similar to NES/GB/DX
+        switch (linesCleared) {
+            case 1:
+                scoreToGain = 40*Math.ceil(level/50);
+                break;
+            case 2:
+                scoreToGain = 100*Math.ceil(level/50);
+                break;
+            case 3:
+                scoreToGain = 300*Math.ceil(level/50);
+                break;
+            case 4:
+                scoreToGain = 1200*Math.ceil(level/50);
+                break;
+        }
     }
     else if (linesCleared && settings.gameMechanics == "sega") {
         let finalScore = segaLineScores[linesCleared-1][Math.min(level,8)];
@@ -2949,6 +3010,7 @@ function returnToMenu() {
     document.getElementById("game").style.display = "none";
     document.getElementById("effectOverlay").style.display = "none";
     document.getElementById("gameCanvas").style.display = "none";
+    document.getElementById("backgroundCanvas").style.display = "block";
     document.getElementById("textOverlay").style.display = "none";
     document.getElementById("textOverlay").innerHTML = "";
     document.getElementById("settings").style.display = "block";
