@@ -55,6 +55,16 @@ Reminiscent of the TGM series death/shirase mode
 - Aim is to maximize score and minimize section times
 */ 
 
+function clamp(min, val, max) {
+    if(val < min) {
+        return min;
+    }
+    if(val > max) {
+        return max;
+    }
+    return val;
+}
+
 function setPreset() {
     let preset = document.getElementById("presetsSetting").value;
     switch (preset) {
@@ -116,7 +126,7 @@ function setPreset() {
             settings.lockDelay = 30;
             break;
         case "gb":
-            if (settings.startingLevel > 20) {settings.startingLevel = 20}
+            settings.startingLevel = Math.min(settings.startingLevel, 20);
             settings.boardWidth = 10;
             settings.boardHeight = 18;
             settings.visuals = "gb";
@@ -136,7 +146,7 @@ function setPreset() {
             settings.lockDelay = 0;
             break;
         case "nes":
-            if (settings.startingLevel > 29) {settings.startingLevel = 29}
+            settings.startingLevel = Math.min(settings.startingLevel, 29);
             settings.boardWidth = 10;
             settings.boardHeight = 20;
             settings.visuals = "nes";
@@ -156,7 +166,7 @@ function setPreset() {
             settings.lockDelay = 0;
             break;
         case "dx":
-            if (settings.startingLevel > 30) {settings.startingLevel = 30}
+            settings.startingLevel = Math.min(settings.startingLevel, 30);
             settings.boardWidth = 10;
             settings.boardHeight = 18;
             settings.visuals = "dx";
@@ -176,7 +186,7 @@ function setPreset() {
             settings.lockDelay = 32;
             break;
         case "sega":
-            if (settings.startingLevel > 99) {settings.startingLevel = 99}
+            settings.startingLevel = Math.min(settings.startingLevel, 99);
             settings.boardWidth = 10;
             settings.boardHeight = 20;
             settings.visuals = "sega";
@@ -220,39 +230,30 @@ function setPreset() {
 
 function setStartingLevel() {
     let startingLevel = parseInt(document.getElementById("startingLevelSetting").value);
-    if (startingLevel < 0) {
-        startingLevel = 0;
-    }
-    if (settings.gameMechanics == "classicStyle" && startingLevel > 998) {startingLevel = 998;}
-    else if (settings.gameMechanics == "gb" && startingLevel > 20) {startingLevel = 20;}
-    else if (settings.gameMechanics == "nes" && startingLevel > 29) {startingLevel = 29;}
-    else if (settings.gameMechanics == "dx" && startingLevel > 30) {startingLevel = 30;}
-    else if (settings.gameMechanics == "sega" && startingLevel > 99) {startingLevel = 99;}
-    else if (settings.gameMechanics == "tgm" && startingLevel > 998) {startingLevel = 998;}
+    const capTable = {
+        classicStyle: 998,
+        gb: 20,
+        nes: 29,
+        dx: 30,
+        sega: 99,
+        tgm: 998
+    };
+    const max = capTable[settings.gameMechanics] || Infinity;
+    startingLevel = clamp(0, startingLevel, max);
     document.getElementById("startingLevelSetting").value = startingLevel;
     settings.startingLevel = startingLevel;
 }
 
 function setBoardWidth() {
     let boardWidth = parseInt(document.getElementById("boardWidthSetting").value);
-    if (boardWidth < 4) {
-        boardWidth = 4;
-    }
-    if (boardWidth > 20) {
-        boardWidth = 20;
-    }
+    boardWidth = clamp(4, boardWidth, 20);
     document.getElementById("boardWidthSetting").value = boardWidth;
     settings.boardWidth = boardWidth;
 }
 
 function setBoardHeight() {
     let boardHeight = parseInt(document.getElementById("boardHeightSetting").value);
-    if (boardHeight < 4) {
-        boardHeight = 4;
-    }
-    if (boardHeight > 25) {
-        boardHeight = 25;
-    }
+    boardHeight = clamp(4, boardHeight, 25);
     document.getElementById("boardHeightSetting").value = boardHeight;
     settings.boardHeight = boardHeight;
 }
@@ -298,12 +299,7 @@ function setSoftDrop() {
 
 function setSoftDropSpeed() {
     let softDropSpeed = parseInt(document.getElementById("softDropSpeedSetting").value);
-    if (softDropSpeed < 1) {
-        softDropSpeed = 1;
-    }
-    if (softDropSpeed > 20) {
-        softDropSpeed = 20;
-    }
+    softDropSpeed = clamp(1, softDropSpeed, 20);
     document.getElementById("softDropSpeedSetting").value = softDropSpeed;
     settings.softDropSpeed = softDropSpeed;
 
@@ -344,60 +340,35 @@ function setOverrideGameARE() {
 
 function setARE() {
     let ARE = parseInt(document.getElementById("ARESetting").value);
-    if (ARE < 0) {
-        ARE = 0;
-    }
-    if (ARE > 60) {
-        ARE = 60;
-    }
+    ARE = clamp(0, ARE, 60);
     document.getElementById("ARESetting").value = ARE;
     settings.ARE = ARE;
 }
 
 function setARELineClear() {
     let ARELineClear = parseInt(document.getElementById("ARELineClearSetting").value);
-    if (ARELineClear < 0) {
-        ARELineClear = 0;
-    }
-    if (ARELineClear > 60) {
-        ARELineClear = 60;
-    }
+    ARELineClear = clamp(0, ARELineClear, 60);
     document.getElementById("ARELineClearSetting").value = ARELineClear;
     settings.ARELineClear = ARELineClear;
 }
 
 function setDASInitial() {
     let DASInitial = parseInt(document.getElementById("DASInitialSetting").value);
-    if (DASInitial < 1) {
-        DASInitial = 1;
-    }
-    if (DASInitial > 60) {
-        DASInitial = 60;
-    }
+    DASInitial = clamp(1, DASInitial, 60);
     document.getElementById("DASInitialSetting").value = DASInitial;
     settings.DASInitial = DASInitial;
 }
 
 function setDAS() {
     let DAS = parseInt(document.getElementById("DASSetting").value);
-    if (DAS < 1) {
-        DAS = 1;
-    }
-    if (DAS > 60) {
-        DAS = 60;
-    }
+    DAS = clamp(1, DAS, 60);
     document.getElementById("DASSetting").value = DAS;
     settings.DAS = DAS;
 }
 
 function setLockDelay() {
     let lockDelay = parseInt(document.getElementById("lockDelaySetting").value);
-    if (lockDelay < 0) {
-        lockDelay = 0;
-    }
-    if (lockDelay > 180) {
-        lockDelay = 180;
-    }
+    lockDelay = clamp(0, lockDelay, 180);
     document.getElementById("lockDelaySetting").value = lockDelay;
     settings.lockDelay = lockDelay;
 }
