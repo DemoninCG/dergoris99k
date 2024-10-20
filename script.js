@@ -12,6 +12,8 @@
 //Main menu
 //Rebinding keys
 //Music/sounds
+//Fishing minigame
+//Big mode maybe?
 
 
 //Overall power based on power from each style, overall grade 10-1 then S1-S10 then M1-M10
@@ -62,7 +64,11 @@ function reset() {
     //Save game variables
     game = {
         bestPowers: [0, 0, 0],
-        bestGrades: [0, 0, 0],
+        bestPoints: [0, 0, 0],
+        bestLevels: [0, 0, 0],
+        classicStyleBestSectionTimes: [],
+        masterStyleBestSectionTimes: [],
+        dragonStyleBestSectionTimes: [],
     };
     //Game settings
     settings = {
@@ -124,6 +130,7 @@ function reset() {
     TGMBarState = 0;
 
     gamePlaying = false;
+    inCampaign = false;
     keysHeld = [false, false, false, false, false, false]; //Left, Right, Up, Down, A, D
     timeOfLastUpdate = Date.now();
 }
@@ -505,7 +512,7 @@ function startGame() {
     }
     initialiseCanvasBoard();
     for (let i=0;i<settings.boardHeight;i++) board.push(Array(settings.boardWidth).fill(0));
-    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" ||  settings.visuals == "dragonStyle" || settings.visuals == "tgm") {ReadyGo(1);}
+    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" ||  settings.visuals == "dragonStyle" || settings.visuals == "tgm") {readyGo(1);}
     else {
         gamePlaying = true;
         placePiece(getRandomPiece());
@@ -515,9 +522,12 @@ function startGame() {
     }
 }
 
-function ReadyGo(stage) {
+function readyGo(stage) {
     if (stage == 1) {
         let leftSide = 160-settings.boardWidth*4;
+        //Get the current piece to display as the next piece
+        placePiece(getRandomPiece());
+        nextPiece = getRandomPiece();
 
         if (settings.visuals == "tgm") {
             //Clear the canvas
@@ -525,10 +535,13 @@ function ReadyGo(stage) {
             ctx.drawImage(images.background2, currentBackground*320+120, 40, 80, 160, 120, 40, 80, 160);
             //Display "Ready"
             ctx.drawImage(images.readyGo, 0, 0, 76, 19, 122, 110, 76, 19);
-            setTimeout(ReadyGo, 1000, 2);
+            setTimeout(readyGo, 1000, 2);
 
             //Grade
             ctx.drawImage(images.grades, 27*grade, 0, 27, 26, 84, 34, 27, 26);
+
+            //Next piece
+            setNextPieceVisuals(currentPiece);
 
             //Text (Copied from updateVisuals, any change there should also happen here)
             //This is a lot of code duplication! Find a way to reduce this ASAP
@@ -594,11 +607,14 @@ function ReadyGo(stage) {
             ctx.drawImage(images.sideInfo4, leftSide, 40);
             //Display "Ready"
             ctx.drawImage(images.readyGo, 0, 0, 76, 19, 122, 110, 76, 19);
-            setTimeout(ReadyGo, 1000, 2);
+            setTimeout(readyGo, 1000, 2);
 
             //Grade
             ctx.clearRect(211, 34, 48, 32);
             ctx.drawImage(images.grades, 0, 32*grade, 48, 32, 211, 34, 48, 32);
+
+            //Next piece
+            setNextPieceVisuals(currentPiece);
 
             //Text (Copied from updateVisuals, any change there should also happen here)
             //This is a lot of code duplication! Find a way to reduce this ASAP
@@ -689,7 +705,7 @@ function ReadyGo(stage) {
             ctx.drawImage(images.background2, currentBackground*320+120, 40, 80, 160, 120, 40, 80, 160);
             //Display "Go"
             ctx.drawImage(images.readyGo, 100, 0, 45, 19, 138, 110, 45, 19);
-            setTimeout(ReadyGo, 1000, 3);
+            setTimeout(readyGo, 1000, 3);
         }
         else {
             let leftSide = 160-settings.boardWidth*4;
@@ -698,13 +714,11 @@ function ReadyGo(stage) {
             ctx.drawImage(images.sideInfo4, leftSide, 40);
             //Display "Go"
             ctx.drawImage(images.readyGo, 100, 0, 45, 19, 138, 110, 45, 19);
-            setTimeout(ReadyGo, 1000, 3);
+            setTimeout(readyGo, 1000, 3);
         }
     }
     else if (stage == 3) {
         gamePlaying = true;
-        placePiece(getRandomPiece());
-        nextPiece = getRandomPiece();
         setNextPieceVisuals(nextPiece);
         updateVisuals();
         if (settings.gameMechanics == "tgm" && keysHeld[3]) { //Starting soft drop if key is held
@@ -720,13 +734,13 @@ function updateVariables() {
     time += timeMultiplier;
 
     //Update DAS
-    let resetDAS = false;
-    let dasChargedThisTick = false;
+    let resetDAS = false; //Prevents DAS being reset twice when left+right pressed
+    let DASChargedThisTick = false; //Prevents DAS being charged twice when left+right pressed
     if (keysHeld[0] && !waitingForNextPiece) {
-        if (!checkCanMoveLeft()) {currentDASTime = 0;}
+        if (!checkCanMoveLeft()) {currentDASTime = 0;} //Wall charge
         else {
             currentDASTime -= (timeMultiplier*60);
-            dasChargedThisTick = true;
+            DASChargedThisTick = true;
             if (currentDASTime <= 0) {
                 moveLeft();
                 resetDAS = true;
@@ -734,11 +748,11 @@ function updateVariables() {
         }
     }
     if (keysHeld[1] && !waitingForNextPiece) {
-        if (!checkCanMoveRight()) {currentDASTime = 0;}
+        if (!checkCanMoveRight()) {currentDASTime = 0;} //Wall charge
         else {
-            if(!dasChargedThisTick) {
+            if(!DASChargedThisTick) {
                 currentDASTime -= (timeMultiplier*60);
-                dasChargedThisTick = true;
+                DASChargedThisTick = true;
             }
             if (currentDASTime <= 0) {
                 moveRight();
@@ -1455,8 +1469,8 @@ function placePiece(pieceType) {
     }
 
     waitingForNextPiece = false;
-    switch (settings.rotationSystem) {
-        case "nintendo-l": //Nintendo Rotation (left-handed)
+    switch (settings.gameMechanics) {
+        case "gb":
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[pieceType][i]];
                 piecePositions[i][0]++;
@@ -1468,8 +1482,20 @@ function placePiece(pieceType) {
             else {pieceTopCorner = [0,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
             break;
-        case "nintendo-r": //Nintendo Rotation (right-handed)
-            if (!TGMFirstMove && settings.gameMechanics == "classicStyle" && level % 100 != 99 && level != 998) level++;
+        case "classicStyle":
+            if (!TGMFirstMove && level % 100 != 99 && level != 998) level++;
+            for (let i=0;i<4;i++) {
+                piecePositions[i] = [...piecePlacements[pieceType][i]];
+                if (pieceType==0 || pieceType==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
+                else {piecePositions[i][1] += settings.boardWidth/2-3;}
+            }
+            if (pieceType==0) {pieceTopCorner = [-2,1];}
+            else if (pieceType==1) {pieceTopCorner = [0,1];}
+            else {pieceTopCorner = [-1,1];}
+            pieceTopCorner[1] += settings.boardWidth/2-3;
+            TGMFirstMove = false;
+            break;
+        case "nes":
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[pieceType][i]];
                 piecePositions[i][1] += settings.boardWidth/2-2;
@@ -1480,7 +1506,7 @@ function placePiece(pieceType) {
             pieceTopCorner[1] += settings.boardWidth/2-2;
             TGMFirstMove = false;
             break;
-        case "dx": //DX Rotation
+        case "dx":
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[pieceType][i]];
                 if (pieceType==0 || pieceType==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
@@ -1492,7 +1518,7 @@ function placePiece(pieceType) {
             else {pieceTopCorner = [0,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
             break;
-        case "sega": //Sega Rotation
+        case "sega":
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[pieceType][i]];
                 if (pieceType==0 || pieceType==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
@@ -1503,7 +1529,9 @@ function placePiece(pieceType) {
             else {pieceTopCorner = [-1,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
             break;
-        case "ars": //Arika Rotation System
+        case "masterStyle":
+        case "dragonStyle":
+        case "tgm":
             if (!TGMFirstMove && level % 100 != 99 && level != 998) level++;
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[pieceType][i]];
@@ -2582,6 +2610,9 @@ function clearLines() {
                 scoreToGain = 1200*Math.ceil(level/50);
                 break;
         }
+        level += linesCleared;
+        if (level > 999) level = 999;
+        updateVisuals();
     }
     else if (linesCleared && settings.gameMechanics == "sega") {
         let finalScore = segaLineScores[linesCleared-1][Math.min(level,8)];
@@ -2924,8 +2955,52 @@ function endGame() {
             }
         }
         //Finish text
-        if (level >= 999) {ctx.drawImage(images.sideInfo3, 127, 105);}
-        else {ctx.drawImage(images.sideInfo3, 0, 8, 67, 7, 127, 113, 67, 7);}
+        if (level >= 999) ctx.drawImage(images.sideInfo3, 0, 0, 79, 7, 121, 105, 79, 7);
+        ctx.drawImage(images.sideInfo3, 0, 8, 79, 7, 121, 113, 79, 7);
+        //Average section time
+        let averageSectionTime;
+        if (sectionTimes.length > 0) { 
+            ctx.drawImage(images.sideInfo3, 0, 16, 79, 7, 121, 169, 79, 7);
+            averageSectionTime = sectionTimes[0];
+            for (let i=1;i<sectionTimes.length;i++) {averageSectionTime += (sectionTimes[i] - sectionTimes[i-1]);}
+            averageSectionTime /= sectionTimes.length;
+
+            let timeString = ""
+            timeString += Math.floor(averageSectionTime/60).toString().padStart(2, "0") + ":"; //minutes
+            timeString += Math.floor(averageSectionTime%60).toString().padStart(2, "0") + ":"; //seconds
+            timeString += Math.floor((averageSectionTime%1)*100).toString().padStart(2, "0"); //Hundredths of a second
+
+            let sectionTimeColor;
+            if (averageSectionTime < 55) {sectionTimeColor = 3;}
+            else if (averageSectionTime < 60) {sectionTimeColor = 2;}
+            else if (averageSectionTime < 65) {sectionTimeColor = 1;}
+            else {sectionTimeColor = 0;}
+
+            for (let i=0;i<timeString.length;i++) {
+                if (timeString[i] == ":") {ctx.drawImage(images.sideInfo2, 40, sectionTimeColor*6, 4, 6, 145+i*4, 177, 4, 6);}
+                else {ctx.drawImage(images.sideInfo2, parseInt(timeString[i])*4, sectionTimeColor*6, 4, 6, 145+i*4, 177, 4, 6);}
+            }
+        }
+        //Power
+        ctx.drawImage(images.sideInfo3, 0, 24, 79, 7, 121, 185, 79, 7);
+        let power = 0;
+        if (settings.gameMechanics == "classicStyle") {
+            power = (level+1)*15; //Level component
+            if (sectionTimes.length > 0) power += Math.max((1875000 / averageSectionTime - 20000), 0); //Section time component
+            power += score ** 0.5 * 7; //Score component
+        }
+        else if (settings.gameMechanics == "masterStyle") {
+            power = (level+1)*20; //Level component
+            if (sectionTimes.length > 0) power += Math.max((3850000 / averageSectionTime - 40000), 0); //Section time component
+        }
+        else if (settings.gameMechanics == "dragonStyle") {
+            power = (level+1)*15; //Level component
+            if (sectionTimes.length > 0) power += Math.max((3000000 / averageSectionTime - 30000), 0); //Section time component
+        }
+        let powerString = Math.floor(power).toString().padStart(5, "0");
+        for (let i=0;i<powerString.length;i++) {
+            ctx.drawImage(images.sideInfo2, parseInt(powerString[i])*4, 0, 4, 6, 150+i*4, 193, 4, 6);
+        }
     }
     else if (settings.visuals == "gb") {displayEndingLine(0);}
     else if (settings.visuals == "nes") {setTimeout(function() {displayEndingLine(0)}, 1200);}

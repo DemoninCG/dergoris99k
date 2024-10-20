@@ -227,9 +227,9 @@ function initShaderProgram() {
     shaderProgram = createShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
     
     if (!shaderProgram) return;
-    console.time("Shader load");
+    console.time("Game shader load");
     gl.useProgram(shaderProgram);
-    console.timeEnd("Shader load");
+    console.timeEnd("Game shader load");
     const a_position = gl.getAttribLocation(shaderProgram, 'a_position');
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.enableVertexAttribArray(a_position);

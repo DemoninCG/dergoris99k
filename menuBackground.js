@@ -136,9 +136,9 @@ function initShaderProgram() {
     shaderProgramMenu = createShaderProgram(glm, vertexShaderSource, fragmentShaderSourceMenu);
     
     if (!shaderProgramMenu) return;
-    console.time("Shader load");
+    console.time("Menu shader load");
     glm.useProgram(shaderProgramMenu);
-    console.timeEnd("Shader load");
+    console.timeEnd("Menu shader load");
     const a_position = glm.getAttribLocation(shaderProgramMenu, 'a_position');
     glm.bindBuffer(glm.ARRAY_BUFFER, vertexBufferMenu);
     glm.enableVertexAttribArray(a_position);

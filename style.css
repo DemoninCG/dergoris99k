@@ -93,7 +93,7 @@ button {
     position: absolute;
     top: 130px;
     width: 500px;
-    height: calc(100% - 250px);
+    height: calc(100% - 240px);
     background-color: rgba(0,0,0,0.3);
     overflow: hidden;
 }
@@ -115,6 +115,47 @@ button {
     width: 40px;
     cursor: pointer;
     user-select: none;
+}
+
+#modeStatsContainer {
+    position: absolute;
+    top: 130px;
+    right: 110px;
+    width: 560px;
+    padding: 20px;
+    height: calc(100% - 240px);
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background-color: rgba(0,0,0,0.3);
+    overflow-X: hidden;
+    overflow-Y: auto;
+}
+
+#modeInfoContainer {
+    position: absolute;
+    top: 50%;
+    left: 560px;
+    padding: 20px;
+    width: calc(100% - 1250px);
+    transform: translateY(-50%);
+    min-width: 250px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background-color: rgba(0,0,0,0.3);
+    overflow-Y: auto;
+}
+
+#modeInfo {
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    margin-top: 20px;
+}
+
+#modeStatsCanvas {
+    transform: scale(4);
+    transform-origin: top left;
 }
 
 #game, #effectOverlay {
