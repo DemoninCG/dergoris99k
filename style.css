@@ -96,6 +96,8 @@ button {
     height: calc(100% - 240px);
     background-color: rgba(0,0,0,0.3);
     overflow: hidden;
+    border-top: 4px solid #eaeaff;
+    border-bottom: 4px solid #eaeaff;
 }
 
 .menuMode {
@@ -117,13 +119,21 @@ button {
     user-select: none;
 }
 
+#overallGradeCanvas {
+    position: absolute;
+    top: 30px;
+    right: 110px;
+    transform: scale(4);
+    transform-origin: top right;
+}
+
 #modeStatsContainer {
     position: absolute;
-    top: 130px;
+    top: 200px;
     right: 110px;
     width: 560px;
     padding: 20px;
-    height: calc(100% - 240px);
+    height: calc(100% - 310px);
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -140,6 +150,7 @@ button {
     width: calc(100% - 1250px);
     transform: translateY(-50%);
     min-width: 250px;
+    max-height: 75%;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -156,6 +167,15 @@ button {
 #modeStatsCanvas {
     transform: scale(4);
     transform-origin: top left;
+}
+
+#playButton {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    margin-top: 40px;
+    cursor: pointer;
+    user-select: none;
 }
 
 #game, #effectOverlay {

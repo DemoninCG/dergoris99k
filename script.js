@@ -9,7 +9,8 @@
 //Various issues when visuals don't match game mechanics (TGM level issues known)
 
 //To do:
-//Main menu
+//Transitions to and from games
+//Dragon style bonus unlock
 //Rebinding keys
 //Music/sounds
 //Fishing minigame
@@ -64,11 +65,14 @@ function reset() {
     //Save game variables
     game = {
         bestPowers: [0, 0, 0],
-        bestPoints: [0, 0, 0],
+        bestScores: [0, 0, 0],
         bestLevels: [0, 0, 0],
+        bestHighestSectionTimes: [5940, 5940, 5940],
+        bestAverageSectionTimes: [5940, 5940, 5940],
         classicStyleBestSectionTimes: [],
         masterStyleBestSectionTimes: [],
         dragonStyleBestSectionTimes: [],
+        medals: [0, 0, 0],
     };
     //Game settings
     settings = {
@@ -457,8 +461,9 @@ function initialiseCanvasBoard() {
 }
 
 function startGame() {
-    level = settings.startingLevel
-    document.getElementById("settings").style.display = "none";
+    level = settings.startingLevel;
+    document.getElementsByClassName("container")[1].style.display = "none"; //Campaign screen
+    document.getElementsByClassName("container")[2].style.display = "none"; //Custom game screen
     document.getElementById("backgroundCanvas").style.display = "none";
     document.getElementById("game").style.display = "block";
     document.getElementById("effectOverlay").style.display = "block";
@@ -825,10 +830,7 @@ function updateVariables() {
     //Main modes time display
     if ((settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle") && settings.timeDisplay) {
         let leftSide = 160-settings.boardWidth*4;
-        let timeString = ""
-        timeString += Math.floor(time/60).toString().padStart(2, "0") + ":"; //minutes
-        timeString += Math.floor(time%60).toString().padStart(2, "0") + ":"; //seconds
-        timeString += Math.floor((time%1)*100).toString().padStart(2, "0"); //Hundredths of a second
+        let timeString = convertToTime(time);
         let timeLength = 8;
         ctx.clearRect(leftSide-74, 82, 64, 9);
         for (let i=0;i<timeLength;i++) {
@@ -845,10 +847,7 @@ function updateVariables() {
         if (levelString == "1000") {levelString = "999";}
         for (let i=0;i<3;i++) ctx.drawImage(images.sideInfo2, levelString[i]*4, 0, 4, 6, 61+4*i, 117+7*currentSection, 4, 6);
 
-        let sectionTimeString = ""
-        sectionTimeString += Math.floor(currentSectionTime/60).toString().padStart(2, "0") + ":"; //minutes
-        sectionTimeString += Math.floor(currentSectionTime%60).toString().padStart(2, "0") + ":"; //seconds
-        sectionTimeString += Math.floor((currentSectionTime%1)*100).toString().padStart(2, "0"); //Hundredths of a second
+        let sectionTimeString = convertToTime(currentSectionTime);
         for (let i=0;i<8;i++) {
             if (sectionTimeString [i] == ":") {ctx.drawImage(images.sideInfo2, 40, 0, 4, 6, 77+4*i, 117+7*currentSection, 4, 6);}
             else {ctx.drawImage(images.sideInfo2, sectionTimeString[i]*4, 0, 4, 6, 77+4*i, 117+7*currentSection, 4, 6);}
@@ -859,10 +858,7 @@ function updateVariables() {
         let leftSide = 160-settings.boardWidth*4;
         let currentBackground = Math.floor(level/100);
         ctx.drawImage(images.background, currentBackground*320+leftSide, 206, 80, 24, leftSide, 206, 80, 24);
-        let timeString = ""
-        timeString += Math.floor(time/60).toString().padStart(2, "0") + ":"; //minutes
-        timeString += Math.floor(time%60).toString().padStart(2, "0") + ":"; //seconds
-        timeString += Math.floor((time%1)*100).toString().padStart(2, "0"); //Hundredths of a second
+        let timeString = convertToTime(time);
         let timeLength = 8;
         for (let i=0;i<timeLength;i++) {
             if (level >= 500) {
@@ -879,6 +875,23 @@ function updateVariables() {
 }
 
 setInterval(updateVariables, 1000/60);
+
+function convertToTime(seconds) {
+    let timeString = ""
+    timeString += Math.floor(seconds/60).toString().padStart(2, "0") + ":"; //minutes
+    timeString += Math.floor(seconds%60).toString().padStart(2, "0") + ":"; //seconds
+    timeString += Math.floor((seconds%1)*100).toString().padStart(2, "0"); //Hundredths of a second
+    return timeString;
+}
+
+function getTimeColor(seconds) {
+    let timeColor;
+    if (seconds < 55) {timeColor = 3;}
+    else if (seconds < 60) {timeColor = 2;}
+    else if (seconds < 65) {timeColor = 1;}
+    else {timeColor = 0;}
+    return timeColor;
+}
 
 function updateVisuals() {
     if (!gamePlaying) return;
@@ -1483,7 +1496,6 @@ function placePiece(pieceType) {
             pieceTopCorner[1] += settings.boardWidth/2-3;
             break;
         case "classicStyle":
-            if (!TGMFirstMove && level % 100 != 99 && level != 998) level++;
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[pieceType][i]];
                 if (pieceType==0 || pieceType==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
@@ -1493,7 +1505,6 @@ function placePiece(pieceType) {
             else if (pieceType==1) {pieceTopCorner = [0,1];}
             else {pieceTopCorner = [-1,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
-            TGMFirstMove = false;
             break;
         case "nes":
             for (let i=0;i<4;i++) {
@@ -1504,7 +1515,6 @@ function placePiece(pieceType) {
             else if (pieceType==1) {pieceTopCorner = [0,1];}
             else {pieceTopCorner = [-1,1];}
             pieceTopCorner[1] += settings.boardWidth/2-2;
-            TGMFirstMove = false;
             break;
         case "dx":
             for (let i=0;i<4;i++) {
@@ -1532,7 +1542,6 @@ function placePiece(pieceType) {
         case "masterStyle":
         case "dragonStyle":
         case "tgm":
-            if (!TGMFirstMove && level % 100 != 99 && level != 998) level++;
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[pieceType][i]];
                 if (pieceType==0 || pieceType==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
@@ -1542,7 +1551,6 @@ function placePiece(pieceType) {
             else if (pieceType==1) {pieceTopCorner = [0,1];}
             else {pieceTopCorner = [-1,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
-            TGMFirstMove = false;
             break;
     }
     currentPiece = pieceType;
@@ -1594,7 +1602,14 @@ function placePiece(pieceType) {
     }
 
     //Check for game over
-    if (checkPieceOverlap(piecePositions)) endGame();
+    if (checkPieceOverlap(piecePositions)) {
+        endGame();
+        return;
+    }
+
+    //Update level for TGM-like modes
+    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") && !TGMFirstMove && level % 100 != 99 && level != 998) level++;
+    TGMFirstMove = false;
 }
 
 // TODO: create lookup table for the tile positions to condense this
@@ -2387,16 +2402,8 @@ function displaySectionTime(index) {
     if (levelString == "1000") {levelString = "999";}
     for (let i=0;i<3;i++) ctx.drawImage(images.sideInfo2, levelString[i]*4, 0, 4, 6, 61+4*i, 117+7*index, 4, 6);
 
-    let timeString = ""
-    timeString += Math.floor(sectionTime/60).toString().padStart(2, "0") + ":"; //minutes
-    timeString += Math.floor(sectionTime%60).toString().padStart(2, "0") + ":"; //seconds
-    timeString += Math.floor((sectionTime%1)*100).toString().padStart(2, "0"); //Hundredths of a second
-
-    let sectionTimeColor;
-    if (sectionTime < 55) {sectionTimeColor = 3;}
-    else if (sectionTime < 60) {sectionTimeColor = 2;}
-    else if (sectionTime < 65) {sectionTimeColor = 1;}
-    else {sectionTimeColor = 0;}
+    let timeString = convertToTime(sectionTime);
+    let sectionTimeColor = getTimeColor(sectionTime);
     for (let i=0;i<8;i++) {
         if (timeString[i] == ":") {ctx.drawImage(images.sideInfo2, 40, sectionTimeColor*6, 4, 6, 77+4*i, 117+7*index, 4, 6);}
         else {ctx.drawImage(images.sideInfo2, timeString[i]*4, sectionTimeColor*6, 4, 6, 77+4*i, 117+7*index, 4, 6);}
@@ -2441,7 +2448,7 @@ document.addEventListener("keydown", function(event) {
             break;
         case "softDrop":
             if (!gamePlaying && onCampaignScreen) {
-                selectMenuMode(Math.min(4,currentMenuMode+1));
+                selectMenuMode(Math.min(3,currentMenuMode+1));
             }
             else {
                 softDrop();
@@ -2965,20 +2972,37 @@ function endGame() {
             for (let i=1;i<sectionTimes.length;i++) {averageSectionTime += (sectionTimes[i] - sectionTimes[i-1]);}
             averageSectionTime /= sectionTimes.length;
 
-            let timeString = ""
-            timeString += Math.floor(averageSectionTime/60).toString().padStart(2, "0") + ":"; //minutes
-            timeString += Math.floor(averageSectionTime%60).toString().padStart(2, "0") + ":"; //seconds
-            timeString += Math.floor((averageSectionTime%1)*100).toString().padStart(2, "0"); //Hundredths of a second
-
-            let sectionTimeColor;
-            if (averageSectionTime < 55) {sectionTimeColor = 3;}
-            else if (averageSectionTime < 60) {sectionTimeColor = 2;}
-            else if (averageSectionTime < 65) {sectionTimeColor = 1;}
-            else {sectionTimeColor = 0;}
+            let timeString = convertToTime(averageSectionTime);
+            let sectionTimeColor = getTimeColor(averageSectionTime);
 
             for (let i=0;i<timeString.length;i++) {
                 if (timeString[i] == ":") {ctx.drawImage(images.sideInfo2, 40, sectionTimeColor*6, 4, 6, 145+i*4, 177, 4, 6);}
                 else {ctx.drawImage(images.sideInfo2, parseInt(timeString[i])*4, sectionTimeColor*6, 4, 6, 145+i*4, 177, 4, 6);}
+            }
+
+            if (level >= 999) {
+                //Best average section time
+                if (settings.gameMechanics == "classicStyle" && averageSectionTime < game.bestAverageSectionTimes[0]) game.bestAverageSectionTimes[0] = averageSectionTime;
+                else if (settings.gameMechanics == "masterStyle" && averageSectionTime < game.bestAverageSectionTimes[1]) game.bestAverageSectionTimes[1] = averageSectionTime;
+                else if (settings.gameMechanics == "dragonStyle" && averageSectionTime < game.bestAverageSectionTimes[2]) game.bestAverageSectionTimes[2] = averageSectionTime;
+                //Best highest section time
+                let highestSectionTime = sectionTimes[0];
+                for (let i=1;i<sectionTimes.length;i++) {
+                    if (sectionTimes[i] && sectionTimes[i] - sectionTimes[i-1] > highestSectionTime) highestSectionTime = (sectionTimes[i] - sectionTimes[i-1]);
+                }
+                if (settings.gameMechanics == "classicStyle" && highestSectionTime < game.bestHighestSectionTimes[0]) game.bestHighestSectionTimes[0] = highestSectionTime;
+                else if (settings.gameMechanics == "masterStyle" && highestSectionTime < game.bestHighestSectionTimes[1]) game.bestHighestSectionTimes[1] = highestSectionTime;
+                else if (settings.gameMechanics == "dragonStyle" && highestSectionTime < game.bestHighestSectionTimes[2]) game.bestHighestSectionTimes[2] = highestSectionTime;
+            }
+
+            //Individual best section times
+            if (settings.gameMechanics == "classicStyle" && (sectionTimes[0] < game.classicStyleBestSectionTimes[0] || !game.classicStyleBestSectionTimes[0])) game.classicStyleBestSectionTimes[0] = sectionTimes[0];
+            else if (settings.gameMechanics == "masterStyle" && (sectionTimes[0] < game.masterStyleBestSectionTimes[0] || !game.masterStyleBestSectionTimes[0])) game.masterStyleBestSectionTimes[0] = sectionTimes[0];
+            else if (settings.gameMechanics == "dragonStyle" && (sectionTimes[0] < game.dragonStyleBestSectionTimes[0] || !game.dragonStyleBestSectionTimes[0])) game.dragonStyleBestSectionTimes[0] = sectionTimes[0];
+            for (let i=1;i<sectionTimes.length;i++) {
+                if (settings.gameMechanics == "classicStyle" && (sectionTimes[i] - sectionTimes[i-1] < game.classicStyleBestSectionTimes[i] || !game.classicStyleBestSectionTimes[i])) game.classicStyleBestSectionTimes[i] = (sectionTimes[i] - sectionTimes[i-1]);
+                else if (settings.gameMechanics == "masterStyle" && (sectionTimes[i] - sectionTimes[i-1] < game.masterStyleBestSectionTimes[i] || !game.masterStyleBestSectionTimes[i])) game.masterStyleBestSectionTimes[i] = (sectionTimes[i] - sectionTimes[i-1]);
+                else if (settings.gameMechanics == "dragonStyle" && (sectionTimes[i] - sectionTimes[i-1] < game.dragonStyleBestSectionTimes[i] || !game.dragonStyleBestSectionTimes[i])) game.dragonStyleBestSectionTimes[i] = (sectionTimes[i] - sectionTimes[i-1]);
             }
         }
         //Power
@@ -2988,18 +3012,32 @@ function endGame() {
             power = (level+1)*15; //Level component
             if (sectionTimes.length > 0) power += Math.max((1875000 / averageSectionTime - 20000), 0); //Section time component
             power += score ** 0.5 * 7; //Score component
+            if (inCampaign && power > game.bestPowers[0]) game.bestPowers[0] = power;
+            if (inCampaign && score > game.bestScores[0]) game.bestScores[0] = score;
+            if (inCampaign && level > game.bestLevels[0]) game.bestLevels[0] = level;
         }
         else if (settings.gameMechanics == "masterStyle") {
-            power = (level+1)*20; //Level component
-            if (sectionTimes.length > 0) power += Math.max((3850000 / averageSectionTime - 40000), 0); //Section time component
+            power = (level+1)*15; //Level component
+            if (sectionTimes.length > 0) power += Math.max((2800000 / averageSectionTime - 30000), 0); //Section time component
+            if (inCampaign && power > game.bestPowers[1]) game.bestPowers[1] = power;
+            if (inCampaign && score > game.bestScores[1]) game.bestScores[1] = score;
+            if (inCampaign && level > game.bestLevels[1]) game.bestLevels[1] = level;
         }
         else if (settings.gameMechanics == "dragonStyle") {
-            power = (level+1)*15; //Level component
-            if (sectionTimes.length > 0) power += Math.max((3000000 / averageSectionTime - 30000), 0); //Section time component
+            power = (level+1)*20; //Level component
+            if (sectionTimes.length > 0) power += Math.max((1520000 / averageSectionTime - 20000), 0); //Section time component
+            if (inCampaign && power > game.bestPowers[2]) game.bestPowers[2] = power;
+            if (inCampaign && score > game.bestScores[2]) game.bestScores[2] = score;
+            if (inCampaign && level > game.bestLevels[2]) game.bestLevels[2] = level;
         }
         let powerString = Math.floor(power).toString().padStart(5, "0");
+        let powerColor;
+        if (settings.gameMechanics == "classicStyle" && power >= 30000) {powerColor = 3;}
+        else if (settings.gameMechanics == "masterStyle" && power >= 39000) {powerColor = 3;}
+        else if (settings.gameMechanics == "dragonStyle" && power >= 30000) {powerColor = 3;}
+        else {powerColor = 0;}
         for (let i=0;i<powerString.length;i++) {
-            ctx.drawImage(images.sideInfo2, parseInt(powerString[i])*4, 0, 4, 6, 150+i*4, 193, 4, 6);
+            ctx.drawImage(images.sideInfo2, parseInt(powerString[i])*4, powerColor*6, 4, 6, 150+i*4, 193, 4, 6);
         }
     }
     else if (settings.visuals == "gb") {displayEndingLine(0);}
@@ -3078,6 +3116,7 @@ function returnToMenu() {
     linesUntilNextLevel = 0;
     time = 0;
     timeAtLastSection = 0;
+    sectionTimes = [];
     softDropping = false;
     currentPushdown = 0;
     maxPushdown = 0;
@@ -3096,7 +3135,9 @@ function returnToMenu() {
     document.getElementById("backgroundCanvas").style.display = "block";
     document.getElementById("textOverlay").style.display = "none";
     document.getElementById("textOverlay").innerHTML = "";
-    document.getElementById("settings").style.display = "block";
+    document.getElementsByClassName("container")[1].style.display = "block"; //Campaign screen
+    document.getElementsByClassName("container")[2].style.display = "block"; //Custom game screen
+    if (inCampaign) displayModeInfo(currentMenuMode);
     document.body.style.backgroundColor = "#555";
     document.body.style.backgroundImage = "none"
 }

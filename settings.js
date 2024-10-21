@@ -32,29 +32,6 @@ function updateSettingVisuals() {
 updateSettingVisuals()
 document.getElementById("presetsSetting").value = "classicStyle";
 
-/*
-Classic Style:
-Reminiscent of classic tetris versions
-- No lock delay
-- Hard drop
-- Drop speed and DAS get faster as level increases
-- Aim is to maximize score and minimize section times
-
-Master style:
-Reminiscent of the TGM series master mode
-- Lock delay
-- No hard drop
-- Drop speed gets faster until it hits 20G
-- Aim is to maximize score and minimize section times
-
-Dragon style:
-Reminiscent of the TGM series death/shirase mode
-- Lock delay
-- No hard drop
-- Drop speed gets faster until it hits 20G
-- Aim is to maximize score and minimize section times
-*/ 
-
 function clamp(min, val, max) {
     if(val < min) {
         return min;
@@ -65,8 +42,8 @@ function clamp(min, val, max) {
     return val;
 }
 
-function setPreset() {
-    let preset = document.getElementById("presetsSetting").value;
+function setPreset(preset = document.getElementById("presetsSetting").value) {
+    document.getElementById("presetsSetting").value = preset;
     switch (preset) {
         case "classicStyle":
             settings.boardWidth = 10;
