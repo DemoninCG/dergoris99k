@@ -10,7 +10,7 @@
     <meta content="#005a00" data-react-helmet="true" name="theme-color" />
     <meta name="color-scheme" content="light only">
     <title>Dergoris 99k</title>
-    <link rel="stylesheet" href="style.css?v020=1">
+    <link rel="stylesheet" href="style.css?v021=1">
     <link rel="icon" href="img/icon2.png">
     <!--Preload board-->
     <img src="img/modeInfo.png" style="display: none">
@@ -71,11 +71,11 @@
     <canvas id="backgroundCanvas"></canvas>
     <canvas id="gameCanvas" style="display: none"></canvas>
     <div class="container" style="padding: 40px;">
-        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V0.2.0</p>
+        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V0.2.1</p>
         <button class="menuButton" onclick="switchToTab(2); displayModeInfo(currentMenuMode)">CAMPAIGN</button><br>
         <button class="menuButton" onclick="switchToTab(3)">CUSTOM GAME</button><br>
-        <button class="menuButton" style="color: #777">KEYBINDS</button><br>
-        <button class="menuButton" style="color: #777">SETTINGS</button><br>
+        <button class="menuButton" onclick="showKeybinds()">KEYBINDS</button><br>
+        <button class="menuButton" onclick="showSettings()">SETTINGS</button><br>
         <button class="menuButton" onclick="switchToTab(4)">CREDITS</button><br>
     </div>
     <div class="container" style="left: 100vw; padding: 40px;">
@@ -223,17 +223,43 @@
         <p style="font-size: 48px; font-weight: bold; font-family: 'Courier New', monospace">Credits</p><br>
         <p style="font-size: 24px; font-family: 'Courier New', monospace; width: 800px;">Created by Demonin<br>Additional coding by NOT_A_ROBOT<br>---------<br>Some main sprites taken/modified from the <i>Tetris: The Grand Master</i> series by Arika<br>Retro game sprites belong to Nintendo, Sega, and Arika<br>Background shaders created by Xor and greenbird10 on Shadertoy<br>---------<br>Thank you to all the patrons, testers, and those in the TAP discord server who helped make this game what it is!</p>
     </div>
+    <div id="keybindsContainer">
+        <p class="keybindsText"><b>Keybinds</b></p><br><br>
+        <p class="keybindsText">Move left - <span class="keybind">ArrowLeft</span></p>
+        <button class="keybindButton" onclick="changeKeybind(1)">CHANGE</button><br>
+        <p class="keybindsText">Move right - <span class="keybind">ArrowRight</span></p>
+        <button class="keybindButton" onclick="changeKeybind(2)">CHANGE</button><br>
+        <p class="keybindsText">Soft drop - <span class="keybind">ArrowDown</span></p>
+        <button class="keybindButton" onclick="changeKeybind(3)">CHANGE</button><br>
+        <p class="keybindsText">Hard drop - <span class="keybind">ArrowUp</span></p>
+        <button class="keybindButton" onclick="changeKeybind(4)">CHANGE</button><br>
+        <p class="keybindsText">Rotate clockwise - <span class="keybind">s</span></p>
+        <button class="keybindButton" onclick="changeKeybind(5)">CHANGE</button><br>
+        <p class="keybindsText">Rotate clockwise Alt - <span class="keybind">x</span></p>
+        <button class="keybindButton" onclick="changeKeybind(6)">CHANGE</button><br>
+        <p class="keybindsText">Rotate anticlockwise - <span class="keybind">a</span></p>
+        <button class="keybindButton" onclick="changeKeybind(7)">CHANGE</button><br>
+        <p class="keybindsText">Rotate anticlockwise Alt - <span class="keybind">z</span></p>
+        <button class="keybindButton" onclick="changeKeybind(8)">CHANGE</button><br>
+        <button onclick="hideKeybinds()">CLOSE</button>
+    </div>
+    <div id="settingsContainer">
+        <button onclick="exportGame()">EXPORT GAME</button><br>
+        <button onclick="importGame()">IMPORT GAME</button><br>
+        <button onclick="hardReset()" style="background-color: #fcc">RESET DATA</button><br><br>
+        <button onclick="hideSettings()">CLOSE</button>
+    </div>
 
     <canvas id="game" width="320" height="240"></canvas>
     <div id="textOverlay"></div>
     <canvas id="effectOverlay" width="320" height="240"></canvas>
     <div id="blackCoverLeft" style="left: 0"></div>
     <div id="blackCoverRight" style="right: 0"></div>
-    <script src="constants.js?v020=1"></script>
-    <script src="background.js?v020=1"></script>
-    <script src="menuBackground.js?v020=1"></script>
-    <script src="script.js?v020=1"></script>
-    <script src="settings.js?v020=1"></script>
-    <script src="menu.js?v020=1"></script>
+    <script src="constants.js?v021=1"></script>
+    <script src="background.js?v021=1"></script>
+    <script src="menuBackground.js?v021=1"></script>
+    <script src="script.js?v021=1"></script>
+    <script src="settings.js?v021=1"></script>
+    <script src="menu.js?v021=1"></script>
 </body>
 </html>

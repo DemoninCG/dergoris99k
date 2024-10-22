@@ -102,6 +102,7 @@ function reset() {
     gamePlaying = false;
     inCampaign = false;
     keysHeld = [false, false, false, false, false, false]; //Left, Right, Up, Down, A, D
+    keybindToReplace = "";
     timeOfLastUpdate = Date.now();
 }
 reset();
@@ -489,6 +490,11 @@ function initialiseCanvasBoard() {
         else {ctx.drawImage(images.sideInfo1, 0, 0, 64, 150, 70, 26, 64, 150);}
     }
 }
+
+function showKeybinds() {hideSettings(); document.getElementById("keybindsContainer").style.display = "block";}
+function hideKeybinds() {document.getElementById("keybindsContainer").style.display = "none";}
+function showSettings() {hideKeybinds(); document.getElementById("settingsContainer").style.display = "block";}
+function hideSettings() {document.getElementById("settingsContainer").style.display = "none";}
 
 function showBlackCover() {
     document.getElementById("blackCoverLeft").style.width = "50%";
@@ -2467,6 +2473,21 @@ const keyConfig = new Map([
 ]);
 
 document.addEventListener("keydown", function(event) {
+    if (keybindToReplace != "") {
+        if (event.key == "Escape") {
+            keybindToReplace = "";
+            updateKeybindList();
+            return;
+        }
+        //Find the key that maps to the value
+        let keyToReplace = getKeybind(keybindToReplace);
+        //Replace the key
+        keyConfig.delete(keyToReplace);
+        keyConfig.set(event.key, keybindToReplace);
+        keybindToReplace = "";
+        updateKeybindList();
+        return;
+    }
     if(!keyConfig.has(event.key)) return;
 
     const action = keyConfig.get(event.key);
@@ -2509,7 +2530,8 @@ document.addEventListener("keydown", function(event) {
             keysHeld[5] = true;
             break;
         case "exit":
-            if (!gamePlaying && document.getElementById("game").style.display == "block") {
+            if (!gamePlaying && document.getElementById("keybindsContainer").style.display == "block") hideKeybinds();
+            else if (!gamePlaying && document.getElementById("game").style.display == "block") {
                 showBlackCover();
                 setTimeout(returnToMenu, 1000);
             }
@@ -2550,6 +2572,26 @@ document.addEventListener("keyup", function(event) {
             break;
     }
 })
+
+function getKeybind(action) {
+    for (const [key, value] of keyConfig) {
+        if (value == action) return key;
+    }
+    return "";
+}
+
+const keybindNames = ["left","right","hardDrop","softDrop","rotClockwise","rotClockwiseAlt","rotAnticlockwise","rotAnticlockwiseAlt"];
+function changeKeybind(index) {
+    keybindToReplace = keybindNames[index-1];
+    document.getElementsByClassName("keybindButton")[index-1].innerText = "PRESS A KEY..."
+}
+
+function updateKeybindList() {
+    for (let i=0;i<8;i++) {
+        document.getElementsByClassName("keybind")[i].innerText = getKeybind(keybindNames[i]);
+        document.getElementsByClassName("keybindButton")[i].innerText = "CHANGE"
+    }
+}
 
 function checkFullLines() { //Return an array of the full lines
     let fullLines = [];

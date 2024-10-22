@@ -178,6 +178,38 @@ button {
     user-select: none;
 }
 
+#keybindsContainer, #settingsContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #888;
+    border: 4px outset;
+    padding: 30px;
+    display: none;
+}
+
+.keybindsText {
+    font-size: 24px;
+    font-family: 'Courier New', monospace;
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.keybind {
+    color: #9ff;
+}
+
+#blackCoverLeft, #blackCoverRight {
+    position: absolute;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background-color: black;
+    z-index: 3;
+    transition: width cubic-bezier(.15,.67,.53,1.02) 0.5s;
+}
+
 #game, #effectOverlay {
     position: absolute;
     top: 50%;
@@ -198,15 +230,7 @@ button {
     display: none;
 }
 
-#blackCoverLeft, #blackCoverRight {
-    position: absolute;
-    top: 0;
-    width: 0;
-    height: 100%;
-    background-color: black;
-    z-index: 3;
-    transition: width cubic-bezier(.15,.67,.53,1.02) 0.5s;
-}
+
 
 /*Game-specific things*/
 

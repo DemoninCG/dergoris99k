@@ -41,6 +41,8 @@ function switchToTab(x) {
             document.getElementsByClassName("container")[2].style.left = "100vw";
             document.getElementsByClassName("container")[3].style.top = "100vh";
             document.getElementsByClassName("container")[3].style.left = "-100vw";
+            hideKeybinds();
+            hideSettings();
             break;
         case 3:
             onCampaignScreen = false;
@@ -53,6 +55,8 @@ function switchToTab(x) {
             document.getElementsByClassName("container")[2].style.left = "0";
             document.getElementsByClassName("container")[3].style.top = "100vh";
             document.getElementsByClassName("container")[3].style.left = "-100vw";
+            hideKeybinds();
+            hideSettings();
             break;
         case 4:
             onCampaignScreen = false;
@@ -65,6 +69,8 @@ function switchToTab(x) {
             document.getElementsByClassName("container")[2].style.left = "100vw";
             document.getElementsByClassName("container")[3].style.top = "0";
             document.getElementsByClassName("container")[3].style.left = "0";
+            hideKeybinds();
+            hideSettings();
             break;
     }
 }
