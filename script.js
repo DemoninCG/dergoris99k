@@ -9,44 +9,10 @@
 //Various issues when visuals don't match game mechanics (TGM level issues known)
 
 //To do:
-//Transitions to and from games
-//Dragon style bonus unlock
 //Rebinding keys
 //Music/sounds
 //Fishing minigame
 //Big mode maybe?
-
-
-//Overall power based on power from each style, overall grade 10-1 then S1-S10 then M1-M10
-//Each game presents average section time and power at the end, highest power for each style is remembered
-
-//--Classic style--
-//Scored like NES tetris (no combo)
-//Power (level, average section time, score) - Max 30000 to overall power
-//Best score
-//Best level (+ best highest section time + best average section time if 999)
-//Individual best section times
-//Medals require certain best score, best highest section time, and best average section time
-
-//--Master style--
-//Scored like TGM
-//Power (level, average section time) - Max 39000 to overall power
-//Best score
-//Best level (+ best highest section time + best average section time if 999)
-//Individual best section times
-//Medals require certain best score, best highest section time, and best average section time
-
-//--dragon style--
-//Scored like TGM
-//Power (level, average section time) - Max 30000 to overall power
-//Best score
-//Best level
-//Individual best section times
-//Bronze medal requires reaching level 500, silver medal requires reaching level 999, gold medal requires reaching level 1500
-
-//Dragon style level 1000-1500 - Requires 99000 overall power (max power from all 3 styles)
-//Rewards 1000 overall power for 100000 total (GM overall grade AKA final achievement)
-
 
 //Smaller game canvas sizes
 if (window.innerHeight < 750) {
@@ -138,8 +104,72 @@ function reset() {
     keysHeld = [false, false, false, false, false, false]; //Left, Right, Up, Down, A, D
     timeOfLastUpdate = Date.now();
 }
+reset();
 
-reset()
+//If the user confirms the hard reset, resets all variables, saves and refreshes the page
+function hardReset() {
+    if (confirm("Are you sure you want to reset? You will lose everything!")) {
+        reset();
+        save();
+        location.reload();
+    }
+}
+  
+function save() {
+    //console.log("saving");
+    game.lastSave = Date.now();
+    localStorage.setItem("dergorisSave", JSON.stringify(game));
+}
+  
+function setAutoSave() {
+    setInterval(save, 5000);
+    autosaveStarted = true;
+}
+//setInterval(save, 5000);
+  
+function load() {
+    reset()
+    let loadgame = JSON.parse(localStorage.getItem("dergorisSave"));
+    if (loadgame != null) {loadGame(loadgame);}
+}
+load()
+  
+function exportGame() {
+    save()
+    navigator.clipboard.writeText(btoa(JSON.stringify(game))).then(function() {
+        alert("Copied to clipboard!");
+    }, function() {
+        alert("Error copying to clipboard... Here's the save string: " + btoa(JSON.stringify(game)));
+    });
+}
+  
+function importGame() {
+    loadgame = JSON.parse(atob(prompt("Input your save here:")));
+    if (loadgame && loadgame != null && loadgame != "") {
+        reset();
+        loadGame(loadgame);
+        save();
+        location.reload();
+    }
+    else {
+        alert("Invalid input.");
+    }
+}
+  
+  function loadGame(loadgame) {
+    //Sets each variable in 'game' to the equivalent variable in 'loadgame' (the saved file)
+    let loadKeys = Object.keys(loadgame);
+    for (i=0; i<loadKeys.length; i++) {
+        if (loadgame[loadKeys[i]] != "undefined") {
+            let thisKey = loadKeys[i];
+            if (Array.isArray(loadgame[thisKey])) {
+                game[loadKeys[i]] = loadgame[thisKey].map((x) => {return x});
+            }
+            //else {game[Object.keys(game)[i]] = loadgame[loadKeys[i]]}
+            else {game[loadKeys[i]] = loadgame[loadKeys[i]];}
+        }
+    }
+}
 
 // Preload images
 const images = {
@@ -460,7 +490,18 @@ function initialiseCanvasBoard() {
     }
 }
 
+function showBlackCover() {
+    document.getElementById("blackCoverLeft").style.width = "50%";
+    document.getElementById("blackCoverRight").style.width = "50%";
+}
+
+function hideBlackCover() {
+    document.getElementById("blackCoverLeft").style.width = "0";
+    document.getElementById("blackCoverRight").style.width = "0";
+}
+
 function startGame() {
+    hideBlackCover();
     level = settings.startingLevel;
     document.getElementsByClassName("container")[1].style.display = "none"; //Campaign screen
     document.getElementsByClassName("container")[2].style.display = "none"; //Custom game screen
@@ -2419,7 +2460,9 @@ const keyConfig = new Map([
     ["ArrowUp", "hardDrop"],
     ["ArrowDown", "softDrop"],
     ["s", "rotClockwise"],
+    ["x", "rotClockwiseAlt"],
     ["a", "rotAnticlockwise"],
+    ["z", "rotAnticlockwiseAlt"],
     ["Escape", "exit"],
 ]);
 
@@ -2456,15 +2499,20 @@ document.addEventListener("keydown", function(event) {
             }
             break;
         case "rotClockwise":
+        case "rotClockwiseAlt":
             rotatePiece(true);
             keysHeld[4] = true;
             break;
         case "rotAnticlockwise":
+        case "rotAnticlockwiseAlt":
             rotatePiece(false);
             keysHeld[5] = true;
             break;
         case "exit":
-            if (!gamePlaying && document.getElementById("game").style.display == "block") returnToMenu();
+            if (!gamePlaying && document.getElementById("game").style.display == "block") {
+                showBlackCover();
+                setTimeout(returnToMenu, 1000);
+            }
             else if (!gamePlaying) switchToTab(1);
             break;
         default:
@@ -2493,9 +2541,11 @@ document.addEventListener("keyup", function(event) {
             keysHeld[3] = false;
             break;
         case "rotClockwise":
+        case "rotClockwiseAlt":
             keysHeld[4] = false;
             break;
         case "rotAnticlockwise":
+        case "rotAnticlockwiseAlt":
             keysHeld[5] = false;
             break;
     }
@@ -3107,6 +3157,7 @@ function displayEndingLine(x) {
 }
 
 function returnToMenu() {
+    hideBlackCover();
     board = [];
     waitingForNextPiece = false;
     piecesDropped = [0,0,0,0,0,0,0];
@@ -3139,5 +3190,6 @@ function returnToMenu() {
     document.getElementsByClassName("container")[2].style.display = "block"; //Custom game screen
     if (inCampaign) displayModeInfo(currentMenuMode);
     document.body.style.backgroundColor = "#555";
-    document.body.style.backgroundImage = "none"
+    document.body.style.backgroundImage = "none";
+    save();
 }

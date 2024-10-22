@@ -148,14 +148,26 @@ function displayModeInfo(x) {
     let overallPower = Math.min(game.bestPowers[0],30000) + Math.min(game.bestPowers[1],30000) + Math.min(game.bestPowers[2],39000);
     let overallGrade = Math.floor(overallPower / 3000);
     overallGradeCtx.drawImage(overallGradeImage, 0, overallGrade*32, 48, 32, 92, 0, 48, 32);
-    let overallPowerString = Math.floor(overallPower).toString().padStart(5, "0");
-    for (let i = 0; i < overallPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, overallPowerString[i] * 4, 0, 4, 6, 68 + i*4, 24, 4, 6);
-    let classicPowerString = Math.floor(Math.min(game.bestPowers[0],30000)).toString().padStart(5, "0");
-    for (let i = 0; i < classicPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, classicPowerString[i] * 4, 0, 4, 6, 11 + i*4, 32, 4, 6);
-    let masterPowerString = Math.floor(Math.min(game.bestPowers[1],30000)).toString().padStart(5, "0");
-    for (let i = 0; i < masterPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, masterPowerString[i] * 4, 0, 4, 6, 39 + i*4, 32, 4, 6);
-    let dragonPowerString = Math.floor(Math.min(game.bestPowers[2],39000)).toString().padStart(5, "0");
-    for (let i = 0; i < dragonPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, dragonPowerString[i] * 4, 0, 4, 6, 67 + i*4, 32, 4, 6);
+    //Overall power string
+    let overallPowerString = Math.floor(overallPower).toString()
+    for (let i = 0; i < (5-overallPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 68 + i*4, 24, 4, 6);
+    let overallPowerColor = overallPower >= 99000 ? 3 : 0;
+    for (let i = 0; i < overallPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, overallPowerString[i] * 4, overallPowerColor * 6, 4, 6, 88 - (4*overallPowerString.length) + i*4, 24, 4, 6);
+    //Classic power string
+    let classicPowerString = Math.floor(Math.min(game.bestPowers[0],30000)).toString()
+    for (let i = 0; i < (5-classicPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 11 + i*4, 32, 4, 6);
+    let classicPowerColor = game.bestPowers[0] >= 30000 ? 3 : 0;
+    for (let i = 0; i < classicPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, classicPowerString[i] * 4, classicPowerColor * 6, 4, 6, 31 - (4*classicPowerString.length) + i*4, 32, 4, 6);
+    //Master power string
+    let masterPowerString = Math.floor(Math.min(game.bestPowers[1],30000)).toString()
+    for (let i = 0; i < (5-masterPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 39 + i*4, 32, 4, 6);
+    let masterPowerColor = game.bestPowers[1] >= 30000 ? 3 : 0;
+    for (let i = 0; i < masterPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, masterPowerString[i] * 4, masterPowerColor * 6, 4, 6, 59 - (4*masterPowerString.length) + i*4, 32, 4, 6);
+    //Dragon power string
+    let dragonPowerString = Math.floor(Math.min(game.bestPowers[2],39000)).toString()
+    for (let i = 0; i < (5-dragonPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 67 + i*4, 32, 4, 6);
+    let dragonPowerColor = game.bestPowers[2] >= 39000 ? 3 : 0;
+    for (let i = 0; i < dragonPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, dragonPowerString[i] * 4, dragonPowerColor * 6, 4, 6, 87 - (4*dragonPowerString.length) + i*4, 32, 4, 6);
 
     //Mode info
     let bestPowerString, bestScoreString, bestLevelString, bestLevelColor;

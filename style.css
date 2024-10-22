@@ -198,6 +198,16 @@ button {
     display: none;
 }
 
+#blackCoverLeft, #blackCoverRight {
+    position: absolute;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background-color: black;
+    z-index: 3;
+    transition: width cubic-bezier(.15,.67,.53,1.02) 0.5s;
+}
+
 /*Game-specific things*/
 
 .GBText {
