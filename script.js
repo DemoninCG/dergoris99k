@@ -815,6 +815,7 @@ function updateVariables() {
             DASChargedThisTick = true;
             if (currentDASTime <= 0) {
                 moveLeft();
+                if (getDropInterval() <= 0.05) maxDrop(); //20G
                 resetDAS = true;
             }
         }
@@ -828,6 +829,7 @@ function updateVariables() {
             }
             if (currentDASTime <= 0) {
                 moveRight();
+                if (getDropInterval() <= 0.05) maxDrop(); //20G
                 resetDAS = true;
             }
         }
@@ -2585,7 +2587,7 @@ document.addEventListener("keydown", function(event) {
             keysHeld[1] = true;
             break;
         case "hardDrop":
-            if (!gamePlaying && onCampaignScreen) {
+            if (!gamePlaying && onCampaignScreen && document.getElementById("game").style.display == "none") {
                 selectMenuMode(Math.max(1,currentMenuMode-1));
             }
             else {
@@ -2594,7 +2596,7 @@ document.addEventListener("keydown", function(event) {
             }
             break;
         case "softDrop":
-            if (!gamePlaying && onCampaignScreen) {
+            if (!gamePlaying && onCampaignScreen && document.getElementById("game").style.display == "none") {
                 selectMenuMode(Math.min(3,currentMenuMode+1));
             }
             else {
@@ -3231,15 +3233,16 @@ function endGame() {
             if (inCampaign && score > game.bestScores[2]) game.bestScores[2] = score;
             if (inCampaign && level > game.bestLevels[2]) game.bestLevels[2] = level;
         }
-        let powerString = Math.floor(power).toString().padStart(5, "0");
+        
+        let powerString = Math.floor(power).toString();
+        if (powerString == "0") powerString = "";
+        for (let i=0;i<(5-powerString.length);i++) {ctx.drawImage(images.sideInfo2, 0, 24, 4, 6, 150+i*4, 193, 4, 6);} //Greyed out zeroes
         let powerColor;
         if (settings.gameMechanics == "classicStyle" && power >= 30000) {powerColor = 3;}
         else if (settings.gameMechanics == "masterStyle" && power >= 39000) {powerColor = 3;}
         else if (settings.gameMechanics == "dragonStyle" && power >= 30000) {powerColor = 3;}
         else {powerColor = 0;}
-        for (let i=0;i<powerString.length;i++) {
-            ctx.drawImage(images.sideInfo2, parseInt(powerString[i])*4, powerColor*6, 4, 6, 150+i*4, 193, 4, 6);
-        }
+        for (let i=0;i<powerString.length;i++) {ctx.drawImage(images.sideInfo2, parseInt(powerString[i])*4, powerColor*6, 4, 6, 170 - (4*powerString.length) + i*4, 193, 4, 6);}
     }
     else if (settings.visuals == "gb") {displayEndingLine(0);}
     else if (settings.visuals == "nes") {setTimeout(function() {displayEndingLine(0)}, 1200);}
@@ -3342,7 +3345,7 @@ function returnToMenu() {
     document.getElementById("textOverlay").innerHTML = "";
     document.getElementsByClassName("container")[1].style.display = "block"; //Campaign screen
     document.getElementsByClassName("container")[2].style.display = "block"; //Custom game screen
-    if (inCampaign) displayModeInfo(currentMenuMode);
+    if (inCampaign) selectMenuMode(currentMenuMode);
     document.body.style.backgroundColor = "#555";
     document.body.style.backgroundImage = "none";
     save();
