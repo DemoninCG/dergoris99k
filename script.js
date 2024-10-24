@@ -788,8 +788,10 @@ function readyGo(stage) {
     else if (stage == 3) {
         gamePlaying = true;
         stopSound("gameMusic");
-        setSoundVolume("gameMusic", game.musicVolume);
-        if (settings.visuals != "tgm") playSound("gameMusic");
+        if (settings.visuals != "tgm") {
+            playSound("gameMusic");
+            setSoundVolume("gameMusic", game.musicVolume);
+        }
         updateVisuals();
         if (settings.gameMechanics == "tgm" && keysHeld[3]) { //Starting soft drop if key is held
             currentDropTime = Math.min(getDropInterval(), settings.softDropSpeed);
@@ -2706,9 +2708,10 @@ function clearLines() {
         fadeOutSound("gameMusic", 2000);
     }
     else if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (level < 500 && level + linesCleared >= 500)) { //New music
+        console.log(1)
         stopSound("gameMusic");
-        setSoundVolume("gameMusic", game.musicVolume);
         playSound("gameMusic", true); //Must be forced otherwise song won't play since the level is still < 500
+        setSoundVolume("gameMusic", game.musicVolume);
     }
     if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || level+linesCleared >= 999)) { //main styles level up
         playSound("levelUp");
@@ -3306,6 +3309,7 @@ function displayEndingLine(x) {
 
 function returnToMenu() {
     hideBlackCover();
+    stopSound("gameMusic");
     setSoundVolume('menuMusic', game.musicVolume);
     playSound('menuMusic');
     board = [];

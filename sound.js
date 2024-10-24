@@ -180,12 +180,12 @@ function stopSound(sound) {
             menuMusic.stop();
             break;
         case "gameMusic":
-            if (settings.visuals == "classicStyle" && level >= 500) {gameMusic2.stop();}
-            else if (settings.visuals == "classicStyle") {gameMusic1.stop();}
-            else if (settings.visuals == "masterStyle" && level >= 500) {gameMusic4.stop();}
-            else if (settings.visuals == "masterStyle") {gameMusic3.stop();}
-            else if (settings.visuals == "dragonStyle" && level >= 500) {gameMusic6.stop();}
-            else if (settings.visuals == "dragonStyle") {gameMusic5.stop();}
+            gameMusic1.stop();
+            gameMusic2.stop();
+            gameMusic3.stop();
+            gameMusic4.stop();
+            gameMusic5.stop();
+            gameMusic6.stop();
             break;
     }
 }
@@ -197,12 +197,12 @@ function setSoundVolume(sound, vol) {
             menuMusic.volume(vol);
             break;
         case "gameMusic":
-            if (settings.visuals == "classicStyle" && level >= 500) {gameMusic2.volume(vol * 0.4);}
-            else if (settings.visuals == "classicStyle") {gameMusic1.volume(vol * 0.4);}
-            else if (settings.visuals == "masterStyle" && level >= 500) {gameMusic4.volume(vol * 0.4);}
-            else if (settings.visuals == "masterStyle") {gameMusic3.volume(vol * 0.4);}
-            else if (settings.visuals == "dragonStyle" && level >= 500) {gameMusic6.volume(vol * 0.4);}
-            else if (settings.visuals == "dragonStyle") {gameMusic5.volume(vol * 0.4);}
+            gameMusic1.volume(vol * 0.4);
+            gameMusic2.volume(vol * 0.4);
+            gameMusic3.volume(vol * 0.4);
+            gameMusic4.volume(vol * 0.4);
+            gameMusic5.volume(vol * 0.4);
+            gameMusic6.volume(vol * 0.4);
             break;
     }
 }
