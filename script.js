@@ -2095,10 +2095,10 @@ function getRandomPiece() {
             }
             return chosenPiece;
         case "tgm":
-            let startingViablePieces = [0,2 ,5,6];
+            let startingViablePieces = [0,2,5,6]; //First piece must be I, T, J or L
             if (TGMFirstMove) return startingViablePieces[Math.floor(Math.random()*4)]
             chosenPiece = Math.floor(Math.random()*7);
-            for (let i=0; i<4; i++) {
+            for (let i=0; i<4; i++) { //Check 4 times if the piece is in the last 4 pieces
                 if (chosenPiece == lastDroppedPieces[0] || chosenPiece == lastDroppedPieces[1] || chosenPiece == lastDroppedPieces[2] || chosenPiece == lastDroppedPieces[3]) {
                     chosenPiece = Math.floor(Math.random()*7);
                 }
@@ -2669,6 +2669,7 @@ const keybindNames = ["left","right","hardDrop","softDrop","rotClockwise","rotCl
 function changeKeybind(index) {
     keybindToReplace = keybindNames[index-1];
     document.getElementsByClassName("keybindButton")[index-1].innerText = "PRESS A KEY..."
+    document.getElementsByClassName("keybindButton")[index-1].blur();
 }
 
 function updateKeybindList() {
@@ -3214,7 +3215,7 @@ function endGame() {
         if (settings.gameMechanics == "classicStyle") {
             power = (level+1)*15; //Level component
             if (sectionTimes.length > 0) power += Math.max((1875000 / averageSectionTime - 20000), 0); //Section time component
-            power += score ** 0.5 * 7; //Score component
+            power += score ** 0.5 * 8; //Score component
             if (inCampaign && power > game.bestPowers[0]) game.bestPowers[0] = power;
             if (inCampaign && score > game.bestScores[0]) game.bestScores[0] = score;
             if (inCampaign && level > game.bestLevels[0]) game.bestLevels[0] = level;

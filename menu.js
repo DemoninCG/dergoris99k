@@ -150,6 +150,11 @@ function selectMenuMode(x) {
 }
 selectMenuMode(1);
 
+//Reselect the current menu mode on window resize
+window.addEventListener("resize", function() {
+    selectMenuMode(currentMenuMode);
+});
+
 function displayModeInfo(x) {
     //Overall grade info
     overallGradeCtx.clearRect(0, 0, 140, 40);
