@@ -124,7 +124,6 @@ function hardReset() {
 }
   
 function save() {
-    //console.log("saving");
     game.lastSave = Date.now();
     localStorage.setItem("dergorisSave", JSON.stringify(game));
 }
@@ -593,8 +592,8 @@ function readyGo(stage) {
     if (stage == 1) {
         let leftSide = 160-settings.boardWidth*4;
         //Get the current piece to display as the next piece
-        placePiece(getRandomPiece());
         nextPiece = getRandomPiece();
+        waitingForNextPiece = true;
         playSound("ready");
 
         if (settings.visuals == "tgm") {
@@ -682,7 +681,7 @@ function readyGo(stage) {
             ctx.drawImage(images.grades, 0, 32*grade, 48, 32, 211, 34, 48, 32);
 
             //Next piece
-            setNextPieceVisuals(currentPiece);
+            setNextPieceVisuals(nextPiece);
 
             //Text (Copied from updateVisuals, any change there should also happen here)
             //This is a lot of code duplication! Find a way to reduce this ASAP
@@ -791,7 +790,6 @@ function readyGo(stage) {
         stopSound("gameMusic");
         setSoundVolume("gameMusic", game.musicVolume);
         if (settings.visuals != "tgm") playSound("gameMusic");
-        setNextPieceVisuals(nextPiece);
         updateVisuals();
         if (settings.gameMechanics == "tgm" && keysHeld[3]) { //Starting soft drop if key is held
             currentDropTime = Math.min(getDropInterval(), settings.softDropSpeed);

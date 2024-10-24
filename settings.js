@@ -386,7 +386,7 @@ function setDAS() {
 
 function setLockDelay() {
     let lockDelay = parseInt(document.getElementById("lockDelaySetting").value);
-    lockDelay = clamp(0, lockDelay, 180);
+    lockDelay = clamp(0, lockDelay, 9999);
     document.getElementById("lockDelaySetting").value = lockDelay;
     settings.lockDelay = lockDelay;
 }

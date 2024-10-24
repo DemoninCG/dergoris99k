@@ -10,7 +10,7 @@
     <meta content="#005a00" data-react-helmet="true" name="theme-color" />
     <meta name="color-scheme" content="light only">
     <title>Dergoris 99k</title>
-    <link rel="stylesheet" href="style.css?v100=1">
+    <link rel="stylesheet" href="style.css?v101=1">
     <link rel="icon" href="img/icon2.png">
     <!--Preload board-->
     <img src="img/modeInfo.png" style="display: none">
@@ -71,7 +71,7 @@
     <canvas id="backgroundCanvas"></canvas>
     <canvas id="gameCanvas" style="display: none"></canvas>
     <div class="container" style="padding: 40px;">
-        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V1.0.0</p>
+        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V1.0.1</p>
         <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(2); displayModeInfo(currentMenuMode)">CAMPAIGN</button><br>
         <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(3)">CUSTOM GAME</button><br>
         <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); showKeybinds()">KEYBINDS</button><br>
@@ -211,7 +211,7 @@
             <label for="DASSetting">DAS - REPEAT - </label>
             <input type="number" id="DASSetting" value="6" min="1" max="60" onchange="setDAS()"><br>
             <label for="lockDelaySetting">LOCK DELAY - </label>
-            <input type="number" id="lockDelaySetting" value="0" min="0" max="180" onchange="setLockDelay()"><br>
+            <input type="number" id="lockDelaySetting" value="0" min="0" max="9999" onchange="setLockDelay()"><br>
             <p>SET TO 0 TO DISABLE.</p><br>
             <label for="lockResetSetting">LOCK DELAY RESET - </label>
             <select id="lockResetSetting" onchange="setLockReset()">
@@ -274,13 +274,13 @@
     <button class="startingButton" style="top: calc(50% - 40px)" onclick="hideBlackCover(); playSound('menuMusic')">PLAY WITH SOUND</button>
     <button class="startingButton" style="top: calc(50% + 40px)" onclick="soundEnabled=false; hideBlackCover()">PLAY WITHOUT SOUND</button>
     <script src="howler.js"></script>
-    <script src="constants.js?v100=1"></script>
-    <script src="background.js?v100=1"></script>
-    <script src="menuBackground.js?v100=1"></script>
-    <script src="script.js?v100=1"></script>
-    <script src="sound.js?v100=1"></script>
-    <script src="settings.js?v100=1"></script>
-    <script src="menu.js?v100=1"></script>
+    <script src="constants.js?v101=1"></script>
+    <script src="background.js?v101=1"></script>
+    <script src="menuBackground.js?v101=1"></script>
+    <script src="script.js?v101=1"></script>
+    <script src="sound.js?v101=1"></script>
+    <script src="settings.js?v101=1"></script>
+    <script src="menu.js?v101=1"></script>
     <script defer>document.getElementsByClassName("startingButton")[0].style.display = "block"; document.getElementsByClassName("startingButton")[1].style.display = "block";</script>
 </body>
 </html>
