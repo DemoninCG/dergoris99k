@@ -2587,7 +2587,7 @@ document.addEventListener("keydown", function(event) {
             keysHeld[1] = true;
             break;
         case "hardDrop":
-            if (!gamePlaying && onCampaignScreen && document.getElementById("game").style.display == "none") {
+            if (!gamePlaying && onCampaignScreen && document.getElementsByClassName("container")[1].style.display != "none") {
                 selectMenuMode(Math.max(1,currentMenuMode-1));
             }
             else {
@@ -2596,7 +2596,7 @@ document.addEventListener("keydown", function(event) {
             }
             break;
         case "softDrop":
-            if (!gamePlaying && onCampaignScreen && document.getElementById("game").style.display == "none") {
+            if (!gamePlaying && onCampaignScreen && document.getElementsByClassName("container")[1].style.display != "none") {
                 selectMenuMode(Math.min(3,currentMenuMode+1));
             }
             else {

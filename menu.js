@@ -78,8 +78,8 @@ function switchToTab(x) {
 let currentMenuMode = 1;
 let onCampaignScreen = false;
 function selectMenuMode(x) {
-    console.log(currentMenuMode);
-    let containerCenter = document.getElementById('modeSelectContainer').offsetHeight / 2; //Recalculate containerCenter
+    let containerCenter;
+    if (document.getElementsByClassName("container")[1].style.display != "none") containerCenter = document.getElementById('modeSelectContainer').offsetHeight / 2; //Recalculate containerCenter
     document.getElementsByClassName("menuArrow")[0].style.top = (containerCenter - 90) + "px";
     document.getElementsByClassName("menuArrow")[1].style.top = (containerCenter + 90) + "px";
     document.getElementsByClassName("menuArrow")[0].style.display = x!=1 ? "block" : "none";
