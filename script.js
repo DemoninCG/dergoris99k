@@ -3232,13 +3232,38 @@ function endGame() {
             if (inCampaign && level > game.bestLevels[2]) game.bestLevels[2] = level;
         }
         let powerString = Math.floor(power).toString().padStart(5, "0");
-        let powerColor;
-        if (settings.gameMechanics == "classicStyle" && power >= 30000) {powerColor = 3;}
-        else if (settings.gameMechanics == "masterStyle" && power >= 39000) {powerColor = 3;}
-        else if (settings.gameMechanics == "dragonStyle" && power >= 30000) {powerColor = 3;}
-        else {powerColor = 0;}
-        for (let i=0;i<powerString.length;i++) {
-            ctx.drawImage(images.sideInfo2, parseInt(powerString[i])*4, powerColor*6, 4, 6, 150+i*4, 193, 4, 6);
+        
+        let isMaxScore = (
+            settings.gameMechanics === "classicStyle" && power >= 30000 ||
+            settings.gameMechanics === "masterStyle"  && power >= 39000 ||
+            settings.gameMechanics === "dragonStyle"  && power >= 30000
+        );
+
+        /**
+         * Whether or not to grey out the next zero digit.
+         * Will turn false the first time a non-zero digit is encountered.
+         */
+        let grayNextZero = true;
+
+        for (let i = 0; i < powerString.length; i++) {
+            const char = powerString[i];
+
+            const grayThisChar = // Gray out this character if:
+                grayNextZero && // a zero has not been encountered,
+                char === "0" && // this char is not a zero,
+                i !== powerString.length - 1; // and this is not the last char.
+            
+            let color = 0;
+
+            if(isMaxScore) {
+                color = 3;
+            } else if(grayThisChar) {
+                color = 4;
+            }
+
+            grayNextZero &&= char === "0";
+
+            ctx.drawImage(images.sideInfo2, parseInt(char)*4, color*6, 4, 6, 150+i*4, 193, 4, 6);
         }
     }
     else if (settings.visuals == "gb") {displayEndingLine(0);}
