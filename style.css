@@ -116,7 +116,7 @@ button {
 }
 
 .menuMode {
-    width: 100%;
+    margin-inline: 40px;
     height: 160px;
     object-fit: contain;
     transform: translate(-20px, var(--shift));
