@@ -86,8 +86,8 @@
             <img class="menuMode" src="img/style2.png" onclick="playSound('buttonClick'); selectMenuMode(2)">
             <img class="menuMode" src="img/style3.png" onclick="playSound('buttonClick'); selectMenuMode(3)">
             <!--<img class="menuMode" src="img/style4.png" onclick="selectMenuMode(4)">-->
-            <img class="menuArrow up" src="img/menuArrowUp.png" onclick="playSound('buttonClick'); selectMenuMode(Math.max(1,currentMenuMode-1))">
-            <img class="menuArrow down" src="img/menuArrowDown.png" onclick="playSound('buttonClick'); selectMenuMode(Math.min(3,currentMenuMode+1))">
+            <img class="menuArrow" style="top: calc(50% - 85px)" src="img/menuArrowUp.png" onclick="playSound('buttonClick'); selectMenuMode(Math.max(1,currentMenuMode-1))">
+            <img class="menuArrow" style="top: calc(50% + 85px)" src="img/menuArrowDown.png" onclick="playSound('buttonClick'); selectMenuMode(Math.min(3,currentMenuMode+1))">
         </div>
         <div id="modeStatsContainer">
             <canvas id="modeStatsCanvas" width="130px" height="160px"></canvas><br>
