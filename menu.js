@@ -83,7 +83,6 @@ const presetMap = new Map([
     [3, "dragonStyle"]
 ]);
 function selectMenuMode(x) {
-    let containerCenter = document.getElementById('modeSelectContainer').offsetHeight / 2; //Recalculate containerCenter
     document.getElementById('modeSelectContainer')
         .style.setProperty("--shift",
             (x - document.getElementsByClassName("menuMode").length + 1) * -200 + "px"
@@ -121,25 +120,25 @@ function displayModeInfo(x) {
     //Overall power string
     let overallPowerString = Math.floor(overallPower).toString();
     if (overallPowerString == "0") overallPowerString = "";
-    for (let i = 0; i < (5-overallPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 68 + i*4, 24, 4, 6);
+    for (let i = 0; i < (5-overallPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 68 + i*4, 24, 4, 6); //Greyed out zeroes
     let overallPowerColor = overallPower >= 99000 ? 3 : 0;
     for (let i = 0; i < overallPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, overallPowerString[i] * 4, overallPowerColor * 6, 4, 6, 88 - (4*overallPowerString.length) + i*4, 24, 4, 6);
     //Classic power string
     let classicPowerString = Math.floor(Math.min(game.bestPowers[0],30000)).toString();
     if (classicPowerString == "0") classicPowerString = "";
-    for (let i = 0; i < (5-classicPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 11 + i*4, 32, 4, 6);
+    for (let i = 0; i < (5-classicPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 11 + i*4, 32, 4, 6); //Greyed out zeroes
     let classicPowerColor = game.bestPowers[0] >= 30000 ? 3 : 0;
     for (let i = 0; i < classicPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, classicPowerString[i] * 4, classicPowerColor * 6, 4, 6, 31 - (4*classicPowerString.length) + i*4, 32, 4, 6);
     //Master power string
     let masterPowerString = Math.floor(Math.min(game.bestPowers[1],30000)).toString();
     if (masterPowerString == "0") masterPowerString = "";
-    for (let i = 0; i < (5-masterPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 39 + i*4, 32, 4, 6);
+    for (let i = 0; i < (5-masterPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 39 + i*4, 32, 4, 6); //Greyed out zeroes
     let masterPowerColor = game.bestPowers[1] >= 30000 ? 3 : 0;
     for (let i = 0; i < masterPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, masterPowerString[i] * 4, masterPowerColor * 6, 4, 6, 59 - (4*masterPowerString.length) + i*4, 32, 4, 6);
     //Dragon power string
     let dragonPowerString = Math.floor(Math.min(game.bestPowers[2],39000)).toString();
     if (dragonPowerString == "0") dragonPowerString = "";
-    for (let i = 0; i < (5-dragonPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 67 + i*4, 32, 4, 6);
+    for (let i = 0; i < (5-dragonPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 67 + i*4, 32, 4, 6); //Greyed out zeroes
     let dragonPowerColor = game.bestPowers[2] >= 39000 ? 3 : 0;
     for (let i = 0; i < dragonPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, dragonPowerString[i] * 4, dragonPowerColor * 6, 4, 6, 87 - (4*dragonPowerString.length) + i*4, 32, 4, 6);
 
