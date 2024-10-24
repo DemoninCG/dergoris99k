@@ -9,8 +9,7 @@
 //Various issues when visuals don't match game mechanics (TGM level issues known)
 
 //To do:
-//Rebinding keys
-//Music/sounds
+//Retro game sound effects
 //Fishing minigame
 //Big mode maybe?
 
@@ -30,6 +29,7 @@ else if (window.innerHeight < 950) {
 function reset() {
     //Save game variables
     game = {
+        //Campaign progress
         bestPowers: [0, 0, 0],
         bestScores: [0, 0, 0],
         bestLevels: [0, 0, 0],
@@ -39,6 +39,10 @@ function reset() {
         masterStyleBestSectionTimes: [],
         dragonStyleBestSectionTimes: [],
         medals: [0, 0, 0],
+        //User settings
+        volume: 0.5,
+        musicVolume: 1,
+        boardBumpVisuals: true,
     };
     //Game settings
     settings = {
@@ -57,6 +61,7 @@ function reset() {
         rotationSystem: "nintendo-r",
         IRS: true,
         twentyGOverride: false,
+        levelLock: false,
         ARE: 10,
         ARELineClear: 30,
         overrideGameARE: false,
@@ -99,6 +104,8 @@ function reset() {
     GMQualifying = true;
     TGMBarState = 0;
 
+    boardVisualPosition = [0,0];
+    soundEnabled = true;
     gamePlaying = false;
     inCampaign = false;
     keysHeld = [false, false, false, false, false, false]; //Left, Right, Up, Down, A, D
@@ -221,8 +228,13 @@ function initialiseCanvasBoard() {
         if (settings.visuals === "classicStyle") {images.grades.src = "img/main/gradesClassic.png";}
         else if (settings.visuals === "masterStyle") {images.grades.src = "img/main/gradesMaster.png";}
         else {images.grades.src = "img/main/gradesDragon.png";}
+        //Classic style DAS
+        if (settings.gameMechanics == "classicStyle") {
+            settings.DASInitial = classicStyleDASInitial[Math.floor(level/100)];
+            settings.DAS = classicStyleDAS[Math.floor(level/100)];
+        }
         //Dragon style DAS and lock delay
-        if (settings.gameMechanics == "dragonStyle") {
+        else if (settings.gameMechanics == "dragonStyle") {
             settings.DASInitial = dragonStyleDASInitial[Math.floor(level/100)];
             settings.lockDelay = dragonStyleLockDelay[Math.floor(level/100)];
         }
@@ -504,10 +516,13 @@ function showBlackCover() {
 function hideBlackCover() {
     document.getElementById("blackCoverLeft").style.width = "0";
     document.getElementById("blackCoverRight").style.width = "0";
+    document.getElementsByClassName("startingButton")[0].style.display = "none";
+    document.getElementsByClassName("startingButton")[1].style.display = "none";
 }
 
 function startGame() {
     hideBlackCover();
+    stopSound("menuMusic");
     level = settings.startingLevel;
     document.getElementsByClassName("container")[1].style.display = "none"; //Campaign screen
     document.getElementsByClassName("container")[2].style.display = "none"; //Custom game screen
@@ -580,6 +595,7 @@ function readyGo(stage) {
         //Get the current piece to display as the next piece
         placePiece(getRandomPiece());
         nextPiece = getRandomPiece();
+        playSound("ready");
 
         if (settings.visuals == "tgm") {
             //Clear the canvas
@@ -751,6 +767,7 @@ function readyGo(stage) {
         }
     }
     else if (stage == 2) {
+        playSound("go");
         if (settings.visuals == "tgm") {
             //Clear the canvas
             let currentBackground = Math.floor(level/100);
@@ -771,6 +788,9 @@ function readyGo(stage) {
     }
     else if (stage == 3) {
         gamePlaying = true;
+        stopSound("gameMusic");
+        setSoundVolume("gameMusic", game.musicVolume);
+        if (settings.visuals != "tgm") playSound("gameMusic");
         setNextPieceVisuals(nextPiece);
         updateVisuals();
         if (settings.gameMechanics == "tgm" && keysHeld[3]) { //Starting soft drop if key is held
@@ -1415,6 +1435,28 @@ function updateVisuals() {
     }
 }
 
+let timeOfLastVisualUpdate = Date.now();
+function updateCanvasVisualPosition() {
+    let dt = (Date.now() - timeOfLastVisualUpdate) / 1000;
+    if (!gamePlaying || (boardVisualPosition[0] == 0 && boardVisualPosition[1] == 0) || !game.boardBumpVisuals || (settings.visuals != "classicStyle" && settings.visuals != "masterStyle" && settings.visuals != "dragonStyle")) {
+        timeOfLastVisualUpdate = Date.now();
+        requestAnimationFrame(updateCanvasVisualPosition);
+        return;
+    }
+    
+    boardVisualPosition[0] *= 0.04 ** dt;
+    if (Math.abs(boardVisualPosition[0]) < 0.01) boardVisualPosition[0] = 0;
+    boardVisualPosition[1] *= 0.04 ** dt;
+    if (Math.abs(boardVisualPosition[1]) < 0.01) boardVisualPosition[1] = 0;
+
+    document.getElementById("game").style.left = (50 + boardVisualPosition[0]) + "%";
+    document.getElementById("game").style.top = (50 + boardVisualPosition[1]) + "%";
+
+    timeOfLastVisualUpdate = Date.now();
+    requestAnimationFrame(updateCanvasVisualPosition);
+}
+requestAnimationFrame(updateCanvasVisualPosition);
+
 function getDropInterval() {
     if (settings.twentyGOverride) return 0.05;
     else if (settings.gameMechanics == "classicStyle") return classicStyleDropIntervals[Math.floor(level/100)];
@@ -1451,6 +1493,7 @@ function getDASInitial() {
 }
 
 function landPiece() {
+    if (softDropping) boardVisualPosition[1] = 1.5; //Vertical bump
     locking = false;
     currentLockTime = 0;
     if (settings.visuals == "gb" || settings.visuals == "dx") {
@@ -1498,6 +1541,7 @@ function landPiece() {
     waitingForNextPiece = true;
     lastDroppedPieces.unshift(currentPiece);
     if (lastDroppedPieces.length > 7) lastDroppedPieces.pop();
+    if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") playSound("impact");
     updateVisuals();
     clearLines();
     //Disable softdrop until key is pressed again
@@ -1655,9 +1699,39 @@ function placePiece(pieceType) {
     }
 
     //Update level for TGM-like modes
-    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") && !TGMFirstMove && level % 100 != 99 && level != 998) level++;
+    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") && !settings.levelLock && !TGMFirstMove && level % 100 != 99 && level != 998) {
+        level++;
+        if (level == 485) fadeOutSound("gameMusic", 2000); //Music fade out
+    }
     TGMFirstMove = false;
 }
+
+/*function playNextPieceSound(piece) {
+    if (settings.visuals != "classicStyle" && settings.visuals != "masterStyle" && settings.visuals != "dragonStyle" && settings.visuals != "tgm") return;
+    switch (piece) {
+        case 0:
+            playSound("pieceI");
+            break;
+        case 1:
+            playSound("pieceO");
+            break;
+        case 2:
+            playSound("pieceT");
+            break;
+        case 3:
+            playSound("pieceS");
+            break;
+        case 4:
+            playSound("pieceZ");
+            break;
+        case 5:
+            playSound("pieceJ");
+            break;
+        case 6:
+            playSound("pieceL");
+            break;
+    }
+}*/
 
 // TODO: create lookup table for the tile positions to condense this
 // Alternative: Use equations instead
@@ -2399,7 +2473,10 @@ function hardDrop() {
             if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") maxPushdown++;
         }
         for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
-        if (!settings.sonicDrop) {landPiece();}
+        if (!settings.sonicDrop) {
+            boardVisualPosition[1] = 1.5; //Vertical bump
+            landPiece();
+        }
         else {updateVisuals();}
     }
 }
@@ -2437,6 +2514,14 @@ function moveBackground() {
     setTimeout(moveBackground, 1000/60);
 }
 
+function getSectionTimesLength() {
+    let sectionTimesLength = 0;
+    for (let i=0;i<sectionTimes.length;i++) {
+        if (sectionTimes[i]) sectionTimesLength++;
+    }
+    return sectionTimesLength;
+}
+
 function displaySectionTime(index) {
     if (!sectionTimes[index]) return;
     let sectionTime;
@@ -2457,10 +2542,7 @@ function displaySectionTime(index) {
     }
 }
 
-//Event listeners
-
-// TODO: Make keymap configurable
-const keyConfig = new Map([
+let keyConfig = new Map([
     ["ArrowLeft", "left"],
     ["ArrowRight", "right"],
     ["ArrowUp", "hardDrop"],
@@ -2470,8 +2552,9 @@ const keyConfig = new Map([
     ["a", "rotAnticlockwise"],
     ["z", "rotAnticlockwiseAlt"],
     ["Escape", "exit"],
-]);
+])
 
+//Event listeners
 document.addEventListener("keydown", function(event) {
     if (keybindToReplace != "") {
         if (event.key == "Escape") {
@@ -2621,7 +2704,16 @@ function clearLines() {
     //Check for full lines
     let linesCleared = checkFullLines().length;
     lines += linesCleared;
-    if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || level+linesCleared >= 999)) { //classic style level up
+    if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (level < 485 && level + linesCleared >= 485)) { //Music fade out
+        fadeOutSound("gameMusic", 2000);
+    }
+    else if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (level < 500 && level + linesCleared >= 500)) { //New music
+        stopSound("gameMusic");
+        setSoundVolume("gameMusic", game.musicVolume);
+        playSound("gameMusic", true); //Must be forced otherwise song won't play since the level is still < 500
+    }
+    if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || level+linesCleared >= 999)) { //main styles level up
+        playSound("levelUp");
         timeAtLastSection = time;
         sectionTimes[Math.floor(level/100)] = time;
         displaySectionTime(Math.floor(level/100));
@@ -2631,7 +2723,11 @@ function clearLines() {
             images.board.src = "img/main/board3.png";
             ctx.drawImage(images.board, 112, 32);
         }
-        if (settings.gameMechanics == "dragonStyle") { //Update DAS and lock delay
+        if (settings.gameMechanics == "classicStyle") { //Update DAS
+            settings.DASInitial = classicStyleDASInitial[Math.floor(level/100)];
+            settings.DAS = classicStyleDAS[Math.floor(level/100)];
+        }
+        else if (settings.gameMechanics == "dragonStyle") { //Update DAS and lock delay
             settings.DASInitial = dragonStyleDASInitial[Math.floor(level/100)];
             settings.lockDelay = dragonStyleLockDelay[Math.floor(level/100)];
         }
@@ -2690,8 +2786,9 @@ function clearLines() {
         let finalScore = (Math.ceil((level+linesCleared)/4) + maxPushdown)*combo*linesCleared;
         if (checkPerfectClear()) finalScore *= 4;
         scoreToGain = finalScore;
-        level += linesCleared;
+        if (!settings.levelLock) level += linesCleared;
         if (level > 999) level = 999;
+        playSound("lineClear");
         updateVisuals();
     }
     else if (linesCleared && settings.gameMechanics == "classicStyle") { //Similar to NES/GB/DX
@@ -2709,8 +2806,9 @@ function clearLines() {
                 scoreToGain = 1200*Math.ceil(level/50);
                 break;
         }
-        level += linesCleared;
+        if (!settings.levelLock) level += linesCleared;
         if (level > 999) level = 999;
+        playSound("lineClear");
         updateVisuals();
     }
     else if (linesCleared && settings.gameMechanics == "sega") {
@@ -3037,7 +3135,12 @@ function moveLineDown(line) {
 function endGame() {
     gamePlaying = false;
     if (settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") {
-        if (level < 999) landPiece();
+        fadeOutSound('gameMusic', 1000);
+        if (level < 999) {
+            playSound("end");
+            landPiece();
+        }
+        else {playSound("finish");}
         let leftSide = 160-settings.boardWidth*4;
         //Clear the canvas
         //ctx.fillStyle = "black";
@@ -3060,9 +3163,12 @@ function endGame() {
         let averageSectionTime;
         if (sectionTimes.length > 0) { 
             ctx.drawImage(images.sideInfo3, 0, 16, 79, 7, 121, 169, 79, 7);
-            averageSectionTime = sectionTimes[0];
-            for (let i=1;i<sectionTimes.length;i++) {averageSectionTime += (sectionTimes[i] - sectionTimes[i-1]);}
-            averageSectionTime /= sectionTimes.length;
+            averageSectionTime = sectionTimes[0] ? sectionTimes[0] : 0;
+            for (let i=1;i<sectionTimes.length;i++) {
+                if (sectionTimes[i] && sectionTimes[i-1]) {averageSectionTime += (sectionTimes[i] - sectionTimes[i-1]);}
+                else if (sectionTimes[i]) {averageSectionTime += (sectionTimes[i]);}
+            }
+            averageSectionTime /= getSectionTimesLength();
 
             let timeString = convertToTime(averageSectionTime);
             let sectionTimeColor = getTimeColor(averageSectionTime);
@@ -3072,7 +3178,7 @@ function endGame() {
                 else {ctx.drawImage(images.sideInfo2, parseInt(timeString[i])*4, sectionTimeColor*6, 4, 6, 145+i*4, 177, 4, 6);}
             }
 
-            if (level >= 999) {
+            if (level >= 999 && inCampaign) {
                 //Best average section time
                 if (settings.gameMechanics == "classicStyle" && averageSectionTime < game.bestAverageSectionTimes[0]) game.bestAverageSectionTimes[0] = averageSectionTime;
                 else if (settings.gameMechanics == "masterStyle" && averageSectionTime < game.bestAverageSectionTimes[1]) game.bestAverageSectionTimes[1] = averageSectionTime;
@@ -3086,15 +3192,17 @@ function endGame() {
                 else if (settings.gameMechanics == "masterStyle" && highestSectionTime < game.bestHighestSectionTimes[1]) game.bestHighestSectionTimes[1] = highestSectionTime;
                 else if (settings.gameMechanics == "dragonStyle" && highestSectionTime < game.bestHighestSectionTimes[2]) game.bestHighestSectionTimes[2] = highestSectionTime;
             }
-
-            //Individual best section times
-            if (settings.gameMechanics == "classicStyle" && (sectionTimes[0] < game.classicStyleBestSectionTimes[0] || !game.classicStyleBestSectionTimes[0])) game.classicStyleBestSectionTimes[0] = sectionTimes[0];
-            else if (settings.gameMechanics == "masterStyle" && (sectionTimes[0] < game.masterStyleBestSectionTimes[0] || !game.masterStyleBestSectionTimes[0])) game.masterStyleBestSectionTimes[0] = sectionTimes[0];
-            else if (settings.gameMechanics == "dragonStyle" && (sectionTimes[0] < game.dragonStyleBestSectionTimes[0] || !game.dragonStyleBestSectionTimes[0])) game.dragonStyleBestSectionTimes[0] = sectionTimes[0];
-            for (let i=1;i<sectionTimes.length;i++) {
-                if (settings.gameMechanics == "classicStyle" && (sectionTimes[i] - sectionTimes[i-1] < game.classicStyleBestSectionTimes[i] || !game.classicStyleBestSectionTimes[i])) game.classicStyleBestSectionTimes[i] = (sectionTimes[i] - sectionTimes[i-1]);
-                else if (settings.gameMechanics == "masterStyle" && (sectionTimes[i] - sectionTimes[i-1] < game.masterStyleBestSectionTimes[i] || !game.masterStyleBestSectionTimes[i])) game.masterStyleBestSectionTimes[i] = (sectionTimes[i] - sectionTimes[i-1]);
-                else if (settings.gameMechanics == "dragonStyle" && (sectionTimes[i] - sectionTimes[i-1] < game.dragonStyleBestSectionTimes[i] || !game.dragonStyleBestSectionTimes[i])) game.dragonStyleBestSectionTimes[i] = (sectionTimes[i] - sectionTimes[i-1]);
+            
+            if (inCampaign) {
+                //Individual best section times
+                if (settings.gameMechanics == "classicStyle" && (sectionTimes[0] < game.classicStyleBestSectionTimes[0] || !game.classicStyleBestSectionTimes[0])) game.classicStyleBestSectionTimes[0] = sectionTimes[0];
+                else if (settings.gameMechanics == "masterStyle" && (sectionTimes[0] < game.masterStyleBestSectionTimes[0] || !game.masterStyleBestSectionTimes[0])) game.masterStyleBestSectionTimes[0] = sectionTimes[0];
+                else if (settings.gameMechanics == "dragonStyle" && (sectionTimes[0] < game.dragonStyleBestSectionTimes[0] || !game.dragonStyleBestSectionTimes[0])) game.dragonStyleBestSectionTimes[0] = sectionTimes[0];
+                for (let i=1;i<sectionTimes.length;i++) {
+                    if (settings.gameMechanics == "classicStyle" && (sectionTimes[i] - sectionTimes[i-1] < game.classicStyleBestSectionTimes[i] || !game.classicStyleBestSectionTimes[i])) game.classicStyleBestSectionTimes[i] = (sectionTimes[i] - sectionTimes[i-1]);
+                    else if (settings.gameMechanics == "masterStyle" && (sectionTimes[i] - sectionTimes[i-1] < game.masterStyleBestSectionTimes[i] || !game.masterStyleBestSectionTimes[i])) game.masterStyleBestSectionTimes[i] = (sectionTimes[i] - sectionTimes[i-1]);
+                    else if (settings.gameMechanics == "dragonStyle" && (sectionTimes[i] - sectionTimes[i-1] < game.dragonStyleBestSectionTimes[i] || !game.dragonStyleBestSectionTimes[i])) game.dragonStyleBestSectionTimes[i] = (sectionTimes[i] - sectionTimes[i-1]);
+                }
             }
         }
         //Power
@@ -3200,6 +3308,8 @@ function displayEndingLine(x) {
 
 function returnToMenu() {
     hideBlackCover();
+    setSoundVolume('menuMusic', game.musicVolume);
+    playSound('menuMusic');
     board = [];
     waitingForNextPiece = false;
     piecesDropped = [0,0,0,0,0,0,0];

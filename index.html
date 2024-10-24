@@ -10,7 +10,7 @@
     <meta content="#005a00" data-react-helmet="true" name="theme-color" />
     <meta name="color-scheme" content="light only">
     <title>Dergoris 99k</title>
-    <link rel="stylesheet" href="style.css?v021=1">
+    <link rel="stylesheet" href="style.css?v100=1">
     <link rel="icon" href="img/icon2.png">
     <!--Preload board-->
     <img src="img/modeInfo.png" style="display: none">
@@ -71,23 +71,23 @@
     <canvas id="backgroundCanvas"></canvas>
     <canvas id="gameCanvas" style="display: none"></canvas>
     <div class="container" style="padding: 40px;">
-        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V0.2.1</p>
-        <button class="menuButton" onclick="switchToTab(2); displayModeInfo(currentMenuMode)">CAMPAIGN</button><br>
-        <button class="menuButton" onclick="switchToTab(3)">CUSTOM GAME</button><br>
-        <button class="menuButton" onclick="showKeybinds()">KEYBINDS</button><br>
-        <button class="menuButton" onclick="showSettings()">SETTINGS</button><br>
-        <button class="menuButton" onclick="switchToTab(4)">CREDITS</button><br>
+        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V1.0.0</p>
+        <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(2); displayModeInfo(currentMenuMode)">CAMPAIGN</button><br>
+        <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(3)">CUSTOM GAME</button><br>
+        <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); showKeybinds()">KEYBINDS</button><br>
+        <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); showSettings()">SETTINGS</button><br>
+        <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(4)">CREDITS</button><br>
     </div>
     <div class="container" style="left: 100vw; padding: 40px;">
-        <button class="menuButton" onclick="switchToTab(1)">BACK</button>
+        <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(1)">BACK</button>
         <canvas id="overallGradeCanvas" width="140px" height="40px"></canvas>
         <div id="modeSelectContainer">
-            <img class="menuMode" src="img/style1.png" onclick="selectMenuMode(1)">
-            <img class="menuMode" src="img/style2.png" onclick="selectMenuMode(2)">
-            <img class="menuMode" src="img/style3.png" onclick="selectMenuMode(3)">
+            <img class="menuMode" src="img/style1.png" onclick="playSound('buttonClick'); selectMenuMode(1)">
+            <img class="menuMode" src="img/style2.png" onclick="playSound('buttonClick'); selectMenuMode(2)">
+            <img class="menuMode" src="img/style3.png" onclick="playSound('buttonClick'); selectMenuMode(3)">
             <!--<img class="menuMode" src="img/style4.png" onclick="selectMenuMode(4)">-->
-            <img class="menuArrow" src="img/menuArrowUp.png" onclick="selectMenuMode(Math.max(1,currentMenuMode-1))">
-            <img class="menuArrow" src="img/menuArrowDown.png" onclick="selectMenuMode(Math.min(3,currentMenuMode+1))">
+            <img class="menuArrow" src="img/menuArrowUp.png" onclick="playSound('buttonClick'); selectMenuMode(Math.max(1,currentMenuMode-1))">
+            <img class="menuArrow" src="img/menuArrowDown.png" onclick="playSound('buttonClick'); selectMenuMode(Math.min(3,currentMenuMode+1))">
         </div>
         <div id="modeStatsContainer">
             <canvas id="modeStatsCanvas" width="130px" height="160px"></canvas><br>
@@ -96,13 +96,13 @@
             <img id="modeInfoImage" src="img/style1.png" style="width: 400px; margin-left: auto; margin-right: auto; display: block;">
             <hr style="height: 4px; background-color: #eaeaff">
             <p id="modeInfo"></p>
-            <img src="img/play.png" id="playButton" onclick="showBlackCover(); setTimeout(startGame, 1000)">
+            <img src="img/play.png" id="playButton" onclick="showBlackCover(); playSound('buttonClick'); fadeOutSound('menuMusic', 500); setTimeout(startGame, 1000)">
         </div>
     </div>
     <div class="container" style="left: 100vw">
         <div id="settings" style="overflow: auto; max-height: 98vh;">
-            <button class="menuButton" onclick="switchToTab(1)">BACK</button><br><br>
-            <button onclick="startGame()">START GAME</button><br><br>
+            <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(1)">BACK</button><br><br>
+            <button onclick="showBlackCover(); playSound('buttonClick'); fadeOutSound('menuMusic', 500); setTimeout(startGame, 1000)">START GAME</button><br><br>
             <label for="presetsSetting" style="color: #bdf">PRESETS - </label>
             <select id="presetsSetting" onchange="setPreset()">
                 <option value="classicStyle" selected>Classic Style</option>
@@ -195,6 +195,10 @@
             <label for="twentyGSetting">20G MODE</label>
             <input type="checkbox" id="twentyGSetting" onchange="setTwentyGOverride()" /><br><br>
 
+            <label for="levelLockSetting">LEVEL LOCK</label>
+            <input type="checkbox" id="levelLockSetting" onchange="setLevelLock()" /><br>
+            <p>PREVENTS THE LEVEL FROM INCREASING FOR TGM-LIKE GAMES. GOOD FOR PRACTICE.</p><br>
+
             <label for="overrideGameARESetting">OVERRIDE GAME-SPECIFIC ARE</label>
             <input type="checkbox" id="overrideGameARESetting" onchange="setOverrideGameARE()" /><br>
             <label for="ARESetting">ARE - NORMAL - </label>
@@ -218,10 +222,16 @@
         </div>
     </div>
     <div class="container" style="top: 100vh; padding: 40px;">
-        <button class="menuButton" onclick="switchToTab(1)">BACK</button><br><br>
+        <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(1)">BACK</button><br><br>
         <img src="img/azzy.png" style="position: absolute; bottom: 105px; right: 105px; height: 500px; image-rendering: auto;">
         <p style="font-size: 48px; font-weight: bold; font-family: 'Courier New', monospace">Credits</p><br>
-        <p style="font-size: 24px; font-family: 'Courier New', monospace; width: 800px;">Created by Demonin<br>Additional coding by NOT_A_ROBOT<br>---------<br>Some main sprites taken/modified from the <i>Tetris: The Grand Master</i> series by Arika<br>Retro game sprites belong to Nintendo, Sega, and Arika<br>Background shaders created by Xor and greenbird10 on Shadertoy<br>---------<br>Thank you to all the patrons, testers, and those in the TAP discord server who helped make this game what it is!</p>
+        <p style="font-size: 24px; font-family: 'Courier New', monospace; width: 800px;">Created by Demonin<br>Additional coding by NOT_A_ROBOT
+        <br>---------<br><b>Menu music:</b> Rooftop level 3 - From the <i>Jackie Chan Stuntmaster</i> soundtrack
+        <br><b>Classic style music:</b> Wireframe - Aural Imbalance, Tensor - Jamie Myerson
+        <br><b>Master style music:</b> Night Stream - From the <i>Ridge Racer (PSP)</i> soundtrack, Pearl Blue Soul - From the <i>Ridge Racer Type 4</i> soundtrack
+        <br><b>Dragon style music:</b> Vanishing Horizon - From the <i>Ridge Racer (PSP)</i> soundtrack, Tek Trek - From the <i>Ridge Racer (PSP)</i> soundtrack
+        <br>---------<br>Some main sprites taken/modified from the <i>Tetris: The Grand Master</i> series by Arika<br>Retro game sprites belong to Nintendo, Sega, and Arika<br>Background shaders created by Xor and greenbird10 on Shadertoy
+        <br>---------<br>Thank you to all the patrons, testers, and those in the TAP discord server who helped make this game what it is!</p>
     </div>
     <div id="keybindsContainer">
         <p class="keybindsText"><b>Keybinds</b></p><br><br>
@@ -244,6 +254,12 @@
         <button onclick="hideKeybinds()">CLOSE</button>
     </div>
     <div id="settingsContainer">
+        <label for="volumeSetting">OVERALL VOLUME</label>
+        <input type="range" id="volumeSetting" min="0" max="100" value="50" onchange="setVolume()"><br><br>
+        <label for="musicVolumeSetting">MUSIC VOLUME</label>
+        <input type="range" id="musicVolumeSetting" min="0" max="100" value="100" onchange="setMusicVolume()"><br><br>
+        <label for="boardBumpSetting">BOARD BUMP VISUALS</label>
+        <input type="checkbox" id="boardBumpSetting" onchange="setBoardBump()" checked/><br><br>
         <button onclick="exportGame()">EXPORT GAME</button><br>
         <button onclick="importGame()">IMPORT GAME</button><br>
         <button onclick="hardReset()" style="background-color: #fcc">RESET DATA</button><br><br>
@@ -255,11 +271,16 @@
     <canvas id="effectOverlay" width="320" height="240"></canvas>
     <div id="blackCoverLeft" style="left: 0"></div>
     <div id="blackCoverRight" style="right: 0"></div>
-    <script src="constants.js?v021=1"></script>
-    <script src="background.js?v021=1"></script>
-    <script src="menuBackground.js?v021=1"></script>
-    <script src="script.js?v021=1"></script>
-    <script src="settings.js?v021=1"></script>
-    <script src="menu.js?v021=1"></script>
+    <button class="startingButton" style="top: calc(50% - 40px)" onclick="hideBlackCover(); playSound('menuMusic')">PLAY WITH SOUND</button>
+    <button class="startingButton" style="top: calc(50% + 40px)" onclick="soundEnabled=false; hideBlackCover()">PLAY WITHOUT SOUND</button>
+    <script src="howler.js"></script>
+    <script src="constants.js?v100=1"></script>
+    <script src="background.js?v100=1"></script>
+    <script src="menuBackground.js?v100=1"></script>
+    <script src="script.js?v100=1"></script>
+    <script src="sound.js?v100=1"></script>
+    <script src="settings.js?v100=1"></script>
+    <script src="menu.js?v100=1"></script>
+    <script defer>document.getElementsByClassName("startingButton")[0].style.display = "block"; document.getElementsByClassName("startingButton")[1].style.display = "block";</script>
 </body>
 </html>

@@ -1,3 +1,27 @@
+//User settings
+document.getElementById("boardBumpSetting").checked = game.boardBumpVisuals;
+document.getElementById("volumeSetting").value = (game.volume*100);
+document.getElementById("musicVolumeSetting").value = (game.musicVolume*100);
+
+function setBoardBump() {
+    game.boardBumpVisuals = document.getElementById("boardBumpSetting").checked;
+    save();
+}
+
+function setVolume() {
+    game.volume = parseFloat(document.getElementById("volumeSetting").value) / 100;
+    Howler.volume(game.volume);
+    save();
+}
+
+function setMusicVolume() {
+    game.musicVolume = parseFloat(document.getElementById("musicVolumeSetting").value) / 100;
+    setSoundVolume("menuMusic", game.musicVolume);
+    save();
+}
+
+//Game settings
+
 function updateSettingVisuals() {
     document.getElementById("startingLevelSetting").value = settings.startingLevel;
     document.getElementById("boardWidthSetting").value = settings.boardWidth;
@@ -18,6 +42,9 @@ function updateSettingVisuals() {
     document.getElementById("sonicDropSetting").disabled = !settings.hardDrop;
     document.getElementById("rotationSystemSetting").value = settings.rotationSystem;
     document.getElementById("IRSSetting").checked = settings.IRS;
+    document.getElementById("twentyGSetting").checked = settings.twentyGOverride;
+    document.getElementById("levelLockSetting").disabled = (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "masterStyle" && settings.gameMechanics != "dragonStyle" && settings.gameMechanics != "tgm");
+    document.getElementById("levelLockSetting").checked = settings.levelLock;
     document.getElementById("overrideGameARESetting").checked = settings.overrideGameARE;
     document.getElementById("ARESetting").value = settings.ARE;
     document.getElementById("ARESetting").disabled = !settings.overrideGameARE;
@@ -58,7 +85,8 @@ function setPreset(preset = document.getElementById("presetsSetting").value) {
             settings.sonicDrop = false;
             settings.rotationSystem = "nintendo-r";
             settings.IRS = true;
-            settings.twentyGOverride = false,
+            settings.twentyGOverride = false;
+            settings.levelLock = false;
             settings.overrideGameARE = false;
             settings.DASInitial = 16;
             settings.DAS = 6;
@@ -77,7 +105,8 @@ function setPreset(preset = document.getElementById("presetsSetting").value) {
             settings.sonicDrop = false;
             settings.rotationSystem = "ars";
             settings.IRS = true;
-            settings.twentyGOverride = false,
+            settings.twentyGOverride = false;
+            settings.levelLock = false;
             settings.overrideGameARE = false;
             settings.DASInitial = 16;
             settings.DAS = 1;
@@ -96,7 +125,8 @@ function setPreset(preset = document.getElementById("presetsSetting").value) {
             settings.sonicDrop = false;
             settings.rotationSystem = "ars";
             settings.IRS = true;
-            settings.twentyGOverride = true,
+            settings.twentyGOverride = true;
+            settings.levelLock = false;
             settings.overrideGameARE = false;
             settings.DASInitial = 16;
             settings.DAS = 1;
@@ -116,7 +146,8 @@ function setPreset(preset = document.getElementById("presetsSetting").value) {
             settings.sonicDrop = false;
             settings.rotationSystem = "nintendo-l";
             settings.IRS = false;
-            settings.twentyGOverride = false,
+            settings.twentyGOverride = false;
+            settings.levelLock = false;
             settings.overrideGameARE = false;
             settings.DASInitial = 24;
             settings.DAS = 9;
@@ -136,7 +167,8 @@ function setPreset(preset = document.getElementById("presetsSetting").value) {
             settings.sonicDrop = false;
             settings.rotationSystem = "nintendo-r";
             settings.IRS = false;
-            settings.twentyGOverride = false,
+            settings.twentyGOverride = false;
+            settings.levelLock = false;
             settings.overrideGameARE = false;
             settings.DASInitial = 16;
             settings.DAS = 6;
@@ -156,7 +188,8 @@ function setPreset(preset = document.getElementById("presetsSetting").value) {
             settings.sonicDrop = false;
             settings.rotationSystem = "dx";
             settings.IRS = false;
-            settings.twentyGOverride = false,
+            settings.twentyGOverride = false;
+            settings.levelLock = false;
             settings.overrideGameARE = false;
             settings.DASInitial = 9;
             settings.DAS = 3;
@@ -176,7 +209,8 @@ function setPreset(preset = document.getElementById("presetsSetting").value) {
             settings.sonicDrop = false;
             settings.rotationSystem = "sega";
             settings.IRS = false;
-            settings.twentyGOverride = false,
+            settings.twentyGOverride = false;
+            settings.levelLock = false;
             settings.overrideGameARE = false;
             settings.DASInitial = 20;
             settings.DAS = 1;
@@ -195,7 +229,8 @@ function setPreset(preset = document.getElementById("presetsSetting").value) {
             settings.sonicDrop = false;
             settings.rotationSystem = "ars";
             settings.IRS = true;
-            settings.twentyGOverride = false,
+            settings.twentyGOverride = false;
+            settings.levelLock = false;
             settings.overrideGameARE = false;
             settings.DASInitial = 16;
             settings.DAS = 1;
@@ -247,6 +282,7 @@ function setGameMechanics() {
     document.getElementById("DASInitialSetting").disabled = (settings.gameMechanics == "dragonStyle");
     document.getElementById("DASSetting").disabled = (settings.gameMechanics == "dragonStyle");
     document.getElementById("lockDelaySetting").disabled = (settings.gameMechanics == "dragonStyle");
+    document.getElementById("levelLockSetting").disabled = (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "masterStyle" && settings.gameMechanics != "dragonStyle" && settings.gameMechanics != "tgm");
 }
 
 function setSegaDifficulty() {
@@ -306,6 +342,11 @@ function setIRS() {
 function setTwentyGOverride() {
     let twentyGOverride = document.getElementById("twentyGSetting").checked;
     settings.twentyGOverride = twentyGOverride;
+}
+
+function setLevelLock() {
+    let levelLock = document.getElementById("levelLockSetting").checked;
+    settings.levelLock = levelLock;
 }
 
 function setOverrideGameARE() {

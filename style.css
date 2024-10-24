@@ -61,6 +61,17 @@ button {
     cursor: pointer;
 }
 
+.startingButton {
+    border: none;
+    background-color: rgba(255,255,255,0.5);
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+    padding: 10px;
+    display: none;
+}
+
 .menuButton {
     border: none;
     width: 600px;
@@ -203,7 +214,7 @@ button {
 #blackCoverLeft, #blackCoverRight {
     position: absolute;
     top: 0;
-    width: 0;
+    width: 50%;
     height: 100%;
     background-color: black;
     z-index: 3;

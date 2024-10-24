@@ -81,6 +81,8 @@ function selectMenuMode(x) {
     let containerCenter = document.getElementById('modeSelectContainer').offsetHeight / 2; //Recalculate containerCenter
     document.getElementsByClassName("menuArrow")[0].style.top = (containerCenter - 90) + "px";
     document.getElementsByClassName("menuArrow")[1].style.top = (containerCenter + 90) + "px";
+    document.getElementsByClassName("menuArrow")[0].style.display = x!=1 ? "block" : "none";
+    document.getElementsByClassName("menuArrow")[1].style.display = x!=3 ? "block" : "none";
     currentMenuMode = x;
     switch(x) {
         case 1:
@@ -155,22 +157,26 @@ function displayModeInfo(x) {
     let overallGrade = Math.floor(overallPower / 3000);
     overallGradeCtx.drawImage(overallGradeImage, 0, overallGrade*32, 48, 32, 92, 0, 48, 32);
     //Overall power string
-    let overallPowerString = Math.floor(overallPower).toString()
+    let overallPowerString = Math.floor(overallPower).toString();
+    if (overallPowerString == "0") overallPowerString = "";
     for (let i = 0; i < (5-overallPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 68 + i*4, 24, 4, 6);
     let overallPowerColor = overallPower >= 99000 ? 3 : 0;
     for (let i = 0; i < overallPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, overallPowerString[i] * 4, overallPowerColor * 6, 4, 6, 88 - (4*overallPowerString.length) + i*4, 24, 4, 6);
     //Classic power string
-    let classicPowerString = Math.floor(Math.min(game.bestPowers[0],30000)).toString()
+    let classicPowerString = Math.floor(Math.min(game.bestPowers[0],30000)).toString();
+    if (classicPowerString == "0") classicPowerString = "";
     for (let i = 0; i < (5-classicPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 11 + i*4, 32, 4, 6);
     let classicPowerColor = game.bestPowers[0] >= 30000 ? 3 : 0;
     for (let i = 0; i < classicPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, classicPowerString[i] * 4, classicPowerColor * 6, 4, 6, 31 - (4*classicPowerString.length) + i*4, 32, 4, 6);
     //Master power string
-    let masterPowerString = Math.floor(Math.min(game.bestPowers[1],30000)).toString()
+    let masterPowerString = Math.floor(Math.min(game.bestPowers[1],30000)).toString();
+    if (masterPowerString == "0") masterPowerString = "";
     for (let i = 0; i < (5-masterPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 39 + i*4, 32, 4, 6);
     let masterPowerColor = game.bestPowers[1] >= 30000 ? 3 : 0;
     for (let i = 0; i < masterPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, masterPowerString[i] * 4, masterPowerColor * 6, 4, 6, 59 - (4*masterPowerString.length) + i*4, 32, 4, 6);
     //Dragon power string
-    let dragonPowerString = Math.floor(Math.min(game.bestPowers[2],39000)).toString()
+    let dragonPowerString = Math.floor(Math.min(game.bestPowers[2],39000)).toString();
+    if (dragonPowerString == "0") dragonPowerString = "";
     for (let i = 0; i < (5-dragonPowerString.length); i++) overallGradeCtx.drawImage(digitsSmall, 0, 24, 4, 6, 67 + i*4, 32, 4, 6);
     let dragonPowerColor = game.bestPowers[2] >= 39000 ? 3 : 0;
     for (let i = 0; i < dragonPowerString.length; i++) overallGradeCtx.drawImage(digitsSmall, dragonPowerString[i] * 4, dragonPowerColor * 6, 4, 6, 87 - (4*dragonPowerString.length) + i*4, 32, 4, 6);
@@ -180,7 +186,7 @@ function displayModeInfo(x) {
     switch(x) {
         case 1:
             document.getElementById("modeInfoImage").src = "img/style1.png";
-            document.getElementById("modeInfo").innerHTML = "<b>Info:</b><br>Reminiscent of classic tetris games.<br>-Scored like NES tetris (No combo! Best scores come from getting tetrises.)<br>-Hard drop is enabled! You can use it to get fast times.<br>-Classic style power is based on level reached, average section time, and points."
+            document.getElementById("modeInfo").innerHTML = "<b>Info:</b><br>Reminiscent of classic tetris games.<br>-Scored like NES tetris (No combo! Best scores come from getting tetrises.)<br>-DAS gets faster as you go<br>-Hard drop is enabled! You can use it to get fast times.<br>-Classic style power is based on level reached, average section time, and points."
             //document.getElementById("modeInfo").innerHTML += "<br><br><img src='img/medal1.png' style='height: 30px; vertical-align: middle'> <b>Bronze medal requirements:</b><br>-Best score: 150,000<br>-Best level: 700"
             //document.getElementById("modeInfo").innerHTML += "<br><br><img src='img/medal2.png' style='height: 30px; vertical-align: middle'> <b>Silver medal requirements:</b><br>-Best score: 300,000<br>-Best level: 999<br>-All section times under 1:15:00"
             modeStatsCtx.clearRect(0, 0, 130, 160);
@@ -310,7 +316,7 @@ function displayModeInfo(x) {
             break;
         case 3:
             document.getElementById("modeInfoImage").src = "img/style3.png";
-            document.getElementById("modeInfo").innerHTML = "<b>Info:</b><br>Reminiscent of T.A. Death. Quite difficult!<br>-Scored like TGM (Best scores come from combos!)<br>-Dragon style power is based on level reached and average section time.";
+            document.getElementById("modeInfo").innerHTML = "<b>Info:</b><br>Reminiscent of T.A. Death. Quite difficult!<br>-Scored like TGM (Best scores come from combos!)<br>-DAS, ARE and lock delay get faster as you go<br>-Dragon style power is based on level reached and average section time.";
             modeStatsCtx.clearRect(0, 0, 130, 160);
             modeStatsCtx.fillStyle = "#eaeaff";
             modeStatsCtx.fillRect(0, 1, 129, 1);
