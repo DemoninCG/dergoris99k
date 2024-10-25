@@ -25,6 +25,27 @@ else if (window.innerHeight < 950) {
     document.getElementById("textOverlay").style.transform = "translate(-50%, -50%) scale(3)";
 }
 
+let keyConfig = {
+    ArrowLeft: "left",
+    ArrowRight: "right",
+    ArrowUp: "hardDrop",
+    ArrowDown: "softDrop",
+    s: "rotClockwise",
+    x: "rotClockwiseAlt",
+    a: "rotAnticlockwise",
+    z: "rotAnticlockwiseAlt",
+    Escape: "exit",
+};
+const keybindNames = [
+    "left",
+    "right",
+    "hardDrop",
+    "softDrop",
+    "rotClockwise",
+    "rotClockwiseAlt",
+    "rotAnticlockwise",
+    "rotAnticlockwiseAlt"
+];
 
 function reset() {
     //Save game variables
@@ -138,6 +159,13 @@ function load() {
     reset()
     let loadgame = JSON.parse(localStorage.getItem("dergorisSave"));
     if (loadgame != null) {loadGame(loadgame);}
+    
+    const keybinds = localStorage.getItem("keybinds");
+    if (keybinds != null) {
+        keyConfig = JSON.parse(keybinds);
+    }
+    
+    updateKeybindList();
 }
 load()
   
@@ -2544,18 +2572,6 @@ function displaySectionTime(index) {
     }
 }
 
-let keyConfig = new Map([
-    ["ArrowLeft", "left"],
-    ["ArrowRight", "right"],
-    ["ArrowUp", "hardDrop"],
-    ["ArrowDown", "softDrop"],
-    ["s", "rotClockwise"],
-    ["x", "rotClockwiseAlt"],
-    ["a", "rotAnticlockwise"],
-    ["z", "rotAnticlockwiseAlt"],
-    ["Escape", "exit"],
-])
-
 //Event listeners
 document.addEventListener("keydown", function(event) {
     if (keybindToReplace != "") {
@@ -2567,15 +2583,16 @@ document.addEventListener("keydown", function(event) {
         //Find the key that maps to the value
         let keyToReplace = getKeybind(keybindToReplace);
         //Replace the key
-        keyConfig.delete(keyToReplace);
-        keyConfig.set(event.key, keybindToReplace);
+        delete keyConfig[keyToReplace];
+        keyConfig[event.key] = keybindToReplace;
         keybindToReplace = "";
+        localStorage.setItem("keybinds", JSON.stringify(keyConfig));
         updateKeybindList();
         return;
     }
-    if(!keyConfig.has(event.key)) return;
+    if(!(event.key in keyConfig)) return;
 
-    const action = keyConfig.get(event.key);
+    const action = keyConfig[event.key];
 
     switch (action) {
         case "left":
@@ -2629,9 +2646,9 @@ document.addEventListener("keydown", function(event) {
 })
 
 document.addEventListener("keyup", function(event) {
-    if(!keyConfig.has(event.key)) return;
+    if(!(event.key in keyConfig)) return;
 
-    const action = keyConfig.get(event.key);
+    const action = keyConfig[event.key];
 
     switch (action) {
         case "left":
@@ -2659,13 +2676,12 @@ document.addEventListener("keyup", function(event) {
 })
 
 function getKeybind(action) {
-    for (const [key, value] of keyConfig) {
+    for (const [key, value] of Object.entries(keyConfig)) {
         if (value == action) return key;
     }
     return "";
 }
 
-const keybindNames = ["left","right","hardDrop","softDrop","rotClockwise","rotClockwiseAlt","rotAnticlockwise","rotAnticlockwiseAlt"];
 function changeKeybind(index) {
     keybindToReplace = keybindNames[index-1];
     document.getElementsByClassName("keybindButton")[index-1].innerText = "PRESS A KEY..."
