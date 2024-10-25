@@ -2098,8 +2098,8 @@ function getRandomPiece() {
             let startingViablePieces = [0,2,5,6]; //First piece must be I, T, J or L
             if (TGMFirstMove) return startingViablePieces[Math.floor(Math.random()*4)]
             chosenPiece = Math.floor(Math.random()*7);
-            for (let i=0; i<4; i++) { //Check 4 times if the piece is in the last 4 pieces
-                if (chosenPiece == lastDroppedPieces[0] || chosenPiece == lastDroppedPieces[1] || chosenPiece == lastDroppedPieces[2] || chosenPiece == lastDroppedPieces[3]) {
+            for (let i=0; i<3; i++) { //Check 4 times if the piece is in the last 4 pieces
+                if (chosenPiece == currentPiece || chosenPiece == lastDroppedPieces[0] || chosenPiece == lastDroppedPieces[1] || chosenPiece == lastDroppedPieces[2]) {
                     chosenPiece = Math.floor(Math.random()*7);
                 }
                 else {break;}
@@ -2711,7 +2711,6 @@ function clearLines() {
         fadeOutSound("gameMusic", 2000);
     }
     else if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (level < 500 && level + linesCleared >= 500)) { //New music
-        console.log(1)
         stopSound("gameMusic");
         playSound("gameMusic", true); //Must be forced otherwise song won't play since the level is still < 500
         setSoundVolume("gameMusic", game.musicVolume);
