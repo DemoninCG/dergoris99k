@@ -160,7 +160,7 @@ function load() {
     let loadgame = JSON.parse(localStorage.getItem("dergorisSave"));
     if (loadgame != null) {loadGame(loadgame);}
     
-    const keybinds = localStorage.getItem("keybinds");
+    const keybinds = localStorage.getItem("dergorisKeybinds");
     if (keybinds != null) {
         keyConfig = JSON.parse(keybinds);
     }
@@ -235,14 +235,14 @@ const effectCtx = effectOverlayCanvas && effectOverlayCanvas.getContext("2d");
 if (ctx) ctx.imageSmoothingEnabled = false; //Disable image smoothing for pixelated look
 
 function initialiseCanvasBoard() {
-    if (settings.visuals === "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") {
+    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle") {
         canvas.height = Math.max(settings.boardHeight*8, 240);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8, 240) + "px";
         let leftSide = 160-settings.boardWidth*4;
         //document.body.style.backgroundImage = "url('img/main/background1.png')";
         images.tiles.src = "img/main/tiles.png";
         images.hardDropTile.src = "img/main/ghostTiles.png";
-        if (settings.visuals === "dragonStyle" && level >= 500) {images.board.src = "img/main/board3.png";}
+        if (settings.visuals == "dragonStyle" && level >= 500) {images.board.src = "img/main/board3.png";}
         else if (settings.visuals == "masterStyle") {images.board.src = "img/main/board2.png";}
         else {images.board.src = "img/main/board.png";}
         images.sideInfo1.src = "img/main/sideInfo.png";
@@ -252,8 +252,8 @@ function initialiseCanvasBoard() {
         images.readyGo.src = "img/main/readyGo.png";
         images.tileVanish.src = "img/main/explosionEffect.png";
         images.digits.src = "img/main/digits.png";
-        if (settings.visuals === "classicStyle") {images.grades.src = "img/main/gradesClassic.png";}
-        else if (settings.visuals === "masterStyle") {images.grades.src = "img/main/gradesMaster.png";}
+        if (settings.visuals == "classicStyle") {images.grades.src = "img/main/gradesClassic.png";}
+        else if (settings.visuals == "masterStyle") {images.grades.src = "img/main/gradesMaster.png";}
         else {images.grades.src = "img/main/gradesDragon.png";}
         //Classic style DAS
         if (settings.gameMechanics == "classicStyle") {
@@ -280,7 +280,7 @@ function initialiseCanvasBoard() {
             ctx.clearRect(264, 71, 12, 6);
         }
     }
-    else if (settings.visuals === "gb") {
+    else if (settings.visuals == "gb") {
         canvas.height = Math.max(settings.boardHeight*8, 144);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8, 144) + "px";
         let leftSide = 120-settings.boardWidth*4;
@@ -328,7 +328,7 @@ function initialiseCanvasBoard() {
         scoreText.style.textAlign = "right";
         document.getElementById("textOverlay").appendChild(linesText);
     }
-    else if (settings.visuals === "nes") {
+    else if (settings.visuals == "nes") {
         canvas.height = Math.max(settings.boardHeight*8+40, 200);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8+40, 200) + "px";
         let leftSide = 160-settings.boardWidth*4;
@@ -404,7 +404,7 @@ function initialiseCanvasBoard() {
         statsText.style.left = (leftSide-40) + "px";
         document.getElementById("textOverlay").appendChild(statsText);
     }
-    else if (settings.visuals === "dx") {
+    else if (settings.visuals == "dx") {
         if (settings.timeDisplay) {
             canvas.height = Math.max(settings.boardHeight*8, 160);
             document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8, 160) + "px";
@@ -459,7 +459,7 @@ function initialiseCanvasBoard() {
         scoreText.style.textAlign = "right";
         document.getElementById("textOverlay").appendChild(linesText);
     }
-    else if (settings.visuals === "sega") {
+    else if (settings.visuals == "sega") {
         canvas.height = Math.max(settings.boardHeight*8+48, 225);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8+48, 225) + "px";
         let leftSide = 152-settings.boardWidth*4;
@@ -502,7 +502,7 @@ function initialiseCanvasBoard() {
         images.sideInfo1.src = "img/sega/sideInfo.png";
         ctx.drawImage(images.sideInfo1, leftSide-56, 16);
     }
-    else if (settings.visuals === "tgm") {
+    else if (settings.visuals == "tgm") {
         canvas.height = Math.max(settings.boardHeight*8+48, 240);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8+48, 240) + "px";
         let leftSide = 160-settings.boardWidth*4;
@@ -636,7 +636,7 @@ function readyGo(stage) {
             ctx.drawImage(images.grades, 27*grade, 0, 27, 26, 84, 34, 27, 26);
 
             //Next piece
-            setNextPieceVisuals(currentPiece);
+            setNextPieceVisuals(nextPiece);
 
             //Text (Copied from updateVisuals, any change there should also happen here)
             //This is a lot of code duplication! Find a way to reduce this ASAP
@@ -877,6 +877,7 @@ function updateVariables() {
         if (waitingForNextPiece) {
             placePiece(nextPiece);
             nextPiece = getRandomPiece();
+            if (settings.visuals == "tgm") playNextPieceAudio(nextPiece);
             setNextPieceVisuals(nextPiece);
             updateVisuals();
             if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") && keysHeld[3]) { //Starting soft drop if key is held
@@ -898,6 +899,7 @@ function updateVariables() {
                     piecePositions[2][0]++;
                     piecePositions[3][0]++;
                     pieceTopCorner[0]++;
+                    if (settings.visuals == "tgm" && checkPieceLanded(piecePositions)) playSound("land");
                 }
             }
             //Holding the down key for softdrop
@@ -1571,7 +1573,7 @@ function landPiece() {
     waitingForNextPiece = true;
     lastDroppedPieces.unshift(currentPiece);
     if (lastDroppedPieces.length > 7) lastDroppedPieces.pop();
-    if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") playSound("impact");
+    if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") playSound("lock");
     updateVisuals();
     clearLines();
     //Disable softdrop until key is pressed again
@@ -1681,9 +1683,11 @@ function placePiece(pieceType) {
     //Initial rotation system (IRS)
     if (settings.IRS && keysHeld[4]) {
         rotatePiece(true, true);
+        if (settings.visuals == "tgm") playSound("IRS");
     }
     else if (settings.IRS && keysHeld[5]) {
         rotatePiece(false, true);
+        if (settings.visuals == "tgm") playSound("IRS");
     }
 
     if (getDropInterval() <= 0.05) maxDrop(); //20G
@@ -2090,6 +2094,32 @@ function setNextPieceVisuals(index) {
                 ctx.fillRect(leftSide+24, 32, 8, 1);
                 break
         }
+    }
+}
+
+function playNextPieceAudio(index) {
+    switch (index) {
+        case 0:
+            playSound("pieceI");
+            break;
+        case 1:
+            playSound("pieceO");
+            break;
+        case 2:
+            playSound("pieceT");
+            break;
+        case 3:
+            playSound("pieceS");
+            break;
+        case 4:
+            playSound("pieceZ");
+            break;
+        case 5:
+            playSound("pieceJ");
+            break;
+        case 6:
+            playSound("pieceL");
+            break;
     }
 }
 
@@ -2522,6 +2552,7 @@ function maxDrop() {
     }
     for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
     for (let i=0;i<2;i++) pieceTopCorner[i] = tempPieceTopCorner[i];
+    if (settings.visuals == "tgm") playSound("land");
 }
 
 /** @param {0 | 1} direction - 0 for left, 1 for right */
@@ -2586,7 +2617,7 @@ document.addEventListener("keydown", function(event) {
         delete keyConfig[keyToReplace];
         keyConfig[event.key] = keybindToReplace;
         keybindToReplace = "";
-        localStorage.setItem("keybinds", JSON.stringify(keyConfig));
+        localStorage.setItem("dergorisKeybinds", JSON.stringify(keyConfig));
         updateKeybindList();
         return;
     }
@@ -2807,7 +2838,7 @@ function clearLines() {
         scoreToGain = finalScore;
         if (!settings.levelLock) level += linesCleared;
         if (level > 999) level = 999;
-        playSound("lineClear");
+        if (settings.visuals != "tgm") playSound("lineClear");
         updateVisuals();
     }
     else if (linesCleared && settings.gameMechanics == "classicStyle") { //Similar to NES/GB/DX

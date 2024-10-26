@@ -33,10 +33,13 @@ var TGMSoundEffects = new Howl({
         pieceS: [10330, 1000],
         pieceT: [11550, 1000],
         pieceI: [12950, 1000],
+        IRS: [14420, 800],
+        lock: [15300, 500],
+        land: [15880, 500],
     }
 });
 
-var impactSound = new Howl({
+var lockSound = new Howl({
     src: ['sound/plastic_box_impact_bullet5.mp3'],
     preload: true,
     volume: 0.5,
@@ -155,8 +158,15 @@ function playSound(sound, levelTransition=false) {
         case "pieceI":
             TGMSoundEffects.play("pieceI");
             break;
-        case "impact":
-            impactSound.play();
+        case "IRS":
+            TGMSoundEffects.play("IRS");
+            break; 
+        case "land":
+            TGMSoundEffects.play("land");
+            break;
+        case "lock":
+            if (settings.visuals == "tgm") {TGMSoundEffects.play("lock");}
+            else {lockSound.play();}
             break;
         case "lineClear":
             breakSound.play();
