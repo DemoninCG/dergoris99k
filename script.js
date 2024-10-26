@@ -873,7 +873,10 @@ function updateVariables() {
             currentDASTime -= (timeMultiplier*60);
             while (currentDASTime <= 0) {
                 moveLeft();
-                if (getDropInterval() <= 0.05) maxDrop(); //20G
+                if (!checkPieceLanded(piecePositions)) {
+                    if (settings.lockReset == "step") locking = false;
+                    if (getDropInterval() <= 0.05) maxDrop(); //20G
+                }
                 currentDASTime += getDAS();
             }
         }
@@ -884,7 +887,10 @@ function updateVariables() {
             currentDASTime -= (timeMultiplier*60);
             while (currentDASTime <= 0) {
                 moveRight();
-                if (getDropInterval() <= 0.05) maxDrop(); //20G
+                if (!checkPieceLanded(piecePositions)) {
+                    if (settings.lockReset == "step") locking = false;
+                    if (getDropInterval() <= 0.05) maxDrop(); //20G
+                }
                 currentDASTime += getDAS();
             }
         }
@@ -2346,7 +2352,10 @@ function rotatePiece(clockwise=true, override=false) {
                 if (canRotate) {
                     for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
                     pieceOrientation = rotatedOrientation;
-                    if (getDropInterval() <= 0.05) maxDrop(); //20G
+                    if (!checkPieceLanded(piecePositions)) {
+                        if (settings.lockReset == "step") locking = false;
+                        if (getDropInterval() <= 0.05) maxDrop(); //20G
+                    }
                     updateVisuals();
                 }
             }
@@ -2453,7 +2462,10 @@ function rotatePiece(clockwise=true, override=false) {
                 if (canRotate) {
                     for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
                     pieceOrientation = rotatedOrientation;
-                    if (getDropInterval() <= 0.05) maxDrop(); //20G
+                    if (!checkPieceLanded(piecePositions)) {
+                        if (settings.lockReset == "step") locking = false;
+                        if (getDropInterval() <= 0.05) maxDrop(); //20G
+                    }
                     updateVisuals();
                 }
                 else if (firstFoundBlock == 2 || firstFoundBlock == 5 || firstFoundBlock == 8) {return;} //Center column rule
@@ -2463,7 +2475,10 @@ function rotatePiece(clockwise=true, override=false) {
                     if (canRotate) {
                         for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
                         pieceOrientation = rotatedOrientation;
-                        if (getDropInterval() <= 0.05) maxDrop(); //20G
+                        if (!checkPieceLanded(piecePositions)) {
+                            if (settings.lockReset == "step") locking = false;
+                            if (getDropInterval() <= 0.05) maxDrop(); //20G
+                        }
                         updateVisuals();
                     }
                     else { //Left kick
@@ -2472,7 +2487,10 @@ function rotatePiece(clockwise=true, override=false) {
                         if (canRotate) {
                             for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
                             pieceOrientation = rotatedOrientation;
-                            if (getDropInterval() <= 0.05) maxDrop(); //20G
+                            if (!checkPieceLanded(piecePositions)) {
+                                if (settings.lockReset == "step") locking = false;
+                                if (getDropInterval() <= 0.05) maxDrop(); //20G
+                            }
                             updateVisuals();
                         }
                     }
