@@ -833,7 +833,7 @@ function updateVariables() {
     let timeMultiplier = Math.max(Date.now() - timeOfLastUpdate, 1) / 1000;
     time += timeMultiplier;
 
-    //Update DAS
+    /* Old DAS update (Fixes left+right DAS charge bug, but DAS speed is capped by framerate)
     let resetDAS = false; //Prevents DAS being reset twice when left+right pressed
     let DASChargedThisTick = false; //Prevents DAS being charged twice when left+right pressed
     if (keysHeld[0] && !waitingForNextPiece) {
@@ -864,6 +864,30 @@ function updateVariables() {
     }
     if(resetDAS) {
         currentDASTime = getDAS();
+    }*/
+
+    //New DAS
+    if (keysHeld[0] && !waitingForNextPiece) {
+        if (!checkCanMoveLeft()) {currentDASTime = 0;} //Wall charge
+        else {
+            currentDASTime -= (timeMultiplier*60);
+            while (currentDASTime <= 0) {
+                moveLeft();
+                if (getDropInterval() <= 0.05) maxDrop(); //20G
+                currentDASTime += getDAS();
+            }
+        }
+    }
+    else if (keysHeld[1] && !waitingForNextPiece) {
+        if (!checkCanMoveRight()) {currentDASTime = 0;} //Wall charge
+        else {
+            currentDASTime -= (timeMultiplier*60);
+            while (currentDASTime <= 0) {
+                moveRight();
+                if (getDropInterval() <= 0.05) maxDrop(); //20G
+                currentDASTime += getDAS();
+            }
+        }
     }
 
     //Update the lock time
@@ -1521,6 +1545,7 @@ function getDAS() {
 
 function getDASInitial() {
     if (settings.gameMechanics == "classicStyle") {return classicStyleDASInitial[Math.floor(level/100)];}
+    else if (settings.gameMechanics == "dragonStyle") {return dragonStyleDASInitial[Math.floor(level/100)];}
     return settings.DASInitial;
 }
 
@@ -1740,38 +1765,11 @@ function placePiece(pieceType) {
     TGMFirstMove = false;
 }
 
-/*function playNextPieceSound(piece) {
-    if (settings.visuals != "classicStyle" && settings.visuals != "masterStyle" && settings.visuals != "dragonStyle" && settings.visuals != "tgm") return;
-    switch (piece) {
-        case 0:
-            playSound("pieceI");
-            break;
-        case 1:
-            playSound("pieceO");
-            break;
-        case 2:
-            playSound("pieceT");
-            break;
-        case 3:
-            playSound("pieceS");
-            break;
-        case 4:
-            playSound("pieceZ");
-            break;
-        case 5:
-            playSound("pieceJ");
-            break;
-        case 6:
-            playSound("pieceL");
-            break;
-    }
-}*/
-
 // TODO: create lookup table for the tile positions to condense this
 // Alternative: Use equations instead
 function setNextPieceVisuals(index) {
     //Draw the piece in the next box
-    if (settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") {
+    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle") {
         let leftSide = 160-settings.boardWidth*4;
         ctx.clearRect(leftSide+24, 12, 32, 17);
         ctx.fillStyle = "#080808"
@@ -2773,12 +2771,7 @@ function clearLines() {
             images.board.src = "img/main/board3.png";
             ctx.drawImage(images.board, 112, 32);
         }
-        if (settings.gameMechanics == "classicStyle") { //Update DAS
-            settings.DASInitial = classicStyleDASInitial[Math.floor(level/100)];
-            settings.DAS = classicStyleDAS[Math.floor(level/100)];
-        }
-        else if (settings.gameMechanics == "dragonStyle") { //Update DAS and lock delay
-            settings.DASInitial = dragonStyleDASInitial[Math.floor(level/100)];
+        if (settings.gameMechanics == "dragonStyle") { //Update DAS and lock delay
             settings.lockDelay = dragonStyleLockDelay[Math.floor(level/100)];
         }
     }

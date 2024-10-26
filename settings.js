@@ -358,14 +358,14 @@ function setOverrideGameARE() {
 
 function setARE() {
     let ARE = parseInt(document.getElementById("ARESetting").value);
-    ARE = clamp(0, ARE, 60);
+    ARE = clamp(0, ARE, 200);
     document.getElementById("ARESetting").value = ARE;
     settings.ARE = ARE;
 }
 
 function setARELineClear() {
     let ARELineClear = parseInt(document.getElementById("ARELineClearSetting").value);
-    ARELineClear = clamp(0, ARELineClear, 60);
+    ARELineClear = clamp(0, ARELineClear, 200);
     document.getElementById("ARELineClearSetting").value = ARELineClear;
     settings.ARELineClear = ARELineClear;
 }
