@@ -227,6 +227,7 @@ button {
     left: 50%;
     transform: translate(-50%, -50%) scale(4);
     /*background-color: rgba(0,0,0,0.2);*/
+    user-select: none;
     display: none;
 }
 

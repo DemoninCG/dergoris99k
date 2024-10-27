@@ -2737,7 +2737,8 @@ function changeKeybind(index) {
 
 function updateKeybindList() {
     for (let i=0;i<8;i++) {
-        document.getElementsByClassName("keybind")[i].innerText = getKeybind(keybindNames[i]);
+        if (getKeybind(keybindNames[i]) == " ") {document.getElementsByClassName("keybind")[i].innerText = "Space";}
+        else {document.getElementsByClassName("keybind")[i].innerText = getKeybind(keybindNames[i]);}
         document.getElementsByClassName("keybindButton")[i].innerText = "CHANGE"
     }
 }
