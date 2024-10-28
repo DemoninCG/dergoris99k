@@ -297,9 +297,35 @@ function displayModeInfo(x) {
                 modeStatsCtx.drawImage(digitsSmall, bestLevelString[i] * 4, bestLevelColor * 6, 4, 6, 44 + i*4, 32, 4, 6);
             }
             //Best highest section time
-            modeStatsCtx.drawImage(modeStatsImage, 0, 40, 130, 8, 0, 40, 130, 8);
+            if (game.bestLevels[1] >= 999) {
+                modeStatsCtx.drawImage(modeStatsImage, 0, 48, 130, 8, 0, 40, 130, 8);
+                let bestHighestSectionTime = game.bestHighestSectionTimes[1];
+                let timeString = convertToTime(bestHighestSectionTime);
+                let timeColor = getTimeColor(bestHighestSectionTime);
+
+                for (let i=0;i<timeString.length;i++) {
+                    if (timeString[i] == ":") {modeStatsCtx.drawImage(digitsSmall, 40, timeColor*6, 4, 6, 89 + i*4, 40, 4, 6);}
+                    else {modeStatsCtx.drawImage(digitsSmall, parseInt(timeString[i])*4, timeColor*6, 4, 6, 89 + i*4, 40, 4, 6);}
+                }
+            }
+            else {
+                modeStatsCtx.drawImage(modeStatsImage, 0, 40, 130, 8, 0, 40, 130, 8);
+            }
             //Best average section time
-            modeStatsCtx.drawImage(modeStatsImage, 0, 40, 130, 8, 0, 48, 130, 8);
+            if (game.bestLevels[1] >= 999) {
+                modeStatsCtx.drawImage(modeStatsImage, 0, 56, 130, 8, 0, 48, 130, 8);
+                let bestAverageSectionTime = game.bestAverageSectionTimes[1];
+                let timeString = convertToTime(bestAverageSectionTime);
+                let timeColor = getTimeColor(bestAverageSectionTime);
+
+                for (let i=0;i<timeString.length;i++) {
+                    if (timeString[i] == ":") {modeStatsCtx.drawImage(digitsSmall, 40, timeColor*6, 4, 6, 88 + i*4, 48, 4, 6);}
+                    else {modeStatsCtx.drawImage(digitsSmall, parseInt(timeString[i])*4, timeColor*6, 4, 6, 88 + i*4, 48, 4, 6);}
+                }
+            }
+            else {
+                modeStatsCtx.drawImage(modeStatsImage, 0, 40, 130, 8, 0, 48, 130, 8);
+            }
             //Best individual section times
             modeStatsCtx.drawImage(modeStatsImage, 0, 64, 130, 8, 0, 64, 130, 8);
             for (let i = 0; i < 10; i++) {
@@ -348,9 +374,35 @@ function displayModeInfo(x) {
                 modeStatsCtx.drawImage(digitsSmall, bestLevelString[i] * 4, bestLevelColor * 6, 4, 6, 44 + i*4, 32, 4, 6);
             }
             //Best highest section time
-            modeStatsCtx.drawImage(modeStatsImage, 0, 40, 130, 8, 0, 40, 130, 8);
+            if (game.bestLevels[2] >= 999) {
+                modeStatsCtx.drawImage(modeStatsImage, 0, 48, 130, 8, 0, 40, 130, 8);
+                let bestHighestSectionTime = game.bestHighestSectionTimes[2];
+                let timeString = convertToTime(bestHighestSectionTime);
+                let timeColor = getTimeColor(bestHighestSectionTime);
+
+                for (let i=0;i<timeString.length;i++) {
+                    if (timeString[i] == ":") {modeStatsCtx.drawImage(digitsSmall, 40, timeColor*6, 4, 6, 89 + i*4, 40, 4, 6);}
+                    else {modeStatsCtx.drawImage(digitsSmall, parseInt(timeString[i])*4, timeColor*6, 4, 6, 89 + i*4, 40, 4, 6);}
+                }
+            }
+            else {
+                modeStatsCtx.drawImage(modeStatsImage, 0, 40, 130, 8, 0, 40, 130, 8);
+            }
             //Best average section time
-            modeStatsCtx.drawImage(modeStatsImage, 0, 40, 130, 8, 0, 48, 130, 8);
+            if (game.bestLevels[2] >= 999) {
+                modeStatsCtx.drawImage(modeStatsImage, 0, 56, 130, 8, 0, 48, 130, 8);
+                let bestAverageSectionTime = game.bestAverageSectionTimes[2];
+                let timeString = convertToTime(bestAverageSectionTime);
+                let timeColor = getTimeColor(bestAverageSectionTime);
+
+                for (let i=0;i<timeString.length;i++) {
+                    if (timeString[i] == ":") {modeStatsCtx.drawImage(digitsSmall, 40, timeColor*6, 4, 6, 88 + i*4, 48, 4, 6);}
+                    else {modeStatsCtx.drawImage(digitsSmall, parseInt(timeString[i])*4, timeColor*6, 4, 6, 88 + i*4, 48, 4, 6);}
+                }
+            }
+            else {
+                modeStatsCtx.drawImage(modeStatsImage, 0, 40, 130, 8, 0, 48, 130, 8);
+            }
             //Best individual section times
             modeStatsCtx.drawImage(modeStatsImage, 0, 64, 130, 8, 0, 64, 130, 8);
             for (let i = 0; i < 10; i++) {
