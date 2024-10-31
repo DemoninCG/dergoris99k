@@ -873,10 +873,6 @@ function updateVariables() {
             currentDASTime -= (timeMultiplier*60);
             while (currentDASTime <= 0) {
                 moveLeft();
-                if (!checkPieceLanded(piecePositions)) {
-                    if (settings.lockReset == "step") locking = false;
-                    if (getDropInterval() <= 0.05) maxDrop(); //20G
-                }
                 currentDASTime += getDAS();
             }
         }
@@ -887,10 +883,6 @@ function updateVariables() {
             currentDASTime -= (timeMultiplier*60);
             while (currentDASTime <= 0) {
                 moveRight();
-                if (!checkPieceLanded(piecePositions)) {
-                    if (settings.lockReset == "step") locking = false;
-                    if (getDropInterval() <= 0.05) maxDrop(); //20G
-                }
                 currentDASTime += getDAS();
             }
         }
@@ -2216,6 +2208,10 @@ function moveLeft() {
         }
         pieceTopCorner[1]--;
         if (locking && settings.lockReset == "move") locking = false;
+        if (!checkPieceLanded(piecePositions)) {
+            if (settings.lockReset == "step") locking = false;
+            if (getDropInterval() <= 0.05) maxDrop(); //20G
+        }
         updateVisuals();
     }
 }
@@ -2227,6 +2223,10 @@ function moveRight() {
         }
         pieceTopCorner[1]++;
         if (locking && settings.lockReset == "move") locking = false;
+        if (!checkPieceLanded(piecePositions)) {
+            if (settings.lockReset == "step") locking = false;
+            if (getDropInterval() <= 0.05) maxDrop(); //20G
+        }
         updateVisuals();
     }
 }
