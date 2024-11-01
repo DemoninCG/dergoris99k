@@ -152,7 +152,7 @@ selectMenuMode(1);
 
 //Reselect the current menu mode on window resize
 window.addEventListener("resize", function() {
-    selectMenuMode(currentMenuMode);
+    if (!gamePlaying) selectMenuMode(currentMenuMode);
 });
 
 function displayModeInfo(x) {
