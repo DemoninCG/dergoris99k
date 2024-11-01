@@ -2149,9 +2149,9 @@ function getRandomPiece() {
             if (chosenPiece == 7 || chosenPiece == lastDroppedPieces[0]) {chosenPiece= Math.floor(Math.random()*7);}
 		break;
         case "dx":
-            //Tetris DX randomizer attempts to reroll 5times to avoid repeats, but is bugged. theis bu causes a lot of extra Ts and a few Zs.
-	    // there are two bugs. one is becasue the accumulato ris used for two purposes, and the other is because you are supposed to jump back OR
-	    // reset the rerollcunter, not do both.
+            // Tetris DX randomizer attempts to reroll 4 times to avoid repeats, but is bugged. this bug causes a lot of extra Ts and a few Zs.
+	    // there are two bugs. one is becasue the accumulator is used for two purposes, and the other is because you are supposed to jump back OR
+	    // reset the rerollcounter, not do both.
 	    // horrid hack
             reroll: while (true)
             {
@@ -2160,7 +2160,7 @@ function getRandomPiece() {
 	    	chosenPiece =  Math.floor(Math.random()*8); // from 0 to 7
 	    	if (chosenPiece==7) {chosenPiece=pieceCounter;} // pick piece counter. to attempt to dodge bias.
             	if (chosenPiece != lastDroppedPieces[0]) {  // if it's not a repeat
-            	    rerollCount=0;				// clear rerollcount
+            	    rerollCount=0;				// clear rerollCount
 		    break;					// keep piece and update history.
                 }
 	    	else
@@ -2169,16 +2169,16 @@ function getRandomPiece() {
 			switch (rerollCount) 
 			{
 			case 1:  
-				return 2; // T, don't update history
+				return 2; // T, don't update history (BUG, should be continue reroll instead;)
 			case 2:  
-				return 4; // Z, don't update history
+				return 4; // Z, don't update history (BUG, should be continue reroll instead;)
 			case 3:  
-				return 3; // S, don't update history
+				return 3; // S, don't update history (BUG, should be continue reroll instead;)
 			case 4:  
-				return 5; // J, don't update history
+				return 5; // J, don't update history (BUG, should be continue reroll instead;)
 			case 5: 
-				rerollCount=0; // zero out rerollcount. 
-				continue reroll;   // and go back up. rerollCount can never exceed 5 because of this
+				rerollCount=0; // zero out rerollCount. 
+				continue reroll;   // and now actually reroll? (BUG. should be break;)
 			}
 		}
 		break;
