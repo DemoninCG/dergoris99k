@@ -129,7 +129,7 @@ function reset() {
     soundEnabled = true;
     gamePlaying = false;
     inCampaign = false;
-    keysHeld = [false, false, false, false, false, false]; //Left, Right, Up, Down, A, D
+    keysHeld = [false, false, false, false, false, false, false, false]; //Left, Right, Up, Down, CW, CCW, CW alt, CCW alt
     keybindToReplace = "";
     timeOfLastUpdate = Date.now();
 }
@@ -1712,11 +1712,11 @@ function placePiece(pieceType) {
     piecesDropped[pieceType]++;
 
     //Initial rotation system (IRS)
-    if (settings.IRS && keysHeld[4]) {
+    if (settings.IRS && (keysHeld[4] || keysHeld[6])) {
         rotatePiece(true, true);
         if (settings.visuals == "tgm") playSound("IRS");
     }
-    else if (settings.IRS && keysHeld[5]) {
+    else if (settings.IRS && (keysHeld[5] || keysHeld[7])) {
         rotatePiece(false, true);
         if (settings.visuals == "tgm") playSound("IRS");
     }
@@ -2237,9 +2237,11 @@ function moveRight() {
     }
 }
 
-function rotatePiece(clockwise=true, override=false) {
-    if (clockwise && keysHeld[4] && !override) return;
-    if (!clockwise && keysHeld[5] && !override) return;
+function rotatePiece(clockwise=true, override=false, alt=false) {
+    if (clockwise && !alt && keysHeld[4] && !override) return;
+    if (!clockwise && !alt && keysHeld[5] && !override) return;
+    if (clockwise && alt && keysHeld[6] && !override) return;
+    if (!clockwise && alt && keysHeld[7] && !override) return;
     if (!gamePlaying || waitingForNextPiece) return;
     //This should really be simplified
     let tempPiecePositions = [];
@@ -2682,14 +2684,20 @@ document.addEventListener("keydown", function(event) {
             }
             break;
         case "rotClockwise":
-        case "rotClockwiseAlt":
             rotatePiece(true);
             keysHeld[4] = true;
             break;
+        case "rotClockwiseAlt":
+            rotatePiece(true, false, true);
+            keysHeld[6] = true;
+            break;
         case "rotAnticlockwise":
-        case "rotAnticlockwiseAlt":
             rotatePiece(false);
             keysHeld[5] = true;
+            break;
+        case "rotAnticlockwiseAlt":
+            rotatePiece(false, false, true);
+            keysHeld[7] = true;
             break;
         case "exit":
             if (!gamePlaying && document.getElementById("keybindsContainer").style.display == "block") hideKeybinds();
@@ -2725,12 +2733,16 @@ document.addEventListener("keyup", function(event) {
             keysHeld[3] = false;
             break;
         case "rotClockwise":
-        case "rotClockwiseAlt":
             keysHeld[4] = false;
             break;
+        case "rotClockwiseAlt":
+            keysHeld[6] = false;
+            break;
         case "rotAnticlockwise":
-        case "rotAnticlockwiseAlt":
             keysHeld[5] = false;
+            break;
+        case "rotAnticlockwiseAlt":
+            keysHeld[7] = false;
             break;
     }
 })
