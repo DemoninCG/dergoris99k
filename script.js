@@ -2155,7 +2155,6 @@ function getRandomPiece() {
     //Update last dropped pieces array
     lastDroppedPieces.unshift(chosenPiece);
     if (lastDroppedPieces.length > 7) lastDroppedPieces.pop();
-    console.log(lastDroppedPieces);
     return chosenPiece;
 }
 
