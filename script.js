@@ -2231,6 +2231,7 @@ function checkPieceLanded(cells=piecePositions) {
 function checkPieceOverlap(cells=piecePositions) {
     for (const cell of cells) {
         //if (cell[0] < 0 && (settings.gameMechanics == "sega")) return true; //Above top of board (only sega version, intentionally disabled here because it's really annoying)
+	if (cell[0] < -1 && (settings.gameMechanics == "dx")) return true; // can only ever hit it by piece climbing.
         if (cell[0] >= settings.boardHeight) return true; //Below bottom of board
         if (cell[1] < 0) return true; //Beyond left side of board
         if (cell[1] >= settings.boardWidth) return true; //Beyond right side of board
