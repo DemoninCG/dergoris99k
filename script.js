@@ -125,6 +125,10 @@ function reset() {
     GMQualifying = true;
     TGMBarState = 0;
 
+    //randomizer specific global variables
+    pieceCounter=0; // incremented and modulo 7ed by DX reandomizer
+    rerollCount=0;  // used by DX randomizer.  can be used by future randomizers if desired.
+    
     boardVisualPosition = [0,0];
     soundEnabled = true;
     gamePlaying = false;
@@ -2145,11 +2149,57 @@ function getRandomPiece() {
             if (chosenPiece == 7 || chosenPiece == lastDroppedPieces[0]) {chosenPiece= Math.floor(Math.random()*7);}
 		break;
         case "dx":
-            //Tetris DX randomizer is heavily weighted towards T due to a bug
-            chosenPiece =  Math.floor(Math.random()*7); //From 0 to 6. Original game generates 0 to 7, but we are ignoring that.
-            if (chosenPiece == lastDroppedPieces[0]) chosenPiece=2; //Makes it a T piece if it's a repeat. Direct repeats are supposed to be rare.
+            //Tetris DX randomizer attempts to reroll 5times to avoid repeats, but is bugged. theis bu causes a lot of extra Ts and a few Zs.
+	    // there are two bugs. one is becasue the accumulato ris used for two purposes, and the other is because you are supposed to jump back OR
+	    // reset the rerollcunter, not do both.
+	    // horrid hack
+            reroll: while (true)
+            {
+	        pieceCounter++; // increment piece counter.
+	        pieceCounter=pieceCounter%7; // roll over from 7 to 0;
+	    	chosenPiece =  Math.floor(Math.random()*8); // from 0 to 7
+	    	if (chosenPiece==7) {chosenPiece=pieceCounter;} // pick piece counter. to attempt to dodge bias.
+            	if (chosenPiece != lastDroppedPieces[0]) {  // if it's not a repeat
+            	    rerollCount=0;				// clear rerollcount
+		    break;					// keep piece and update history.
+                }
+	    	else
+	    	{
+			rerollCount++; // increment rerollcount
+			switch (rerollCount) 
+			{
+			case 1:  
+				return 2; // T, don't update history
+			case 2:  
+				return 4; // Z, don't update history
+			case 3:  
+				return 3; // S, don't update history
+			case 4:  
+				return 5; // J, don't update history
+			case 5: 
+				rerollCount=0; // zero out rerollcount. 
+				continue reroll;   // and go back up. rerollCount can never exceed 5 because of this
+			}
+		}
 		break;
-        case "tgm":
+		
+	    }
+	    break;
+        case "dxintended":  // how the DX randomizer is actually supposed to work.
+                pieceCounter++; // increment piece counter.
+	        pieceCounter=pieceCounter%7; // roll over from 7 to 0;
+	    	chosenPiece = Math.floor(Math.random()*8);
+		if (chosenPiece==7) {chosenPiece=pieceCounter;}
+		
+                for (let i=0; i<4; i++) { //up to 4 rerolls
+                	if (chosenPiece == lastDroppedPieces[0]) 
+                    	{
+				chosenPiece = Math.floor(Math.random()*8);
+				if (chosenPiece==7) {chosenPiece=pieceCounter;}
+			}
+            	}
+                break;
+	case "tgm":
             let startingViablePieces = [0,2,5,6]; //First piece must be I, T, J or L
             if (TGMFirstMove) {chosenPiece=startingViablePieces[Math.floor(Math.random()*4)];}
             else {
