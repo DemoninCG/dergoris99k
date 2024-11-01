@@ -369,7 +369,10 @@ function initialiseCanvasBoard() {
         ctx.drawImage(images.sideInfo3, 0, 0, 80, 152, leftSide-80, 48, 80, 152);
 
         images.sideInfo4.src = "img/nes/statPieces.png";
-        ctx.drawImage(images.sideInfo4, (level%10)*24, 0, 24, 112, leftSide-64, 72, 24, 112);
+        let pieceColorSet;
+        if (inCampaignMode()) {pieceColorSet = Math.floor(level/100);}
+        else {pieceColorSet = level%10;}
+        ctx.drawImage(images.sideInfo4, pieceColorSet*24, 0, 24, 112, leftSide-64, 72, 24, 112);
 
         //Add the text
         let timeText = document.createElement("p");
@@ -580,7 +583,7 @@ function startGame() {
         }
     }
     
-    if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") {
+    if (inCampaignMode()) {
         linesUntilNextLevel = 100;
         lastDroppedPieces = [3, 4, 4, 3];
     }
@@ -902,7 +905,7 @@ function updateVariables() {
             if (settings.visuals == "tgm") playNextPieceAudio(nextPiece);
             setNextPieceVisuals(nextPiece);
             updateVisuals();
-            if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") && keysHeld[3]) { //Starting soft drop if key is held
+            if ((inCampaignMode() || settings.gameMechanics == "tgm") && keysHeld[3]) { //Starting soft drop if key is held
                 currentDropTime = Math.min(getDropInterval(), settings.softDropSpeed);
                 softDropping = true;
             }
@@ -1012,6 +1015,10 @@ function getTimeColor(seconds) {
     else if (seconds < 65) {timeColor = 1;}
     else {timeColor = 0;}
     return timeColor;
+}
+
+function inCampaignMode() {
+    return settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle";
 }
 
 function updateVisuals() {
@@ -1252,6 +1259,9 @@ function updateVisuals() {
         ctx.fillRect(leftSide+8, 32, settings.boardWidth*8, settings.boardHeight*8);
         //Draw the board
         //ctx.drawImage(images.tiles, 0, 0, 8, 8, pieceTopCorner[1]*8+leftSide+8, pieceTopCorner[0]*8+32, 4, 4);
+        let pieceColorSet;
+        if (inCampaignMode()) {pieceColorSet = Math.floor(level/100);}
+        else {pieceColorSet = level%10;}
         if (!waitingForNextPiece) {
             //Draw the ghost piece if hard drop is enabled
             if (settings.hardDrop) {
@@ -1272,7 +1282,7 @@ function updateVisuals() {
                     ctx.drawImage(images.tiles, nesPieceTiles[currentPiece]*8, 80, 8, 8, piecePositions[i][1]*8+leftSide+8, piecePositions[i][0]*8+32, 8, 8);
                 }
                 else {
-                    ctx.drawImage(images.tiles, nesPieceTiles[currentPiece]*8, (level%10)*8, 8, 8, piecePositions[i][1]*8+leftSide+8, piecePositions[i][0]*8+32, 8, 8);
+                    ctx.drawImage(images.tiles, nesPieceTiles[currentPiece]*8, (pieceColorSet)*8, 8, 8, piecePositions[i][1]*8+leftSide+8, piecePositions[i][0]*8+32, 8, 8);
                 }
                 //Add white if the piece is locking
                 if (locking) {
@@ -1295,7 +1305,7 @@ function updateVisuals() {
                         if (board[i-1] && board[i-1][j] != 0 && board[i-1][j-1] == 0 && board[i][j-1] != 0) ctx.fillRect(j*8+leftSide+8, i*8+32, 1, 1); //Top corner border 1
                         if (board[i+1] && board[i+1][j] == 0 && board[i+1][j+1] == 0 && board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+16, i*8+40, 1, 1); //Top corner border 2
                     }
-                    else if (!settings.invisible) {ctx.drawImage(images.tiles, nesPieceTiles[board[i][j]-1]*8, (level%10)*8, 8, 8, j*8+leftSide+8, i*8+32, 8, 8);}
+                    else if (!settings.invisible) {ctx.drawImage(images.tiles, nesPieceTiles[board[i][j]-1]*8, (pieceColorSet)*8, 8, 8, j*8+leftSide+8, i*8+32, 8, 8);}
                 }
             }
         }
@@ -1594,7 +1604,7 @@ function landPiece() {
     else if (settings.gameMechanics == "tgm") {currentDropTime = 30;} //TGM ARE
     else {currentDropTime = 60;} //Backup
     waitingForNextPiece = true;
-    if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") playSound("lock");
+    if (inCampaignMode() || settings.gameMechanics == "tgm") playSound("lock");
     updateVisuals();
     clearLines();
     //Disable softdrop until key is pressed again
@@ -1620,7 +1630,7 @@ function calculateNESARELevel(lvl) {
 }
 
 function placePiece(pieceType) {
-    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") && level == 999) {
+    if ((inCampaignMode() || settings.gameMechanics == "tgm") && level == 999) {
         endGame();
         return;
     }
@@ -1678,7 +1688,7 @@ function placePiece(pieceType) {
                 if (pieceType==0 || pieceType==1) {piecePositions[i][1] += settings.boardWidth/2-2;}
                 else {piecePositions[i][1] += settings.boardWidth/2-3;}
             }
-            if (pieceType==0) {pieceTopCorner = [-2,1];}
+            if (pieceType==0) {pieceTopCorner = [-1,1];}
             else if (pieceType==1) {pieceTopCorner = [0,1];}
             else {pieceTopCorner = [-1,1];}
             pieceTopCorner[1] += settings.boardWidth/2-3;
@@ -1717,8 +1727,8 @@ function placePiece(pieceType) {
     if (settings.gameMechanics == "gb" || settings.gameMechanics == "dx") {currentDASTime = getDASInitial();}
 
     //Overriding the initial DAS if arrow keys are held (For main modes and TGM, assumed for Sega)
-    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[0]) {currentDASTime = getDAS();}
-    else if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[1]) {currentDASTime = getDAS();}
+    if ((inCampaignMode() || settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[0]) {currentDASTime = getDAS();}
+    else if ((inCampaignMode() || settings.gameMechanics == "sega" || settings.gameMechanics == "tgm") && keysHeld[1]) {currentDASTime = getDAS();}
 
     //Cancel the visual line clears if the piece is placed before the animation is finished
     if (visualInterval) {
@@ -1754,7 +1764,7 @@ function placePiece(pieceType) {
     }
 
     //Update level for TGM-like modes
-    if ((settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") && !settings.levelLock && !TGMFirstMove && level % 100 != 99 && level != 998) {
+    if ((inCampaignMode() || settings.gameMechanics == "tgm") && !settings.levelLock && !TGMFirstMove && level % 100 != 99 && level != 998) {
         level++;
         if (level == 485) fadeOutSound("gameMusic", 2000); //Music fade out
     }
@@ -1882,6 +1892,7 @@ function setNextPieceVisuals(index) {
         ctx.fillRect(leftSide+(settings.boardWidth*8)+24, 96, 32, 32);
         let tileTemp;
         if (settings.pieceColouring === "monotoneAll") {tileTemp = 80;}
+        else if (inCampaignMode()) {tileTemp = Math.floor(level/100)*8;}
         else {tileTemp = (level%10)*8;}
         switch (index) {
             case 0:
@@ -2548,7 +2559,7 @@ function hardDrop() {
         for (let i=0;i<4;i++) tempPiecePositions.push([...piecePositions[i]]);
         while (!checkPieceLanded(tempPiecePositions)) {
             for (let i=0;i<4;i++) tempPiecePositions[i][0]++;
-            if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") maxPushdown++;
+            if (inCampaignMode() || settings.gameMechanics == "tgm") maxPushdown++;
         }
         for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
         if (!settings.sonicDrop) {
@@ -2844,7 +2855,7 @@ function clearLines() {
 
     //Update score
     let scoreToGain = 0;
-    if (!linesCleared && (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm")) {combo = 1;}
+    if (!linesCleared && (inCampaignMode() || settings.gameMechanics == "tgm")) {combo = 1;}
     else if (linesCleared && (settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm")) {
         combo += (linesCleared*2) - 2;
         let finalScore = (Math.ceil((level+linesCleared)/4) + maxPushdown)*combo*linesCleared;
@@ -3048,6 +3059,9 @@ function NESVisualClearLines(width) {
     if (roundedWidth%2 == 1) roundedWidth--;
     ctx.fillStyle = "black";
     if (width < roundedWidth/2) {
+        let pieceColorSet;
+        if (inCampaignMode()) {pieceColorSet = Math.floor(level/100);}
+        else {pieceColorSet = level%10;}
         for (let i=0;i<fullLines.length;i++) {
             let line = fullLines[i];
             //Redraw all the tiles in the line (makes them visible if invisible board is enabled)
@@ -3055,7 +3069,7 @@ function NESVisualClearLines(width) {
                 if (settings.pieceColouring == "monotoneFixed" || settings.pieceColouring == "monotoneAll") {
                     ctx.drawImage(images.tiles, nesPieceTiles[board[line][j]-1]*8, 80, 8, 8, j*8+leftSide+8, line*8+32, 8, 8);
                 } else if (settings.pieceColouring != "border") {
-                    ctx.drawImage(images.tiles, nesPieceTiles[board[line][j]-1]*8, (level%10)*8, 8, 8, j*8+leftSide+8, line*8+32, 8, 8);
+                    ctx.drawImage(images.tiles, nesPieceTiles[board[line][j]-1]*8, pieceColorSet*8, 8, 8, j*8+leftSide+8, line*8+32, 8, 8);
                 }
             }
             //Draw the blacked out section
@@ -3345,8 +3359,10 @@ function displayEndingLine(x) {
     }
     else if (settings.visuals == "nes") {
         let leftSide = 160-settings.boardWidth*4;
+        if (inCampaignMode()) {pieceColorSet = Math.floor(level/100);}
+        else {pieceColorSet = level%10;}
         for (let i=0;i<settings.boardWidth;i++) {
-            ctx.drawImage(images.tiles, 24, (level%10)*8, 8, 8, i*8+leftSide+8, x*8+32, 8, 8);
+            ctx.drawImage(images.tiles, 24, pieceColorSet*8, 8, 8, i*8+leftSide+8, x*8+32, 8, 8);
         }
         if (x<settings.boardHeight-1) {
             setTimeout(function() {displayEndingLine(x+1)}, 1000/16);
