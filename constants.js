@@ -20,12 +20,12 @@ const masterStyleIntervals = [21.333, 16, 10.666, 8, 5.333, 4, 3.2, 2.667, 2.286
 const masterStyleIntervalLevels = [0, 20, 40, 60, 80, 100, 125, 150, 175, 200, 220, 240, 260, 280, 300, 325, 350, 375, 400, 420, 450, 500, Infinity];
 const masterStyleGradeConditions = [0, 1200, 3500, 5800, 8600, 12000, 28000, 45000, 66000, 82000, 120000, 150000, 180000, Infinity];
 
-const dragonStyleDropIntervals = [3, 2, 1, 0.5, 0.333, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05];
-const dragonStyleDASInitial = [12, 12, 11, 10, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
-const dragonStyleARE = [18, 14, 14, 8, 7, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6];
-const dragonStyleARELineClear = [26, 14, 14, 14, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
-const dragonStyleLockDelay = [30, 26, 22, 18, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15];
-const dragonStyleLineClear = [12, 6, 6, 6, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+const dragonStyleDropIntervals = [3, 2, 1, 0.5, 0.333, 0.05, 0.05, 0.05, 0.05, 0.05];
+const dragonStyleDASInitial = [12, 12, 11, 10, 8, 8, 8, 8, 8, 8];
+const dragonStyleARE = [18, 14, 14, 8, 7, 6, 6, 6, 6, 6];
+const dragonStyleARELineClear = [26, 14, 14, 14, 12, 10, 10, 10, 10, 10];
+const dragonStyleLockDelay = [30, 26, 22, 18, 15, 15, 15, 15, 15, 15];
+const dragonStyleLineClear = [12, 6, 6, 6, 5, 4, 4, 4, 4, 4]
 
 const gameboyDropIntervals = [53, 49, 45, 41, 37, 33, 28, 22, 17, 11, 10, 9, 8, 7, 6, 6, 5, 5, 4, 4, 3];
 const gameboyPieceOrientations = [ //The 9 digits are the 9 tiles of the piece (3 rows 3 columns), 0 is empty, 1 is filled

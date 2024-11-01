@@ -2,7 +2,6 @@
 //DAS prioritizes left movement if both keys are held
 //Main game and TGM visual line clears actually clear the full lines and will cause override issues if the next piece drops sooner (hopefully shouldn't happen)
 //DX uses GB font (should use its own font but no tff/woff exists afaik)
-//ARS center column rule isn't implemented properly
 //TGM next piece should be monochrome in monochrome (all) mode
 //TGM board doesn't have the hidden row above the board
 //TGM is missing white flash (has sprite but difficult to do in code)
@@ -12,6 +11,7 @@
 //Retro game sound effects
 //Fishing minigame
 //Big mode maybe?
+//Mobile controls
 
 //Smaller game canvas sizes
 if (window.innerHeight < 750) {
@@ -1594,8 +1594,6 @@ function landPiece() {
     else if (settings.gameMechanics == "tgm") {currentDropTime = 30;} //TGM ARE
     else {currentDropTime = 60;} //Backup
     waitingForNextPiece = true;
-    lastDroppedPieces.unshift(currentPiece);
-    if (lastDroppedPieces.length > 7) lastDroppedPieces.pop();
     if (settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm") playSound("lock");
     updateVisuals();
     clearLines();
@@ -2123,46 +2121,44 @@ function getRandomPiece() {
     let chosenPiece;
     switch (settings.randomizer) {
         case "random":
-            return Math.floor(Math.random()*7);
+            chosenPiece= Math.floor(Math.random()*7);
+		break;
         case "gb":
             //Game boy tetris randomizer is slightly weighted away towards certain pieces due to a bug
             chosenPiece = Math.floor(Math.random()*7);
             if (chosenPiece | lastDroppedPieces[0] | lastDroppedPieces[1] == lastDroppedPieces[1]) chosenPiece = Math.floor(Math.random()*7);
             if (chosenPiece | lastDroppedPieces[0] | lastDroppedPieces[1] == lastDroppedPieces[1]) chosenPiece = Math.floor(Math.random()*7);
-            return chosenPiece;
+		break;
         case "nes":
             chosenPiece =  Math.floor(Math.random()*8);
-            if (chosenPiece == 7 || chosenPiece == lastDroppedPieces[0]) {return Math.floor(Math.random()*7);}
-            return chosenPiece;
+            if (chosenPiece == 7 || chosenPiece == lastDroppedPieces[0]) {chosenPiece= Math.floor(Math.random()*7);}
+		break;
         case "dx":
-            //Tetris DX randomizer is heavily weighted towards T due to a bug, this approximates that
-            //Accurate randomizer function for DX is complicated and unlikely to be implemented
-            chosenPiece =  Math.floor(Math.random()*8);
-            if (chosenPiece == 7 || chosenPiece == lastDroppedPieces[0]) {
-                if (Math.random() < 0.65) {return 2;}
-                else if (Math.random() < 0.65) {return 4;}
-                else if (Math.random() < 0.65) {return 3;}
-                else if (Math.random() < 0.65) {return 5;}
-                else if (Math.random() < 0.65) {return 6;}
-                else if (Math.random() < 0.65) {return 1;}
-                else {return 0;}
-            }
-            return chosenPiece;
+            //Tetris DX randomizer is heavily weighted towards T due to a bug
+            chosenPiece =  Math.floor(Math.random()*7); //From 0 to 6. Original game generates 0 to 7, but we are ignoring that.
+            if (chosenPiece == lastDroppedPieces[0]) chosenPiece=2; //Makes it a T piece if it's a repeat. Direct repeats are supposed to be rare.
+		break;
         case "tgm":
             let startingViablePieces = [0,2,5,6]; //First piece must be I, T, J or L
-            if (TGMFirstMove) return startingViablePieces[Math.floor(Math.random()*4)]
-            chosenPiece = Math.floor(Math.random()*7);
-            for (let i=0; i<3; i++) { //Check 4 times if the piece is in the last 4 pieces
-                if (chosenPiece == currentPiece || chosenPiece == lastDroppedPieces[0] || chosenPiece == lastDroppedPieces[1] || chosenPiece == lastDroppedPieces[2]) {
-                    chosenPiece = Math.floor(Math.random()*7);
+            if (TGMFirstMove) {chosenPiece=startingViablePieces[Math.floor(Math.random()*4)];}
+            else {
+                chosenPiece = Math.floor(Math.random()*7);
+                for (let i=0; i<3; i++) { //Check 4 times if the piece is in the last 4 pieces
+                    if (chosenPiece == lastDroppedPieces[0] || chosenPiece == lastDroppedPieces[1] || chosenPiece == lastDroppedPieces[2] || chosenPiece == lastDroppedPieces[3]) chosenPiece = Math.floor(Math.random()*7);
                 }
-                else {break;}
             }
-            return chosenPiece;
+            break;
         default:
-            return Math.floor(Math.random()*7);
+		    chosenPiece= Math.floor(Math.random()*7);
+		break;
     }
+    //Update last dropped pieces array
+    lastDroppedPieces.unshift(chosenPiece);
+    if (lastDroppedPieces.length > 7) lastDroppedPieces.pop();
+    console.log(lastDroppedPieces);
+    return chosenPiece;
 }
+
 
 function checkPieceLanded(cells=piecePositions) {
     for (const cell of cells) {
@@ -2210,7 +2206,7 @@ function moveLeft() {
         if (locking && settings.lockReset == "move") locking = false;
         if (!checkPieceLanded(piecePositions)) {
             if (settings.lockReset == "step") locking = false;
-            if (getDropInterval() <= 0.05) maxDrop(); //20G
+            if (getDropInterval() <= 0.05) {maxDrop();} //20G
         }
         updateVisuals();
     }
@@ -2225,7 +2221,7 @@ function moveRight() {
         if (locking && settings.lockReset == "move") locking = false;
         if (!checkPieceLanded(piecePositions)) {
             if (settings.lockReset == "step") locking = false;
-            if (getDropInterval() <= 0.05) maxDrop(); //20G
+            if (getDropInterval() <= 0.05) {maxDrop();} //20G
         }
         updateVisuals();
     }
@@ -2394,35 +2390,39 @@ function rotatePiece(clockwise=true, override=false) {
                     updateVisuals();
                 }
             }
-            else if (settings.rotationSystem == "dx") {
-                /*for (let j=0;j<9;j++) {
+            else if (settings.rotationSystem == "dx") { //Fixed DX rotation code by zaphod77
+                // place piece in new orinetation
+                for (let j=0;j<9;j++) {
                     if (dxPieceOrientations[currentPiece-2][rotatedOrientation][j] == 1) {
                         tempPiecePositions.push([tempY+Math.floor(j/3),tempX+j%3])
                     }
-                }*/
-                for (let i=0;i<4;i++) tempPiecePositions[i] = [...piecePositions[i]];
-                tempPiecePositions = rotatePieceAroundPoint(tempPiecePositions,tempX+1,tempY,clockwise);
-                canRotate = !checkPieceOverlap(tempPiecePositions);
-                if (canRotate) {
-                    for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
-                    pieceOrientation = rotatedOrientation;
-                    updateVisuals();
                 }
-                //Alternate rotation point
-                else {
-                    let alternateRotationPointX = tempX - dxAlternateCenters[currentPiece-2][pieceOrientation][1]+4;
-                    let alternateRotationPointY = tempY - dxAlternateCenters[currentPiece-2][pieceOrientation][0]+1;
-                    for (let i=0;i<4;i++) tempPiecePositions[i] = [...piecePositions[i]];
-                    tempPiecePositions = rotatePieceAroundPoint(tempPiecePositions,alternateRotationPointX,alternateRotationPointY,clockwise);
-                    canRotate = !checkPieceOverlap(tempPiecePositions);
+                canRotate = !checkPieceOverlap(tempPiecePositions); // check for overlap.
+                if (canRotate) {
+                    for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]]; // move the blocks
+                    pieceOrientation = rotatedOrientation; // update orientation vvaraible
+                    updateVisuals(); // update screen
+                }
+                else { // try alternate position
+                    let tempPiecePositions = []; // clear out the temp positions
+                    // calculate kick from positions of alternate centers in old and new orientation (First value is Y, second value is X)
+                    let pushX = 0-dxAlternateCenters[currentPiece-2][rotatedOrientation][1] + dxAlternateCenters[currentPiece-2][pieceOrientation][1];
+                    let pushY = 0-dxAlternateCenters[currentPiece-2][rotatedOrientation][0] + dxAlternateCenters[currentPiece-2][pieceOrientation][0];
+                    // copy to adjusted coordinates
+                    for (let j=0;j<9;j++) {
+                        if (dxPieceOrientations[currentPiece-2][rotatedOrientation][j] == 1) {
+                            tempPiecePositions.push([pushY+tempY+Math.floor(j/3),pushX+tempX+j%3]);
+
+                        }
+                    }
+                    canRotate = !checkPieceOverlap(tempPiecePositions); // check for overlap
                     if (canRotate) {
-                        for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
-                        //Adjust piece top corner (I don't fully understand how this works but it does)
-                        pieceTopCorner[0] = tempY + dxAlternateCenters[currentPiece-2][pieceOrientation][0]-2;
-                        pieceTopCorner[1] = tempX + dxAlternateCenters[currentPiece-2][pieceOrientation][1]-1;
-                        if (!clockwise) pieceTopCorner[0] += 2;
-                        pieceOrientation = rotatedOrientation;
-                        updateVisuals();
+                        for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]]; // copy in new block locations
+                        // need to adjust top corner to account for kick
+                        pieceTopCorner[0] = tempY + pushY;
+                        pieceTopCorner[1] = tempX + pushX;
+                        pieceOrientation = rotatedOrientation; // update orientation
+                        updateVisuals(); // and visuals.
                     }
                 }
             }
@@ -2447,17 +2447,8 @@ function rotatePiece(clockwise=true, override=false) {
                 }
                 canRotate = !checkPieceOverlap(tempPiecePositions);
                 
-                //Center column rule;
-                let firstFoundBlock = 0;
-                if (board[tempY] && board[tempY][tempX] && board[tempY][tempX] != 0) firstFoundBlock = 1;
-                else if (board[tempY] && board[tempY][tempX+1] && board[tempY][tempX+1] != 0) firstFoundBlock = 2;
-                else if (board[tempY] && board[tempY][tempX+2] && board[tempY][tempX+2] != 0) firstFoundBlock = 3;
-                else if (board[tempY+1] && board[tempY+1][tempX] && board[tempY+1][tempX] != 0) firstFoundBlock = 4;
-                else if (board[tempY+1] && board[tempY+1][tempX+1] && board[tempY+1][tempX+1] != 0) firstFoundBlock = 5;
-                else if (board[tempY+1] && board[tempY+1][tempX+2] && board[tempY+1][tempX+2] != 0) firstFoundBlock = 6;
-                else if (board[tempY+2] && board[tempY+2][tempX] && board[tempY+2][tempX] != 0) firstFoundBlock = 7;
-                else if (board[tempY+2] && board[tempY+2][tempX+1] && board[tempY+2][tempX+1] != 0) firstFoundBlock = 8;
-                else if (board[tempY+2] && board[tempY+2][tempX+2] && board[tempY+2][tempX+2] != 0) firstFoundBlock = 9;
+                let centerColumnOverlap = false;
+                if (currentPiece == 2 || currentPiece == 5 || currentPiece == 6) centerColumnOverlap = checkCenterColumnRule(tempPiecePositions, tempY, tempX); //Center column rule
 
                 if (canRotate) {
                     for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
@@ -2468,7 +2459,7 @@ function rotatePiece(clockwise=true, override=false) {
                     }
                     updateVisuals();
                 }
-                else if (firstFoundBlock == 2 || firstFoundBlock == 5 || firstFoundBlock == 8) {return;} //Center column rule
+                else if (centerColumnOverlap) {return;} //Center column rule
                 else { //Right kick
                     for (let i=0;i<4;i++) tempPiecePositions[i][1]++;
                     canRotate = !checkPieceOverlap(tempPiecePositions);
@@ -2528,6 +2519,18 @@ function rotatePieceAroundPoint(piecePos,x,y,clockwise=true) {
         tempPiecePositions[i][1] += x;
     }
     return tempPiecePositions;
+}
+
+function checkCenterColumnRule(piecePositions, y, x) {
+    for (let i=y;i<y+3;i++) {
+        for (let j=x;j<x+3;j++) {
+            if (board[i] && board[i][j] != 0 && piecePositions.some(cell => cell[0] == i && cell[1] == j)) {
+                if (j == x+1) return true;
+                return false;
+            }
+        }
+    }
+    return false;
 }
 
 function softDrop() {
@@ -2818,7 +2821,7 @@ function clearLines() {
         if (settings.gameMechanics == "gb" && level == 20) {linesUntilNextLevel = Infinity;}
         //DX level 30 cap
         else if (settings.gameMechanics == "gb" && level == 30) {linesUntilNextLevel = Infinity;}
-        else if (settings.gameMechanics == "sega") {linesUntilNextLevel += 4;}
+        else if (settings.gameMechanics == "sega") {linesUntilNextLevel = 4;}
         else {linesUntilNextLevel += 10;}
         if (settings.visuals == "dx") { //Tetris DX background color change
             ctx.fillStyle = Math.floor(Math.min(level,30)/5);
