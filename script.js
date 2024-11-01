@@ -2819,7 +2819,7 @@ function clearLines() {
         //Game boy level 20 cap
         if (settings.gameMechanics == "gb" && level == 20) {linesUntilNextLevel = Infinity;}
         //DX level 30 cap
-        else if (settings.gameMechanics == "gb" && level == 30) {linesUntilNextLevel = Infinity;}
+        else if (settings.gameMechanics == "dx" && level == 30) {linesUntilNextLevel = Infinity;}
         else if (settings.gameMechanics == "sega") {linesUntilNextLevel = 4;}
         else {linesUntilNextLevel += 10;}
         if (settings.visuals == "dx") { //Tetris DX background color change
