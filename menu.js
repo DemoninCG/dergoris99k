@@ -32,6 +32,7 @@ function switchToTab(x) {
             break;
         case 2:
             onCampaignScreen = true;
+            settings.startingLevel = 0;
             backgroundColorDestination = [50, 50, 50];
             document.getElementsByClassName("container")[0].style.top = "0";
             document.getElementsByClassName("container")[0].style.left = "-100vw";

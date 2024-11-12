@@ -68,47 +68,50 @@ var finishSound = new Howl({
     volume: 0.4,
 });
 
-var gameMusic1 = new Howl({
-    src: ['sound/wireframe-aural-imbalance.mp3'],
-    preload: true,
-    loop: true,
-    volume: 0.4 * game.musicVolume,
-});
-
-var gameMusic2 = new Howl({
-    src: ['sound/tensor-jlm-productions.mp3'],
-    preload: true,
-    loop: true,
-    volume: 0.4 * game.musicVolume,
-});
-
-var gameMusic3 = new Howl({
-    src: ['sound/Night Stream.mp3'],
-    preload: true,
-    loop: true,
-    volume: 0.4 * game.musicVolume,
-});
-
-var gameMusic4 = new Howl({
-    src: ['sound/Pearl Blue Soul.mp3'],
-    preload: true,
-    loop: true,
-    volume: 0.4 * game.musicVolume,
-});
-
-var gameMusic5 = new Howl({
-    src: ['sound/Vanishing Horizon.mp3'],
-    preload: true,
-    loop: true,
-    volume: 0.4 * game.musicVolume,
-});
-
-var gameMusic6 = new Howl({
-    src: ['sound/Tek Trek.mp3'],
-    preload: true,
-    loop: true,
-    volume: 0.4 * game.musicVolume,
-});
+var gameMusic1;
+var gameMusic2;
+var gameMusic3;
+var gameMusic4;
+var gameMusic5;
+var gameMusic6;
+function initializeGameMusic() {
+    gameMusic1 = new Howl({
+        src: ['sound/wireframe-aural-imbalance.mp3'],
+        preload: true,
+        loop: true,
+        volume: 0.4 * game.musicVolume,
+    });
+    gameMusic2 = new Howl({
+        src: ['sound/tensor-jlm-productions.mp3'],
+        preload: true,
+        loop: true,
+        volume: 0.4 * game.musicVolume,
+    });
+    gameMusic3 = new Howl({
+        src: ['sound/Night Stream.mp3'],
+        preload: true,
+        loop: true,
+        volume: 0.4 * game.musicVolume,
+    });
+    gameMusic4 = new Howl({
+        src: ['sound/Pearl Blue Soul.mp3'],
+        preload: true,
+        loop: true,
+        volume: 0.4 * game.musicVolume,
+    });
+    gameMusic5 = new Howl({
+        src: ['sound/Vanishing Horizon.mp3'],
+        preload: true,
+        loop: true,
+        volume: 0.4 * game.musicVolume,
+    });
+    gameMusic6 = new Howl({
+        src: ['sound/Tek Trek.mp3'],
+        preload: true,
+        loop: true,
+        volume: 0.4 * game.musicVolume,
+    });
+}
 
 function playSound(sound, levelTransition=false) {
     if (!soundEnabled) return;
