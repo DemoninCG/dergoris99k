@@ -1938,7 +1938,7 @@ function placePiece(pieceType) {
     }
 
     //Update level for TGM-like modes
-    if ((inCampaignMode() || settings.gameMechanics == "tgm") && !settings.levelLock && !TGMFirstMove && level % 100 != 99 && level != 998) {
+    if ((inCampaignMode() || settings.gameMechanics == "tgm") && !settings.levelLock && !TGMFirstMove && ((level % 100 != 99 && level != 998) || settings.gameMechanics == "onTheBeat")) {
         level++;
         if (level == 485) fadeOutSound("gameMusic", 2000); //Music fade out
     }
@@ -2978,7 +2978,7 @@ function clearLines() {
         playSound("gameMusic", true); //Must be forced otherwise song won't play since the level is still < 500
         setSoundVolume("gameMusic", game.musicVolume);
     }
-    if ((inCampaignMode()) && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || (level+linesCleared >= 999 && settings.gameMechanics != "onTheBeat"))) { //main styles level up
+    if ((inCampaignMode() && settings.gameMechanics != "onTheBeat") && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || level+linesCleared >= 999)) { //main styles level up
         playSound("levelUp");
         timeAtLastSection = time;
         sectionTimes[Math.floor(level/100)] = time;
@@ -3401,6 +3401,7 @@ function endGame() {
     gamePlaying = false;
     if (inCampaignMode()) {
         fadeOutSound('gameMusic', 1000);
+        let currentBeatTime = gameMusic7.seek() * (155/60);
         if ((level < 999 && settings.gameMechanics != "onTheBeat") || (settings.gameMechanics == "onTheBeat" && currentBeatTime < 424)) {
             playSound("end");
             landPiece();
