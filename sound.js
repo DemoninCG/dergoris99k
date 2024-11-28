@@ -74,6 +74,7 @@ var gameMusic3;
 var gameMusic4;
 var gameMusic5;
 var gameMusic6;
+var gameMusic7;
 function initializeGameMusic() {
     gameMusic1 = new Howl({
         src: ['sound/wireframe-aural-imbalance.mp3'],
@@ -111,6 +112,11 @@ function initializeGameMusic() {
         loop: true,
         volume: 0.4 * game.musicVolume,
     });
+    gameMusic7 = new Howl({
+        src: ['sound/Death-By-Glamour.mp3'],
+        preload: true,
+        volume: game.musicVolume,
+    });
 }
 
 function playSound(sound, levelTransition=false) {
@@ -139,6 +145,7 @@ function playSound(sound, levelTransition=false) {
             else if (settings.visuals == "masterStyle") {gameMusic3.play();}
             else if (settings.visuals == "dragonStyle" && (level >= 500 || levelTransition)) {gameMusic6.play();}
             else if (settings.visuals == "dragonStyle") {gameMusic5.play();}
+            else if (settings.visuals == "onTheBeat") {gameMusic7.play();}
             break;
         case "pieceO":
             TGMSoundEffects.play("pieceO");
@@ -199,6 +206,7 @@ function stopSound(sound) {
             gameMusic4.stop();
             gameMusic5.stop();
             gameMusic6.stop();
+            gameMusic7.stop();
             break;
     }
 }
@@ -216,6 +224,7 @@ function setSoundVolume(sound, vol) {
             gameMusic4.volume(vol * 0.4);
             gameMusic5.volume(vol * 0.4);
             gameMusic6.volume(vol * 0.4);
+            gameMusic7.volume(vol);
             break;
     }
 }
@@ -233,6 +242,7 @@ function fadeOutSound(sound, length) {
             else if (settings.visuals == "masterStyle") {gameMusic3.fade(0.4 * game.musicVolume, 0, length);}
             else if (settings.visuals == "dragonStyle" && level >= 500) {gameMusic6.fade(0.4 * game.musicVolume, 0, length);}
             else if (settings.visuals == "dragonStyle") {gameMusic5.fade(0.4 * game.musicVolume, 0, length);}
+            else if (settings.visuals == "onTheBeat") {gameMusic7.fade(game.musicVolume, 0, length);}
             break;
     }
 }
@@ -250,6 +260,7 @@ function fadeInSound(sound, length) {
             else if (settings.visuals == "masterStyle") {gameMusic3.fade(0, 0.4 * game.musicVolume, length);}
             else if (settings.visuals == "dragonStyle" && level >= 500) {gameMusic6.fade(0, 0.4 * game.musicVolume, length);}
             else if (settings.visuals == "dragonStyle") {gameMusic5.fade(0, 0.4 * game.musicVolume, length);}
+            else if (settings.visuals == "onTheBeat") {gameMusic7.fade(0, game.musicVolume, length);}
             break;
     }
 }

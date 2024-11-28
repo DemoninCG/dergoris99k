@@ -54,6 +54,7 @@ function reset() {
         bestPowers: [0, 0, 0],
         bestScores: [0, 0, 0],
         bestLevels: [0, 0, 0],
+        onTheBeatBests: [0, 0],
         bestHighestSectionTimes: [5940, 5940, 5940],
         bestAverageSectionTimes: [5940, 5940, 5940],
         classicStyleBestSectionTimes: [],
@@ -124,6 +125,11 @@ function reset() {
     combo = 1;
     GMQualifying = true;
     TGMBarState = 0;
+
+    //GM on the beat variables
+    beatsPassed = 0;
+    currentBeatSpeed = 0;
+    introSection = 0;
 
     boardVisualPosition = [0,0];
     soundEnabled = true;
@@ -218,6 +224,7 @@ const images = {
     sideInfo3: new Image(),
     sideInfo4: new Image(),
     readyGo: new Image(),
+    beatBar: new Image(),
     tileVanish: new Image(),
     digits: new Image(),
     grades: new Image(),
@@ -235,14 +242,14 @@ const effectCtx = effectOverlayCanvas && effectOverlayCanvas.getContext("2d");
 if (ctx) ctx.imageSmoothingEnabled = false; //Disable image smoothing for pixelated look
 
 function initialiseCanvasBoard() {
-    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle") {
+    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle" || settings.visuals == "onTheBeat") {
         canvas.height = Math.max(settings.boardHeight*8, 240);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8, 240) + "px";
         let leftSide = 160-settings.boardWidth*4;
         //document.body.style.backgroundImage = "url('img/main/background1.png')";
         images.tiles.src = "img/main/tiles.png";
         images.hardDropTile.src = "img/main/ghostTiles.png";
-        if (settings.visuals == "dragonStyle" && level >= 500) {images.board.src = "img/main/board3.png";}
+        if ((settings.visuals == "dragonStyle" && level >= 500) || settings.visuals == "onTheBeat") {images.board.src = "img/main/board3.png";}
         else if (settings.visuals == "masterStyle") {images.board.src = "img/main/board2.png";}
         else {images.board.src = "img/main/board.png";}
         images.sideInfo1.src = "img/main/sideInfo.png";
@@ -254,7 +261,9 @@ function initialiseCanvasBoard() {
         images.digits.src = "img/main/digits.png";
         if (settings.visuals == "classicStyle") {images.grades.src = "img/main/gradesClassic.png";}
         else if (settings.visuals == "masterStyle") {images.grades.src = "img/main/gradesMaster.png";}
+        else if (settings.visuals == "onTheBeat") {images.grades.src = "img/main/gradesOnTheBeat.png";}
         else {images.grades.src = "img/main/gradesDragon.png";}
+        if (settings.visuals == "onTheBeat") {images.beatBar.src = "img/main/beatBar.png";}
         //Classic style DAS
         if (settings.gameMechanics == "classicStyle") {
             settings.DASInitial = classicStyleDASInitial[Math.floor(level/100)];
@@ -278,6 +287,12 @@ function initialiseCanvasBoard() {
         }
         else {
             ctx.clearRect(264, 71, 12, 6);
+        }
+        if (settings.visuals == "onTheBeat") {
+            ctx.clearRect(210, 192, 32, 2); //Level separating bar
+            ctx.clearRect(210, 64, 54, 48); //Grade info
+            ctx.clearRect(0, 32, 112, 176); //Left side info
+            ctx.drawImage(images.beatBar, 0, 0, 14, 176, 84, 32, 14, 176);
         }
     }
     else if (settings.visuals == "gb") {
@@ -564,11 +579,13 @@ function startGame() {
         document.getElementById("gameCanvas").style.display = "block";
         seaColor = [11, 72, 142];
         waveColor = [15, 120, 152];
+        sunColor = [225, 230, 200];
     }
     else if (settings.visuals == "masterStyle") {
         document.getElementById("gameCanvas").style.display = "block";
         seaColor = [11, 122, 142];
         waveColor = [15, 120, 152];
+        sunColor = [225, 230, 200];
     }
     else if (settings.visuals == "dragonStyle") {
         grade = Math.floor(level/50);
@@ -576,11 +593,19 @@ function startGame() {
         if (level >= 500) {
             seaColor = [30, 30, 30];
             waveColor = [70, 70, 70];
+            sunColor = [225, 230, 200];
         }
         else {
             seaColor = [22, 22, 142];
             waveColor = [15, 30, 152];
+            sunColor = [225, 230, 200];
         }
+    }
+    else if (settings.visuals == "onTheBeat") {
+        document.getElementById("gameCanvas").style.display = "block";
+        seaColor = [0, 0, 0];
+        waveColor = [40, 40, 40];
+        sunColor = [150, 150, 150];
     }
     
     if (inCampaignMode()) {
@@ -609,7 +634,7 @@ function startGame() {
     }
     initialiseCanvasBoard();
     for (let i=0;i<settings.boardHeight;i++) board.push(Array(settings.boardWidth).fill(0));
-    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" ||  settings.visuals == "dragonStyle" || settings.visuals == "tgm") {readyGo(1);}
+    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle" || settings.visuals == "onTheBeat" || settings.visuals == "tgm") {readyGo(1);}
     else {
         gamePlaying = true;
         placePiece(getRandomPiece());
@@ -625,7 +650,16 @@ function readyGo(stage) {
         //Get the current piece to display as the next piece
         nextPiece = getRandomPiece();
         waitingForNextPiece = true;
-        playSound("ready");
+        stopSound("gameMusic"); 
+        if (settings.visuals == "onTheBeat") {
+            introSection = 1;
+            playSound("gameMusic");
+            setSoundVolume("gameMusic", game.musicVolume);
+        }
+        else {
+            playSound("ready");
+        }
+
 
         if (settings.visuals == "tgm") {
             //Clear the canvas
@@ -705,7 +739,7 @@ function readyGo(stage) {
             ctx.drawImage(images.sideInfo4, leftSide, 40);
             //Display "Ready"
             ctx.drawImage(images.readyGo, 0, 0, 76, 19, 122, 110, 76, 19);
-            setTimeout(readyGo, 1000, 2);
+            if (settings.gameMechanics != "onTheBeat") setTimeout(readyGo, 1000, 2);
 
             //Grade
             ctx.clearRect(211, 34, 48, 32);
@@ -754,7 +788,7 @@ function readyGo(stage) {
                     }
                 }
             }
-            else {
+            else if (settings.visuals == "dragonStyle") {
                 if (grade >= 17) {
                     nextGradeString = "??????";
                     nextGradeLength = 6;
@@ -788,16 +822,18 @@ function readyGo(stage) {
                 ctx.drawImage(images.digits, parseInt(levelString[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 181, 8, 9);
             }
 
-            let levelString2 = (level >= 900 ? "999" : ((Math.floor(level/100)+1)*100).toString());
-            let levelLength2 = levelString2.length;
-            ctx.clearRect(leftSide+settings.boardWidth*8+11, 197, levelLength2*8, 9);
-            for (let i=0;i<levelLength2;i++) {
-                ctx.drawImage(images.digits, parseInt(levelString2[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 197, 8, 9);
+            if (settings.gameMechanics != "onTheBeat") {
+                let levelString2 = (level >= 900 ? "999" : ((Math.floor(level/100)+1)*100).toString());
+                let levelLength2 = levelString2.length;
+                ctx.clearRect(leftSide+settings.boardWidth*8+11, 197, levelLength2*8, 9);
+                for (let i=0;i<levelLength2;i++) {
+                    ctx.drawImage(images.digits, parseInt(levelString2[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 197, 8, 9);
+                }
             }
         }
     }
     else if (stage == 2) {
-        playSound("go");
+        if (settings.visuals != "onTheBeat") playSound("go");
         if (settings.visuals == "tgm") {
             //Clear the canvas
             let currentBackground = Math.floor(level/100);
@@ -813,13 +849,12 @@ function readyGo(stage) {
             ctx.drawImage(images.sideInfo4, leftSide, 40);
             //Display "Go"
             ctx.drawImage(images.readyGo, 100, 0, 45, 19, 138, 110, 45, 19);
-            setTimeout(readyGo, 1000, 3);
+            if (settings.gameMechanics != "onTheBeat") setTimeout(readyGo, 1000, 3);
         }
     }
     else if (stage == 3) {
         gamePlaying = true;
-        stopSound("gameMusic");
-        if (settings.visuals != "tgm") {
+        if (settings.visuals != "tgm" && settings.visuals != "onTheBeat") {
             playSound("gameMusic");
             setSoundVolume("gameMusic", game.musicVolume);
         }
@@ -905,7 +940,7 @@ function updateVariables() {
             if (settings.visuals == "tgm") playNextPieceAudio(nextPiece);
             setNextPieceVisuals(nextPiece);
             updateVisuals();
-            if ((inCampaignMode() || settings.gameMechanics == "tgm") && keysHeld[3]) { //Starting soft drop if key is held
+            if (((inCampaignMode() && settings.gameMechanics != "onTheBeat") || settings.gameMechanics == "tgm") && keysHeld[3]) { //Starting soft drop if key is held
                 currentDropTime = Math.min(getDropInterval(), settings.softDropSpeed);
                 softDropping = true;
             }
@@ -1018,12 +1053,12 @@ function getTimeColor(seconds) {
 }
 
 function inCampaignMode() {
-    return settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle";
+    return settings.gameMechanics == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "onTheBeat";
 }
 
 function updateVisuals() {
     if (!gamePlaying) return;
-    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle") {
+    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle" || settings.visuals == "onTheBeat") {
         let leftSide = 160-settings.boardWidth*4;
         //Clear the canvas
         //ctx.fillStyle = "black";
@@ -1056,19 +1091,22 @@ function updateVisuals() {
             }
         }
         //Board pieces
-        for (let i=0;i<settings.boardHeight;i++) {
-            for (let j=0;j<settings.boardWidth;j++) {
-                if (board[i][j] != 0) {
-                    if (settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll" && !settings.invisible) {ctx.drawImage(images.tiles, 8, 0, 8, 8, j*8+leftSide, i*8+40, 8, 8);}
-                    else if (!settings.invisible) {
-                        if (settings.pieceColouring != "border") ctx.drawImage(images.tiles, 8, (board[i][j])*8, 8, 8, j*8+leftSide, i*8+40, 8, 8);
-                        ctx.fillStyle = "#848484";
-                        if (board[i-1] && board[i-1][j] == 0) ctx.fillRect(j*8+leftSide, i*8+40, 8, 1); //Top border
-                        if (board[i+1] && board[i+1][j] == 0) ctx.fillRect(j*8+leftSide, i*8+48, 8, 1); //Bottom border
-                        if (board[i][j-1] == 0) ctx.fillRect(j*8+leftSide, i*8+40, 1, 8); //Left border
-                        if (board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+40, 1, 8); //Right border
-                        if (board[i-1] && board[i-1][j] != 0 && board[i-1][j-1] == 0 && board[i][j-1] != 0) ctx.fillRect(j*8+leftSide, i*8+40, 1, 1); //Top corner border 1
-                        if (board[i+1] && board[i+1][j] == 0 && board[i+1][j+1] == 0 && board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+48, 1, 1); //Top corner border 2
+        let currentBeatTime = gameMusic7.seek() * (155/60);
+        if (!settings.invisible && (settings.gameMechanics != "onTheBeat" || (currentBeatTime < 392 && (currentBeatTime < 376 || currentBeatTime >= 377)))) {
+            for (let i=0;i<settings.boardHeight;i++) {
+                for (let j=0;j<settings.boardWidth;j++) {
+                    if (board[i][j] != 0) {
+                        if (settings.pieceColouring === "monotoneFixed" || settings.pieceColouring === "monotoneAll") {ctx.drawImage(images.tiles, 8, 0, 8, 8, j*8+leftSide, i*8+40, 8, 8);}
+                        else {
+                            if (settings.pieceColouring != "border") ctx.drawImage(images.tiles, 8, (board[i][j])*8, 8, 8, j*8+leftSide, i*8+40, 8, 8);
+                            ctx.fillStyle = "#848484";
+                            if (board[i-1] && board[i-1][j] == 0) ctx.fillRect(j*8+leftSide, i*8+40, 8, 1); //Top border
+                            if (board[i+1] && board[i+1][j] == 0) ctx.fillRect(j*8+leftSide, i*8+48, 8, 1); //Bottom border
+                            if (board[i][j-1] == 0) ctx.fillRect(j*8+leftSide, i*8+40, 1, 8); //Left border
+                            if (board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+40, 1, 8); //Right border
+                            if (board[i-1] && board[i-1][j] != 0 && board[i-1][j-1] == 0 && board[i][j-1] != 0) ctx.fillRect(j*8+leftSide, i*8+40, 1, 1); //Top corner border 1
+                            if (board[i+1] && board[i+1][j] == 0 && board[i+1][j+1] == 0 && board[i][j+1] == 0) ctx.fillRect(j*8+leftSide+8, i*8+48, 1, 1); //Top corner border 2
+                        }
                     }
                 }
             }
@@ -1117,7 +1155,7 @@ function updateVisuals() {
                 }
             }
         }
-        else {
+        else if (settings.visuals == "dragonStyle") {
             if (grade >= 20) {
                 nextGradeString = "??????";
                 nextGradeLength = 6;
@@ -1151,11 +1189,13 @@ function updateVisuals() {
             ctx.drawImage(images.digits, parseInt(levelString[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 181, 8, 9);
         }
 
-        let levelString2 = (level >= 900 ? "999" : ((Math.floor(level/100)+1)*100).toString());
-        let levelLength2 = levelString2.length;
-        ctx.clearRect(leftSide+settings.boardWidth*8+11, 197, levelLength2*8, 9);
-        for (let i=0;i<levelLength2;i++) {
-            ctx.drawImage(images.digits, parseInt(levelString2[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 197, 8, 9);
+        if (settings.gameMechanics != "onTheBeat") {
+            let levelString2 = (level >= 900 ? "999" : ((Math.floor(level/100)+1)*100).toString());
+            let levelLength2 = levelString2.length;
+            ctx.clearRect(leftSide+settings.boardWidth*8+11, 197, levelLength2*8, 9);
+            for (let i=0;i<levelLength2;i++) {
+                ctx.drawImage(images.digits, parseInt(levelString2[i])*8, 0, 8, 9, leftSide+settings.boardWidth*8+11+i*8, 197, 8, 9);
+            }
         }
     }
     else if (settings.visuals == "gb" || settings.visuals == "dx") {
@@ -1501,13 +1541,14 @@ function updateVisuals() {
 
 let timeOfLastVisualUpdate = Date.now();
 function updateCanvasVisualPosition() {
-    let dt = (Date.now() - timeOfLastVisualUpdate) / 1000;
-    if (!gamePlaying || (boardVisualPosition[0] == 0 && boardVisualPosition[1] == 0) || !game.boardBumpVisuals || (settings.visuals != "classicStyle" && settings.visuals != "masterStyle" && settings.visuals != "dragonStyle")) {
+    if (!gamePlaying || (boardVisualPosition[0] == 0 && boardVisualPosition[1] == 0) || !game.boardBumpVisuals || (settings.visuals != "classicStyle" && settings.visuals != "masterStyle" && settings.visuals != "dragonStyle" && settings.visuals != "onTheBeat")) {
         timeOfLastVisualUpdate = Date.now();
         requestAnimationFrame(updateCanvasVisualPosition);
         return;
     }
     
+    let dt = (Date.now() - timeOfLastVisualUpdate) / 1000;
+
     boardVisualPosition[0] *= 0.04 ** dt;
     if (Math.abs(boardVisualPosition[0]) < 0.01) boardVisualPosition[0] = 0;
     boardVisualPosition[1] *= 0.04 ** dt;
@@ -1521,6 +1562,136 @@ function updateCanvasVisualPosition() {
 }
 requestAnimationFrame(updateCanvasVisualPosition);
 
+let beatSunColors = [
+    [255, 0, 0],
+    [255, 128, 0],
+    [255, 255, 0],
+    [0, 255, 0],
+    [0, 255, 255],
+    [0, 0, 255],
+    [128, 0, 255],
+    [255, 0, 255]
+]
+let lastBeatSunColors = [0,1];
+function updateBeatVisuals() {
+    if ((!gamePlaying && introSection != 1 && introSection != 2) || settings.visuals != "onTheBeat") {
+        requestAnimationFrame(updateBeatVisuals);
+        return;
+    }
+
+    let currentBeatTime = gameMusic7.seek() * (155/60); //155 BPM
+    if (currentBeatTime > 424) {
+        playSound("finish");
+        endGame();
+    }
+    if (currentBeatTime > 3 && introSection == 1) {
+        readyGo(2);
+        introSection = 2;
+    }
+    if (currentBeatTime > 6 && introSection == 2) {
+        readyGo(3);
+        introSection = 0;
+    }
+    while (currentBeatTime > onTheBeatGradePoints[grade]) {
+        grade++;
+        ctx.clearRect(211, 34, 48, 32);
+        ctx.drawImage(images.grades, 0, 32*grade, 48, 32, 211, 34, 48, 32);
+    }
+    if (currentBeatTime > onTheBeatBeats[beatsPassed+1]) {
+        if (currentBeatTime > 392) {  //Visual section 10
+            sunColor = [0,0,0];
+        }
+        else if (currentBeatTime > 377) {  //Visual section 9
+            let chosenColor = Math.floor(Math.random()*beatSunColors.length)
+            while (chosenColor == lastBeatSunColors[0] || chosenColor == lastBeatSunColors[1]) {
+                chosenColor = Math.floor(Math.random()*beatSunColors.length)
+            }
+            sunColor = beatSunColors[chosenColor];
+            lastBeatSunColors[0] = lastBeatSunColors[1];
+            lastBeatSunColors[1] = chosenColor;
+        }
+        else if (currentBeatTime > 376) {  //Visual section 8
+            sunColor = [0,0,0];
+        }
+        else if (currentBeatTime > 360) {  //Visual section 7
+            let chosenColor = Math.floor(Math.random()*beatSunColors.length)
+            while (chosenColor == lastBeatSunColors[0] || chosenColor == lastBeatSunColors[1]) {
+                chosenColor = Math.floor(Math.random()*beatSunColors.length)
+            }
+            sunColor = beatSunColors[chosenColor];
+            lastBeatSunColors[0] = lastBeatSunColors[1];
+            lastBeatSunColors[1] = chosenColor;
+        }
+        else if (currentBeatTime > 328) {  //Visual section 6
+            sunColor = [255,0,0];
+        }
+        else if (currentBeatTime > 264) {  //Visual section 5
+            let chosenColor = Math.floor(Math.random()*beatSunColors.length)
+            while (chosenColor == lastBeatSunColors[0] || chosenColor == lastBeatSunColors[1]) {
+                chosenColor = Math.floor(Math.random()*beatSunColors.length)
+            }
+            sunColor = beatSunColors[chosenColor];
+            lastBeatSunColors[0] = lastBeatSunColors[1];
+            lastBeatSunColors[1] = chosenColor;
+        }
+        else if (currentBeatTime > 256) {  //Visual section 4
+            sunColor = [150, 150, 150];
+        }
+        else if (currentBeatTime > 232) {  //Visual section 3
+            let chosenColor = Math.floor(Math.random()*beatSunColors.length)
+            while (chosenColor == lastBeatSunColors[0] || chosenColor == lastBeatSunColors[1]) {
+                chosenColor = Math.floor(Math.random()*beatSunColors.length)
+            }
+            sunColor = beatSunColors[chosenColor];
+            lastBeatSunColors[0] = lastBeatSunColors[1];
+            lastBeatSunColors[1] = chosenColor;
+        }
+        else if (currentBeatTime > 216) { //Visual section 2
+            sunColor = [150, 150, 150];
+        }
+        else if (currentBeatTime > 88) { //Visual section 1
+            let chosenColor = Math.floor(Math.random()*beatSunColors.length)
+            while (chosenColor == lastBeatSunColors[0] || chosenColor == lastBeatSunColors[1]) {
+                chosenColor = Math.floor(Math.random()*beatSunColors.length)
+            }
+            sunColor = beatSunColors[chosenColor];
+            lastBeatSunColors[0] = lastBeatSunColors[1];
+            lastBeatSunColors[1] = chosenColor;
+        }
+
+        //Calculatre beat speed
+        currentBeatSpeed = 0;
+        if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 0.5) currentBeatSpeed = 3;
+        else if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 0.75) currentBeatSpeed = 2;
+        else if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 1) currentBeatSpeed = 1;
+
+        //Hard drop
+        boardVisualPosition[1] = 1.5; //Vertical bump
+        landPiece();
+        
+    }
+    while (currentBeatTime > onTheBeatBeats[beatsPassed+1]) beatsPassed++;
+    let timesUntilNextBeats = [];
+    let beatsAdded = 0;
+    while (onTheBeatBeats[beatsPassed+beatsAdded+1] - currentBeatTime < 4) {
+        timesUntilNextBeats[beatsAdded] = onTheBeatBeats[beatsPassed+beatsAdded+1] - currentBeatTime;
+        beatsAdded++;
+    }
+    
+
+    ctx.clearRect(84, 32, 14, 200);
+    ctx.drawImage(images.beatBar, 0, 0, 14, 176, 84, 32, 14, 176);
+    for (let i=0;i<timesUntilNextBeats.length;i++) {
+        let beatColor = 0;
+        if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 0.5) beatColor = 3;
+        else if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 0.75) beatColor = 2;
+        else if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 1) beatColor = 1;
+        ctx.drawImage(images.beatBar, 14, beatColor*4, 14, 4, 84, 32+Math.floor(timesUntilNextBeats[i]*43), 14, 4);
+    }
+    requestAnimationFrame(updateBeatVisuals);
+}
+requestAnimationFrame(updateBeatVisuals);
+
 function getDropInterval() {
     if (settings.twentyGOverride) return 0.05;
     else if (settings.gameMechanics == "classicStyle") return classicStyleDropIntervals[Math.floor(level/100)];
@@ -1529,7 +1700,7 @@ function getDropInterval() {
         while (masterStyleIntervalLevels[currentLevelPoint+1] <= level) currentLevelPoint++;
         return masterStyleIntervals[currentLevelPoint]
     }
-    else if (settings.gameMechanics == "dragonStyle") return 0.05;
+    else if (settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "onTheBeat") return 0.05;
     else if (settings.gameMechanics == "gb") return gameboyDropIntervals[Math.min(level, 20)];
     else if (settings.gameMechanics == "nes") return nesDropIntervals[Math.min(level, 29)];
     else if (settings.gameMechanics == "dx") return dxDropIntervals[Math.min(level, 30)];
@@ -1554,6 +1725,7 @@ function getDAS() {
 function getDASInitial() {
     if (settings.gameMechanics == "classicStyle") {return classicStyleDASInitial[Math.floor(level/100)];}
     else if (settings.gameMechanics == "dragonStyle") {return dragonStyleDASInitial[Math.floor(level/100)];}
+    else if (settings.gameMechanics == "onTheBeat") {return beatDASSpeeds[currentBeatSpeed];}
     return settings.DASInitial;
 }
 
@@ -1592,6 +1764,7 @@ function landPiece() {
     else if (settings.gameMechanics == "masterStyle") {currentDropTime = 20;} //Master style ARE
     else if (settings.gameMechanics == "dragonStyle" && checkFullLines().length > 0) {currentDropTime = dragonStyleARELineClear[Math.floor(level/100)];} //Dragon style line clear ARE
     else if (settings.gameMechanics == "dragonStyle") {currentDropTime = dragonStyleARE[Math.floor(level/100)];} //Dragon style ARE
+    else if (settings.gameMechanics == "onTheBeat") {currentDropTime = beatARESpeeds[currentBeatSpeed];} //GM on the Beat ARE
     else if (settings.gameMechanics == "gb" && checkFullLines().length > 0) {currentDropTime = 93;} //Game boy line clear ARE
     else if (settings.gameMechanics == "gb") {currentDropTime = 2;} //Game boy ARE
     else if (settings.gameMechanics == "nes" && checkFullLines().length > 0) {currentDropTime = ((settings.boardWidth+1)*2+5);} //NES line clear ARE
@@ -1610,7 +1783,7 @@ function landPiece() {
     //Disable softdrop until key is pressed again
     softDropping = false;
     //Add pushdown points
-    if (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "masterStyle" && settings.gameMechanics != "dragonStyle" && settings.gameMechanics != "dx" && settings.gameMechanics != "tgm") score += maxPushdown;
+    if (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "masterStyle" && settings.gameMechanics != "dragonStyle" && settings.gameMechanics != "onTheBeat" && settings.gameMechanics != "dx" && settings.gameMechanics != "tgm") score += maxPushdown;
     maxPushdown = 0;
     currentPushdown = 0;
 
@@ -1695,6 +1868,7 @@ function placePiece(pieceType) {
             break;
         case "masterStyle":
         case "dragonStyle":
+        case "onTheBeat":
         case "tgm":
             for (let i=0;i<4;i++) {
                 piecePositions[i] = [...piecePlacements[pieceType][i]];
@@ -1732,7 +1906,7 @@ function placePiece(pieceType) {
 
     //Cancel the visual line clears if the piece is placed before the animation is finished
     if (visualInterval) {
-        if (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "masterStyle" && settings.gameMechanics != "dragonStyle" && settings.gameMechanics != "tgm") clearInterval(visualInterval);
+        if (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "masterStyle" && settings.gameMechanics != "dragonStyle" && settings.gameMechanics != "onTheBeat" && settings.gameMechanics != "tgm") clearInterval(visualInterval);
         //Move all lines above the cleared line down
         let fullLines = checkFullLines();
         for (let i=0;i<fullLines.length;i++) {
@@ -1775,7 +1949,7 @@ function placePiece(pieceType) {
 // Alternative: Use equations instead
 function setNextPieceVisuals(index) {
     //Draw the piece in the next box
-    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle") {
+    if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle" || settings.visuals == "onTheBeat") {
         let leftSide = 160-settings.boardWidth*4;
         ctx.clearRect(leftSide+24, 12, 32, 17);
         ctx.fillStyle = "#080808"
@@ -2362,7 +2536,7 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                     pieceOrientation = rotatedOrientation;
                     if (!checkPieceLanded(piecePositions)) {
                         if (settings.lockReset == "step") locking = false;
-                        if (getDropInterval() <= 0.05) maxDrop(); //20G
+                        //if (getDropInterval() <= 0.05) maxDrop(); //20G
                     }
                     updateVisuals();
                 }
@@ -2467,7 +2641,7 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                     pieceOrientation = rotatedOrientation;
                     if (!checkPieceLanded(piecePositions)) {
                         if (settings.lockReset == "step") locking = false;
-                        if (getDropInterval() <= 0.05) maxDrop(); //20G
+                        //if (getDropInterval() <= 0.05) maxDrop(); //20G
                     }
                     updateVisuals();
                 }
@@ -2480,7 +2654,7 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                         pieceOrientation = rotatedOrientation;
                         if (!checkPieceLanded(piecePositions)) {
                             if (settings.lockReset == "step") locking = false;
-                            if (getDropInterval() <= 0.05) maxDrop(); //20G
+                            //if (getDropInterval() <= 0.05) maxDrop(); //20G
                         }
                         updateVisuals();
                     }
@@ -2492,7 +2666,7 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                             pieceOrientation = rotatedOrientation;
                             if (!checkPieceLanded(piecePositions)) {
                                 if (settings.lockReset == "step") locking = false;
-                                if (getDropInterval() <= 0.05) maxDrop(); //20G
+                                //if (getDropInterval() <= 0.05) maxDrop(); //20G
                             }
                             updateVisuals();
                         }
@@ -2556,7 +2730,7 @@ function softDrop() {
 }
 
 function hardDrop() {
-    if (gamePlaying && settings.hardDrop && !waitingForNextPiece) {
+    if (gamePlaying && (settings.hardDrop) && !waitingForNextPiece) {
         let tempPiecePositions = [];
         for (let i=0;i<4;i++) tempPiecePositions.push([...piecePositions[i]]);
         while (!checkPieceLanded(tempPiecePositions)) {
@@ -2796,15 +2970,15 @@ function clearLines() {
     //Check for full lines
     let linesCleared = checkFullLines().length;
     lines += linesCleared;
-    if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (level < 485 && level + linesCleared >= 485)) { //Music fade out
+    if ((inCampaignMode()) && (level < 485 && level + linesCleared >= 485)) { //Music fade out
         fadeOutSound("gameMusic", 2000);
     }
-    else if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (level < 500 && level + linesCleared >= 500)) { //New music
+    else if ((inCampaignMode()) && (level < 500 && level + linesCleared >= 500)) { //New music
         stopSound("gameMusic");
         playSound("gameMusic", true); //Must be forced otherwise song won't play since the level is still < 500
         setSoundVolume("gameMusic", game.musicVolume);
     }
-    if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || level+linesCleared >= 999)) { //main styles level up
+    if ((inCampaignMode()) && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || level+linesCleared >= 999)) { //main styles level up
         playSound("levelUp");
         timeAtLastSection = time;
         sectionTimes[Math.floor(level/100)] = time;
@@ -2834,7 +3008,7 @@ function clearLines() {
         if ((level+linesCleared) >= 300 && (score < 12000 || time > 255)) {GMQualifying = false;}
         if ((level+linesCleared) >= 500 && (score < 40000 || time > 450)) {GMQualifying = false;}
     }
-    else if (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "masterStyle" && settings.gameMechanics != "dragonStyle" && settings.gameMechanics != "tgm") {linesUntilNextLevel -= linesCleared;}
+    else if (settings.gameMechanics != "classicStyle" && settings.gameMechanics != "masterStyle" && settings.gameMechanics != "dragonStyle" && settings.gameMechanics != "onTheBeat" && settings.gameMechanics != "tgm") {linesUntilNextLevel -= linesCleared;}
     if (linesUntilNextLevel <= 0) {
         level++;
         //Sega level 99 cap
@@ -2868,10 +3042,11 @@ function clearLines() {
     //Update score
     let scoreToGain = 0;
     if (!linesCleared && (inCampaignMode() || settings.gameMechanics == "tgm")) {combo = 1;}
-    else if (linesCleared && (settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "tgm")) {
+    else if (linesCleared && (settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "onTheBeat" || settings.gameMechanics == "tgm")) { ///TGM style
         combo += (linesCleared*2) - 2;
         let finalScore = (Math.ceil((level+linesCleared)/4) + maxPushdown)*combo*linesCleared;
         if (checkPerfectClear()) finalScore *= 4;
+        if (settings.gameMechanics == "onTheBeat") finalScore *= 10;
         scoreToGain = finalScore;
         if (!settings.levelLock) level += linesCleared;
         if (level > 999) level = 999;
@@ -2965,7 +3140,7 @@ function clearLines() {
         updateVisuals();
     }
 
-    else if ((settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") && linesCleared > 0) { //Main line clear visuals
+    else if ((inCampaignMode()) && linesCleared > 0) { //Main line clear visuals
         let fullLines = checkFullLines();
         let piecesInFullLines = [];
         for (let i = 0; i < fullLines.length; i++) { //Copy the pieces in the full lines
@@ -2984,7 +3159,7 @@ function clearLines() {
         let startTime = Date.now()
         visualInterval = mainVisualClearLines(startTime, [...fullLines], piecesInFullLines);
         let lineClearLength = 12;
-        if (settings.visuals !== "classicStyle" && settings.gameMechanics !== "masterStyle") {
+        if (settings.visuals !== "classicStyle" && settings.gameMechanics !== "masterStyle" && settings.gameMechanics !== "onTheBeat") {
             lineClearLength = dragonStyleLineClear[Math.floor(level/100)];
         }
         setTimeout(function() {mainClearLines([...fullLines])}, 1000 / 60 * lineClearLength);
@@ -3224,7 +3399,7 @@ function moveLineDown(line) {
 
 function endGame() {
     gamePlaying = false;
-    if (settings.visuals == "classicStyle" || settings.gameMechanics == "masterStyle" || settings.gameMechanics == "dragonStyle") {
+    if (inCampaignMode()) {
         fadeOutSound('gameMusic', 1000);
         if (level < 999) {
             playSound("end");
@@ -3319,6 +3494,10 @@ function endGame() {
             if (inCampaign && power > game.bestPowers[2]) game.bestPowers[2] = power;
             if (inCampaign && score > game.bestScores[2]) game.bestScores[2] = score;
             if (inCampaign && level > game.bestLevels[2]) game.bestLevels[2] = level;
+        }
+        else if (settings.gameMechanics == "onTheBeat") {
+            if (inCampaign && score > game.onTheBeatBests[0]) game.onTheBeatBests[0] = score;
+            if (inCampaign && level > game.onTheBeatBests[1]) game.onTheBeatBests[1] = level;
         }
         
         let powerString = Math.floor(power).toString();
@@ -3426,6 +3605,9 @@ function returnToMenu() {
     grade = 0;
     GMQualifying = true;
     TGMBarState = 0;
+    beatsPassed = 0;
+    currentBeatSpeed = 0;
+    introSection = 0;
     document.getElementById("game").style.display = "none";
     document.getElementById("effectOverlay").style.display = "none";
     document.getElementById("gameCanvas").style.display = "none";

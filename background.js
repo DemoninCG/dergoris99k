@@ -18,6 +18,7 @@ let fragmentShaderSource = `
     uniform float u_time;
     uniform vec3 u_seacolor;
     uniform vec3 u_wavecolor;
+    uniform vec3 u_suncolor;
 
     float hash(vec2 p) {
         return 0.5 * (sin(dot(p, vec2(271.319, 413.975)) + 1217.13 * p.x * p.y)) + 0.5;
@@ -158,11 +159,11 @@ let fragmentShaderSource = `
         // refraction
         vec3 ref = normalize(refract(hitPos - lightPos, getNormal(hitPos), 0.05));
         float refraction = clamp(dot(ref, rd), 0.0, 1.0);
-        color += vec3(245.0, 250.0, 220.0) / 400.0 * 0.6 * pow(refraction, 1.5);
+        color += vec3(230.0, 230.0, 230.0) / 400.0 * 0.6 * pow(refraction, 1.5);
 
         vec3 col = vec3(0.0);
         col = mix(color, seaColor, pow(clamp(0.0, 1.0, dist), 0.2)); // glow edge
-        col += vec3(225.0, 230.0, 200.0) / 255.0 * lightShafts(uv); // light shafts
+        col += vec3(u_suncolor) / 255.0 * lightShafts(uv); // light shafts
 
         // tone map
         col = (col * col + sin(col)) / vec3(1.8, 1.8, 1.9);
@@ -239,6 +240,7 @@ function initShaderProgram() {
     timeUniformLocation = gl.getUniformLocation(shaderProgram, 'u_time');
     seaColorUniformLocation = gl.getUniformLocation(shaderProgram, 'u_seacolor');
     waveColorUniformLocation = gl.getUniformLocation(shaderProgram, 'u_wavecolor');
+    sunColorUniformLocation = gl.getUniformLocation(shaderProgram, 'u_suncolor');
 }
 
 // Initialize shaders and buffer
@@ -246,6 +248,7 @@ initShaderProgram();
 
 let seaColor = [11, 72, 142];
 let waveColor = [15, 120, 152];
+let sunColor = [225, 230, 200];
 let backgroundDisabled = false;
 function render(timestamp) {
     if (backgroundDisabled) { requestAnimationFrame(render); return; }
@@ -255,6 +258,7 @@ function render(timestamp) {
     gl.uniform1f(timeUniformLocation, timestamp / 1000.0);
     gl.uniform3f(seaColorUniformLocation,  seaColor[0], seaColor[1], seaColor[2]);
     gl.uniform3f(waveColorUniformLocation, waveColor[0], waveColor[1], waveColor[2]);
+    gl.uniform3f(sunColorUniformLocation, sunColor[0], sunColor[1], sunColor[2]);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.viewport(0, 0, gameCanvas.width, gameCanvas.height);

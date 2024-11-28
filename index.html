@@ -10,7 +10,7 @@
     <meta content="#005a00" data-react-helmet="true" name="theme-color" />
     <meta name="color-scheme" content="light only">
     <title>Dergoris 99k</title>
-    <link rel="stylesheet" href="style.css?v104=1">
+    <link rel="stylesheet" href="style.css?v110=1">
     <link rel="icon" href="img/icon2.png">
     <!--Preload board-->
     <img src="img/modeInfo.png" style="display: none">
@@ -31,6 +31,7 @@
     <img src="img/main/gradesMaster.png" style="display: none">
     <img src="img/main/gradesDragon.png" style="display: none">
     <img src="img/main/readyGo.png" style="display: none">
+    <img src="img/main/beatBar.png" style="display: none">
     <img src="img/main/explosionEffect.png" style="display: none">
     <img src="img/main/finish.png" style="display: none">
     <img src="img/gb/boardSmall.png" style="display: none">
@@ -71,7 +72,7 @@
     <canvas id="backgroundCanvas"></canvas>
     <canvas id="gameCanvas" style="display: none"></canvas>
     <div class="container" style="padding: 40px;">
-        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V1.0.4</p>
+        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V1.1.0</p>
         <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(2); displayModeInfo(currentMenuMode)">CAMPAIGN</button><br>
         <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(3)">CUSTOM GAME</button><br>
         <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); showKeybinds()">KEYBINDS</button><br>
@@ -85,9 +86,10 @@
             <img class="menuMode" src="img/style1.png" onclick="playSound('buttonClick'); selectMenuMode(1)">
             <img class="menuMode" src="img/style2.png" onclick="playSound('buttonClick'); selectMenuMode(2)">
             <img class="menuMode" src="img/style3.png" onclick="playSound('buttonClick'); selectMenuMode(3)">
+            <img class="menuMode" src="img/style5.png" onclick="playSound('buttonClick'); selectMenuMode(4)">
             <!--<img class="menuMode" src="img/style4.png" onclick="selectMenuMode(4)">-->
             <img class="menuArrow" src="img/menuArrowUp.png" onclick="playSound('buttonClick'); selectMenuMode(Math.max(1,currentMenuMode-1))">
-            <img class="menuArrow" src="img/menuArrowDown.png" onclick="playSound('buttonClick'); selectMenuMode(Math.min(3,currentMenuMode+1))">
+            <img class="menuArrow" src="img/menuArrowDown.png" onclick="playSound('buttonClick'); selectMenuMode(Math.min(4,currentMenuMode+1))">
         </div>
         <div id="modeStatsContainer">
             <canvas id="modeStatsCanvas" width="130px" height="160px"></canvas><br>
@@ -230,6 +232,7 @@
             <br><b>Classic style music:</b> Wireframe - Aural Imbalance, Tensor - Jamie Myerson
             <br><b>Master style music:</b> Night Stream - From the <i>Ridge Racer (PSP)</i> soundtrack, Pearl Blue Soul - From the <i>Ridge Racer Type 4</i> soundtrack
             <br><b>Dragon style music:</b> Vanishing Horizon - From the <i>Ridge Racer (PSP)</i> soundtrack, Tek Trek - From the <i>Ridge Racer (PSP)</i> soundtrack
+            <br><b>GM on the Beat music:</b> Death By Glamour - UNDERTALE: Alternate
             <br>---------<br>Some main sprites taken/modified from the <i>Tetris: The Grand Master</i> series by Arika<br>Retro game sprites belong to Nintendo, Sega, and Arika<br>Background shaders created by Xor and greenbird10 on Shadertoy
             <br>---------<br>Thank you to all the patrons, testers, and those in the TAP discord server who helped make this game what it is!</p>
     </div>
@@ -274,13 +277,13 @@
     <button class="startingButton" style="top: calc(50% - 40px)" onclick="hideBlackCover(); initializeGameMusic(); playSound('menuMusic')">PLAY WITH SOUND</button>
     <button class="startingButton" style="top: calc(50% + 40px)" onclick="soundEnabled=false; hideBlackCover()">PLAY WITHOUT SOUND</button>
     <script src="howler.js"></script>
-    <script src="constants.js?v104=1"></script>
-    <script src="background.js?v104=1"></script>
-    <script src="menuBackground.js?v104=1"></script>
-    <script src="script.js?v104=1"></script>
-    <script src="sound.js?v104=1"></script>
-    <script src="settings.js?v104=1"></script>
-    <script src="menu.js?v104=1"></script>
+    <script src="constants.js?v110=1"></script>
+    <script src="background.js?v110=1"></script>
+    <script src="menuBackground.js?v110=1"></script>
+    <script src="script.js?v110=1"></script>
+    <script src="sound.js?v110=1"></script>
+    <script src="settings.js?v110=1"></script>
+    <script src="menu.js?v110=1"></script>
     <script defer>document.getElementsByClassName("startingButton")[0].style.display = "block"; document.getElementsByClassName("startingButton")[1].style.display = "block";</script>
 </body>
 </html>

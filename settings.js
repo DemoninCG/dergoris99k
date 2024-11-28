@@ -132,6 +132,26 @@ function setPreset(preset = document.getElementById("presetsSetting").value) {
             settings.DAS = 1;
             settings.lockDelay = 30;
             break;
+        case "onTheBeat":
+            settings.boardWidth = 10;
+            settings.boardHeight = 20;
+            settings.visuals = "onTheBeat";
+            settings.gameMechanics = "onTheBeat";
+            settings.randomizer = "tgm";
+            settings.pieceColouring = "regular";
+            settings.softDrop = false;
+            settings.softDropSpeed = 1;
+            settings.hardDrop = false;
+            settings.sonicDrop = false;
+            settings.rotationSystem = "ars";
+            settings.IRS = true;
+            settings.twentyGOverride = true;
+            settings.levelLock = false;
+            settings.overrideGameARE = false;
+            settings.DASInitial = 8;
+            settings.DAS = 1;
+            settings.lockDelay = 99999;
+            break;
         case "gb":
             settings.startingLevel = Math.min(settings.startingLevel, 20);
             settings.boardWidth = 10;
