@@ -109,4 +109,4 @@ onTheBeatBeats = onTheBeatBeats.concat([Infinity]) //End of song
 
 const onTheBeatGradePoints = [88,152,232,328,424];
 const beatDASSpeeds = [10, 8, 7, 6]
-const beatARESpeeds = [12, 10, 8, 7]
+const beatARESpeeds = [12, 10, 8, 6]

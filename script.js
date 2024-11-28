@@ -1659,16 +1659,16 @@ function updateBeatVisuals() {
             lastBeatSunColors[1] = chosenColor;
         }
 
-        //Calculatre beat speed
+        //Calculate beat speed
         currentBeatSpeed = 0;
-        if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 0.5) currentBeatSpeed = 3;
-        else if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 0.75) currentBeatSpeed = 2;
-        else if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 1) currentBeatSpeed = 1;
+        if (onTheBeatBeats[beatsPassed+2] - onTheBeatBeats[beatsPassed+1] <= 0.5) currentBeatSpeed = 3;
+        else if (onTheBeatBeats[beatsPassed+2] - onTheBeatBeats[beatsPassed+1] <= 0.75) currentBeatSpeed = 2;
+        else if (onTheBeatBeats[beatsPassed+2] - onTheBeatBeats[beatsPassed+1] <= 1) currentBeatSpeed = 1;
+        console.log(currentBeatSpeed);
 
         //Hard drop
         boardVisualPosition[1] = 1.5; //Vertical bump
         landPiece();
-        
     }
     while (currentBeatTime > onTheBeatBeats[beatsPassed+1]) beatsPassed++;
     let timesUntilNextBeats = [];
@@ -2850,7 +2850,7 @@ document.addEventListener("keydown", function(event) {
             break;
         case "softDrop":
             if (!gamePlaying && onCampaignScreen && document.getElementsByClassName("container")[1].style.display != "none") {
-                selectMenuMode(Math.min(3,currentMenuMode+1));
+                selectMenuMode(Math.min(4,currentMenuMode+1));
             }
             else {
                 softDrop();

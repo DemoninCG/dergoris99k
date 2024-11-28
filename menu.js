@@ -48,6 +48,7 @@ function switchToTab(x) {
         case 3:
             onCampaignScreen = false;
             backgroundColorDestination = [100, 100, 100];
+            if (settings.gameMechanics == "onTheBeat") setPreset("classicStyle"); //On the beat is not selectable in custom game
             document.getElementsByClassName("container")[0].style.top = "0";
             document.getElementsByClassName("container")[0].style.left = "-100vw";
             document.getElementsByClassName("container")[1].style.top = "0";
@@ -432,7 +433,7 @@ function displayModeInfo(x) {
             modeStatsCtx.fillStyle = "#000008";
             modeStatsCtx.fillRect(1, 2, 129, 1);
             document.getElementById("modeInfoImage").src = "img/style5.png";
-            document.getElementById("modeInfo").innerHTML = "<b>Info:</b><br>Can you stack in time with the beat?<br>Extremely challenging - Only for top players!<br>-Variable DAS and ARE based on beat speed<br>-Grade based on distance through the song";
+            document.getElementById("modeInfo").innerHTML = "<b>Info:</b><br>Bonus mode - Can you stack in time with the beat?<br>Extremely challenging - Only for top players!<br>-Variable DAS and ARE based on beat speed<br>-Grade based on distance through the song";
             modeStatsCtx.clearRect(0, 0, 130, 160);
             modeStatsCtx.fillStyle = "#eaeaff";
             modeStatsCtx.fillRect(0, 1, 129, 1);
