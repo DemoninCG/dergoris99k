@@ -1664,7 +1664,6 @@ function updateBeatVisuals() {
         if (onTheBeatBeats[beatsPassed+2] - onTheBeatBeats[beatsPassed+1] <= 0.5) currentBeatSpeed = 3;
         else if (onTheBeatBeats[beatsPassed+2] - onTheBeatBeats[beatsPassed+1] <= 0.75) currentBeatSpeed = 2;
         else if (onTheBeatBeats[beatsPassed+2] - onTheBeatBeats[beatsPassed+1] <= 1) currentBeatSpeed = 1;
-        console.log(currentBeatSpeed);
 
         //Hard drop
         boardVisualPosition[1] = 1.5; //Vertical bump
@@ -1680,13 +1679,14 @@ function updateBeatVisuals() {
     
 
     ctx.clearRect(84, 32, 14, 200);
-    ctx.drawImage(images.beatBar, 0, 0, 14, 176, 84, 32, 14, 176);
+    if (waitingForNextPiece) {ctx.drawImage(images.beatBar, 0, 0, 14, 176, 84, 32, 14, 176);}
+    else {ctx.drawImage(images.beatBar, 14, 0, 14, 176, 84, 32, 14, 176);}
     for (let i=0;i<timesUntilNextBeats.length;i++) {
         let beatColor = 0;
         if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 0.5) beatColor = 3;
         else if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 0.75) beatColor = 2;
         else if (onTheBeatBeats[beatsPassed+i+2] - onTheBeatBeats[beatsPassed+i+1] <= 1) beatColor = 1;
-        ctx.drawImage(images.beatBar, 14, beatColor*4, 14, 4, 84, 32+Math.floor(timesUntilNextBeats[i]*43), 14, 4);
+        ctx.drawImage(images.beatBar, 28, beatColor*4, 14, 4, 84, 32+Math.floor(timesUntilNextBeats[i]*43), 14, 4);
     }
     requestAnimationFrame(updateBeatVisuals);
 }
@@ -1803,7 +1803,7 @@ function calculateNESARELevel(lvl) {
 }
 
 function placePiece(pieceType) {
-    if ((inCampaignMode() || settings.gameMechanics == "tgm") && level == 999) {
+    if (((inCampaignMode() && settings.gameMechanics != "onTheBeat") || settings.gameMechanics == "tgm") && level == 999) {
         endGame();
         return;
     }
@@ -2536,7 +2536,7 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                     pieceOrientation = rotatedOrientation;
                     if (!checkPieceLanded(piecePositions)) {
                         if (settings.lockReset == "step") locking = false;
-                        //if (getDropInterval() <= 0.05) maxDrop(); //20G
+                        if (getDropInterval() <= 0.05) maxDrop(); //20G
                     }
                     updateVisuals();
                 }
@@ -2641,7 +2641,7 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                     pieceOrientation = rotatedOrientation;
                     if (!checkPieceLanded(piecePositions)) {
                         if (settings.lockReset == "step") locking = false;
-                        //if (getDropInterval() <= 0.05) maxDrop(); //20G
+                        if (getDropInterval() <= 0.05) maxDrop(); //20G
                     }
                     updateVisuals();
                 }
@@ -2654,7 +2654,7 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                         pieceOrientation = rotatedOrientation;
                         if (!checkPieceLanded(piecePositions)) {
                             if (settings.lockReset == "step") locking = false;
-                            //if (getDropInterval() <= 0.05) maxDrop(); //20G
+                            if (getDropInterval() <= 0.05) maxDrop(); //20G
                         }
                         updateVisuals();
                     }
@@ -2666,7 +2666,7 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                             pieceOrientation = rotatedOrientation;
                             if (!checkPieceLanded(piecePositions)) {
                                 if (settings.lockReset == "step") locking = false;
-                                //if (getDropInterval() <= 0.05) maxDrop(); //20G
+                                if (getDropInterval() <= 0.05) maxDrop(); //20G
                             }
                             updateVisuals();
                         }
@@ -2978,11 +2978,11 @@ function clearLines() {
         playSound("gameMusic", true); //Must be forced otherwise song won't play since the level is still < 500
         setSoundVolume("gameMusic", game.musicVolume);
     }
-    if ((inCampaignMode()) && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || level+linesCleared >= 999)) { //main styles level up
+    if ((inCampaignMode()) && (Math.floor(level/100) < Math.floor((level+linesCleared)/100) || (level+linesCleared >= 999 && settings.gameMechanics != "onTheBeat"))) { //main styles level up
         playSound("levelUp");
         timeAtLastSection = time;
         sectionTimes[Math.floor(level/100)] = time;
-        displaySectionTime(Math.floor(level/100));
+        if (settings.gameMechanics != "onTheBeat") displaySectionTime(Math.floor(level/100));
         if (settings.visuals == "dragonStyle" && Math.floor(level/100) == 4) { //Switch to grey background and board
             seaColor = [30, 30, 30];
             waveColor = [70, 70, 70];
@@ -3049,7 +3049,7 @@ function clearLines() {
         if (settings.gameMechanics == "onTheBeat") finalScore *= 10;
         scoreToGain = finalScore;
         if (!settings.levelLock) level += linesCleared;
-        if (level > 999) level = 999;
+        if (level > 999 && settings.gameMechanics != "onTheBeat") level = 999;
         if (settings.visuals != "tgm") playSound("lineClear");
         updateVisuals();
     }
@@ -3401,7 +3401,7 @@ function endGame() {
     gamePlaying = false;
     if (inCampaignMode()) {
         fadeOutSound('gameMusic', 1000);
-        if (level < 999) {
+        if ((level < 999 && settings.gameMechanics != "onTheBeat") || (settings.gameMechanics == "onTheBeat" && currentBeatTime < 424)) {
             playSound("end");
             landPiece();
         }
@@ -3422,7 +3422,7 @@ function endGame() {
             }
         }
         //Finish text
-        if (level >= 999) ctx.drawImage(images.sideInfo3, 0, 0, 79, 7, 121, 105, 79, 7);
+        if ((level >= 999 && settings.gameMechanics != "onTheBeat") || (settings.gameMechanics == "onTheBeat" && currentBeatTime >= 424)) ctx.drawImage(images.sideInfo3, 0, 0, 79, 7, 121, 105, 79, 7);
         ctx.drawImage(images.sideInfo3, 0, 8, 79, 7, 121, 113, 79, 7);
         //Average section time
         let averageSectionTime;
@@ -3443,7 +3443,7 @@ function endGame() {
                 else {ctx.drawImage(images.sideInfo2, parseInt(timeString[i])*4, sectionTimeColor*6, 4, 6, 145+i*4, 177, 4, 6);}
             }
 
-            if (level >= 999 && inCampaign) {
+            if (level >= 999 && inCampaign() && settings.gameMechanics != "onTheBeat") {
                 //Best average section time
                 if (settings.gameMechanics == "classicStyle" && averageSectionTime < game.bestAverageSectionTimes[0]) game.bestAverageSectionTimes[0] = averageSectionTime;
                 else if (settings.gameMechanics == "masterStyle" && averageSectionTime < game.bestAverageSectionTimes[1]) game.bestAverageSectionTimes[1] = averageSectionTime;
