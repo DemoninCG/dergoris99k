@@ -3048,7 +3048,7 @@ function clearLines() {
         if (checkPerfectClear()) finalScore *= 4;
         if (settings.gameMechanics == "onTheBeat") finalScore *= 10;
         scoreToGain = finalScore;
-        if (!settings.levelLock) level += linesCleared;
+        if (!settings.levelLock && settings.gameMechanics != "onTheBeat") level += linesCleared;
         if (level > 999 && settings.gameMechanics != "onTheBeat") level = 999;
         if (settings.visuals != "tgm") playSound("lineClear");
         updateVisuals();
@@ -3158,8 +3158,8 @@ function clearLines() {
         updateVisuals();
         let startTime = Date.now()
         visualInterval = mainVisualClearLines(startTime, [...fullLines], piecesInFullLines);
-        let lineClearLength = 12;
-        if (settings.visuals !== "classicStyle" && settings.gameMechanics !== "masterStyle" && settings.gameMechanics !== "onTheBeat") {
+        let lineClearLength = Math.max(Math.min(12, currentDropTime-2),0);
+        if (settings.visuals == "dragonStyle") {
             lineClearLength = dragonStyleLineClear[Math.floor(level/100)];
         }
         setTimeout(function() {mainClearLines([...fullLines])}, 1000 / 60 * lineClearLength);
