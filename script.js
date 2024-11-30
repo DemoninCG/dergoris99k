@@ -130,6 +130,7 @@ function reset() {
     beatsPassed = 0;
     currentBeatSpeed = 0;
     introSection = 0;
+    onTheBeatNextPieces = [0,1,2];
 
     boardVisualPosition = [0,0];
     soundEnabled = true;
@@ -648,7 +649,12 @@ function readyGo(stage) {
     if (stage == 1) {
         let leftSide = 160-settings.boardWidth*4;
         //Get the current piece to display as the next piece
-        nextPiece = getRandomPiece();
+        if (settings.gameMechanics == "onTheBeat") {
+            onTheBeatNextPieces[0] = getRandomPiece();
+            onTheBeatNextPieces[1] = getRandomPiece();
+            onTheBeatNextPieces[2] = getRandomPiece();
+        }
+        else {nextPiece = getRandomPiece();}
         waitingForNextPiece = true;
         stopSound("gameMusic"); 
         if (settings.visuals == "onTheBeat") {
@@ -746,7 +752,12 @@ function readyGo(stage) {
             ctx.drawImage(images.grades, 0, 32*grade, 48, 32, 211, 34, 48, 32);
 
             //Next piece
-            setNextPieceVisuals(nextPiece);
+            if (settings.gameMechanics == "onTheBeat") {
+                setNextPieceVisuals(onTheBeatNextPieces[0],0);
+                setNextPieceVisuals(onTheBeatNextPieces[1],1);
+                setNextPieceVisuals(onTheBeatNextPieces[2],2);
+            }
+            else {setNextPieceVisuals(nextPiece);}
 
             //Text (Copied from updateVisuals, any change there should also happen here)
             //This is a lot of code duplication! Find a way to reduce this ASAP
@@ -935,10 +946,21 @@ function updateVariables() {
     currentDropTime -= (timeMultiplier*60);
     while (currentDropTime <= 0.01) {
         if (waitingForNextPiece) {
-            placePiece(nextPiece);
-            nextPiece = getRandomPiece();
-            if (settings.visuals == "tgm") playNextPieceAudio(nextPiece);
-            setNextPieceVisuals(nextPiece);
+            if (settings.gameMechanics == "onTheBeat") {
+                placePiece(onTheBeatNextPieces[0]);
+                onTheBeatNextPieces[0] = onTheBeatNextPieces[1];
+                onTheBeatNextPieces[1] = onTheBeatNextPieces[2];
+                onTheBeatNextPieces[2] = getRandomPiece();
+                setNextPieceVisuals(onTheBeatNextPieces[0],0);
+                setNextPieceVisuals(onTheBeatNextPieces[1],1);
+                setNextPieceVisuals(onTheBeatNextPieces[2],2);
+            }
+            else {
+                placePiece(nextPiece);
+                nextPiece = getRandomPiece();
+                if (settings.visuals == "tgm") playNextPieceAudio(nextPiece);
+                setNextPieceVisuals(nextPiece);
+            }
             updateVisuals();
             if (((inCampaignMode() && settings.gameMechanics != "onTheBeat") || settings.gameMechanics == "tgm") && keysHeld[3]) { //Starting soft drop if key is held
                 currentDropTime = Math.min(getDropInterval(), settings.softDropSpeed);
@@ -1947,67 +1969,67 @@ function placePiece(pieceType) {
 
 // TODO: create lookup table for the tile positions to condense this
 // Alternative: Use equations instead
-function setNextPieceVisuals(index) {
+function setNextPieceVisuals(index, xOffset=0) {
     //Draw the piece in the next box
     if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle" || settings.visuals == "onTheBeat") {
         let leftSide = 160-settings.boardWidth*4;
-        ctx.clearRect(leftSide+24, 12, 32, 17);
+        ctx.clearRect(leftSide+xOffset*36+24, 12, 32, 17);
         ctx.fillStyle = "#080808"
         switch (index) {
             case 0:
-                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+24, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+32, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+40, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+48, 12, 8, 8);
-                ctx.fillRect(leftSide+24, 20, 32, 1);
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+xOffset*36+24, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+xOffset*36+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+xOffset*36+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 8, 8, 8, leftSide+xOffset*36+48, 12, 8, 8);
+                ctx.fillRect(leftSide+xOffset*36+24, 20, 32, 1);
                 break
             case 1:
-                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+32, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+40, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+32, 20, 8, 8);
-                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+40, 20, 8, 8);
-                ctx.fillRect(leftSide+32, 28, 16, 1);
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+xOffset*36+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+xOffset*36+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+xOffset*36+32, 20, 8, 8);
+                ctx.drawImage(images.tiles, 0, 16, 8, 8, leftSide+xOffset*36+40, 20, 8, 8);
+                ctx.fillRect(leftSide+xOffset*36+32, 28, 16, 1);
                 break
             case 2:
-                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+24, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+32, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+40, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+32, 20, 8, 8);
-                ctx.fillRect(leftSide+24, 20, 8, 1);
-                ctx.fillRect(leftSide+40, 20, 8, 1);
-                ctx.fillRect(leftSide+32, 28, 8, 1);
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+xOffset*36+24, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+xOffset*36+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+xOffset*36+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 24, 8, 8, leftSide+xOffset*36+32, 20, 8, 8);
+                ctx.fillRect(leftSide+xOffset*36+24, 20, 8, 1);
+                ctx.fillRect(leftSide+xOffset*36+40, 20, 8, 1);
+                ctx.fillRect(leftSide+xOffset*36+32, 28, 8, 1);
                 break
             case 3:
-                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+32, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+40, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+24, 20, 8, 8);
-                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+32, 20, 8, 8);
-                ctx.fillRect(leftSide+40, 20, 8, 1);
-                ctx.fillRect(leftSide+24, 28, 16, 1);
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+xOffset*36+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+xOffset*36+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+xOffset*36+24, 20, 8, 8);
+                ctx.drawImage(images.tiles, 0, 32, 8, 8, leftSide+xOffset*36+32, 20, 8, 8);
+                ctx.fillRect(leftSide+xOffset*36+40, 20, 8, 1);
+                ctx.fillRect(leftSide+xOffset*36+24, 28, 16, 1);
                 break
             case 4:
-                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+24, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+32, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+32, 20, 8, 8);
-                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+40, 20, 8, 8);
-                ctx.fillRect(leftSide+24, 20, 8, 1);
-                ctx.fillRect(leftSide+32, 28, 16, 1);
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+xOffset*36+24, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+xOffset*36+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+xOffset*36+32, 20, 8, 8);
+                ctx.drawImage(images.tiles, 0, 40, 8, 8, leftSide+xOffset*36+40, 20, 8, 8);
+                ctx.fillRect(leftSide+xOffset*36+24, 20, 8, 1);
+                ctx.fillRect(leftSide+xOffset*36+32, 28, 16, 1);
                 break
             case 5:
-                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+24, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+32, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+40, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+40, 20, 8, 8);
-                ctx.fillRect(leftSide+24, 20, 16, 1);
-                ctx.fillRect(leftSide+40, 28, 8, 1);
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+xOffset*36+24, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+xOffset*36+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+xOffset*36+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 48, 8, 8, leftSide+xOffset*36+40, 20, 8, 8);
+                ctx.fillRect(leftSide+xOffset*36+24, 20, 16, 1);
+                ctx.fillRect(leftSide+xOffset*36+40, 28, 8, 1);
                 break
             case 6:
-                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+24, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+32, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+40, 12, 8, 8);
-                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+24, 20, 8, 8);
-                ctx.fillRect(leftSide+32, 20, 16, 1);
-                ctx.fillRect(leftSide+24, 28, 8, 1);
+                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+xOffset*36+24, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+xOffset*36+32, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+xOffset*36+40, 12, 8, 8);
+                ctx.drawImage(images.tiles, 0, 56, 8, 8, leftSide+xOffset*36+24, 20, 8, 8);
+                ctx.fillRect(leftSide+xOffset*36+32, 20, 16, 1);
+                ctx.fillRect(leftSide+xOffset*36+24, 28, 8, 1);
                 break
         }
     }
@@ -2325,7 +2347,7 @@ function getRandomPiece() {
 		break;
         case "tgm":
             let startingViablePieces = [0,2,5,6]; //First piece must be I, T, J or L
-            if (TGMFirstMove) {chosenPiece=startingViablePieces[Math.floor(Math.random()*4)];}
+            if (TGMFirstMove && settings.gameMechanics != "onTheBeat") {chosenPiece=startingViablePieces[Math.floor(Math.random()*4)];}
             else {
                 chosenPiece = Math.floor(Math.random()*7);
                 for (let i=0; i<3; i++) { //Check 4 times if the piece is in the last 4 pieces
