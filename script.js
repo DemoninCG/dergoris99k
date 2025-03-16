@@ -1113,7 +1113,8 @@ function updateVisuals() {
             }
         }
         //Board pieces
-        let currentBeatTime = gameMusic7.seek() * (155/60);
+        let currentBeatTime;
+        if (gameMusic7) currentBeatTime = gameMusic7.seek() * (155/60);
         if (!settings.invisible && (settings.gameMechanics != "onTheBeat" || (currentBeatTime < 392 && (currentBeatTime < 376 || currentBeatTime >= 377)))) {
             for (let i=0;i<settings.boardHeight;i++) {
                 for (let j=0;j<settings.boardWidth;j++) {
@@ -2672,6 +2673,7 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                     for (let i=0;i<4;i++) tempPiecePositions[i][1]++;
                     canRotate = !checkPieceOverlap(tempPiecePositions);
                     if (canRotate) {
+                        pieceTopCorner[1]++;
                         for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
                         pieceOrientation = rotatedOrientation;
                         if (!checkPieceLanded(piecePositions)) {
@@ -2684,6 +2686,7 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                         for (let i=0;i<4;i++) tempPiecePositions[i][1]-=2;
                         canRotate = !checkPieceOverlap(tempPiecePositions);
                         if (canRotate) {
+                            pieceTopCorner[1]--;
                             for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
                             pieceOrientation = rotatedOrientation;
                             if (!checkPieceLanded(piecePositions)) {
@@ -3423,7 +3426,8 @@ function endGame() {
     gamePlaying = false;
     if (inCampaignMode()) {
         fadeOutSound('gameMusic', 1000);
-        let currentBeatTime = gameMusic7.seek() * (155/60);
+        let currentBeatTime;
+        if (gameMusic7) currentBeatTime = gameMusic7.seek() * (155/60);
         if ((level < 999 && settings.gameMechanics != "onTheBeat") || (settings.gameMechanics == "onTheBeat" && currentBeatTime < 424)) {
             playSound("end");
             landPiece();
