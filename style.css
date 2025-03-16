@@ -13,7 +13,7 @@
 }
 
 body {
-    background-color: #555;
+    background-color: #333;
     image-rendering: pixelated;
     background-position: center;
     background-size: 64px 64px;
@@ -25,7 +25,7 @@ body {
 	position: fixed;
 	top: 0;
 	left: 0;
-	display: block;
+	display: none;
     z-index: -1;
     transform-origin: top left;
     transform: scale(4.01);

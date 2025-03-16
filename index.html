@@ -72,7 +72,7 @@
     <canvas id="backgroundCanvas"></canvas>
     <canvas id="gameCanvas" style="display: none"></canvas>
     <div class="container" style="padding: 40px;">
-        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V1.2.0</p>
+        <img src="img/title.png" style="height: 66px;"><br><p style="margin-top: 4px; color: #ddd; font-size: 16px; margin-bottom: 40px">V1.2.1</p>
         <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(2); displayModeInfo(currentMenuMode)">CAMPAIGN</button><br>
         <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); switchToTab(3)">CUSTOM GAME</button><br>
         <button class="menuButton" onmouseover="playSound('buttonHover');" onclick="playSound('buttonClick'); showKeybinds()">KEYBINDS</button><br>
@@ -264,6 +264,10 @@
         <input type="range" id="musicVolumeSetting" min="0" max="100" value="100" onchange="setMusicVolume()"><br><br>
         <label for="boardBumpSetting">BOARD BUMP VISUALS</label>
         <input type="checkbox" id="boardBumpSetting" onchange="setBoardBump()" checked/><br><br>
+        <label for="boardBumpSetting">MENU BACKGROUND</label>
+        <input type="checkbox" id="menuBackgroundSetting" onchange="enableDisableMenuBackground()" checked/><br><br>
+        <label for="boardBumpSetting">GAME BACKGROUND</label>
+        <input type="checkbox" id="gameBackgroundSetting" onchange="enableDisableGameBackground()" checked/><br><br>
         <button onclick="exportGame()">EXPORT GAME</button><br>
         <button onclick="importGame()">IMPORT GAME</button><br>
         <button onclick="hardReset()" style="background-color: #fcc">RESET DATA</button><br><br>

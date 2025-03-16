@@ -65,6 +65,8 @@ function reset() {
         volume: 0.5,
         musicVolume: 1,
         boardBumpVisuals: true,
+        menuBackgroundEnabled: true,
+        gameBackgroundEnabled: true,
     };
     //Game settings
     settings = {
@@ -198,7 +200,7 @@ function importGame() {
     }
 }
   
-  function loadGame(loadgame) {
+function loadGame(loadgame) {
     //Sets each variable in 'game' to the equivalent variable in 'loadgame' (the saved file)
     let loadKeys = Object.keys(loadgame);
     for (i=0; i<loadKeys.length; i++) {
@@ -211,6 +213,8 @@ function importGame() {
             else {game[loadKeys[i]] = loadgame[loadKeys[i]];}
         }
     }
+
+    document.getElementById("backgroundCanvas").style.display = game.menuBackgroundEnabled ? "block" : "none";
 }
 
 // Preload images
@@ -246,8 +250,8 @@ function initialiseCanvasBoard() {
     if (settings.visuals == "classicStyle" || settings.visuals == "masterStyle" || settings.visuals == "dragonStyle" || settings.visuals == "onTheBeat") {
         canvas.height = Math.max(settings.boardHeight*8, 240);
         document.getElementById("textOverlay").style.height = Math.max(settings.boardHeight*8, 240) + "px";
+        document.body.style.backgroundImage = "none";
         let leftSide = 160-settings.boardWidth*4;
-        //document.body.style.backgroundImage = "url('img/main/background1.png')";
         images.tiles.src = "img/main/tiles.png";
         images.hardDropTile.src = "img/main/ghostTiles.png";
         if ((settings.visuals == "dragonStyle" && level >= 500) || settings.visuals == "onTheBeat") {images.board.src = "img/main/board3.png";}
@@ -289,6 +293,11 @@ function initialiseCanvasBoard() {
         else {
             ctx.clearRect(264, 71, 12, 6);
         }
+        //Background colors
+        if (settings.visuals === "classicStyle") {document.body.style.backgroundColor = "#0d3c78"}
+        else if (settings.visuals === "masterStyle") {document.body.style.backgroundColor = "#157884"}
+        else if (settings.visuals === "dragonStyle") {document.body.style.backgroundColor = "#1e1e85"}
+        else {document.body.style.backgroundColor = "#080808"}
         if (settings.visuals == "onTheBeat") {
             ctx.clearRect(210, 192, 32, 2); //Level separating bar
             ctx.clearRect(210, 64, 54, 48); //Grade info
@@ -577,20 +586,20 @@ function startGame() {
     document.getElementById("effectOverlay").style.display = "block";
     document.getElementById("textOverlay").style.display = "block";
     if (settings.visuals == "classicStyle") {
-        document.getElementById("gameCanvas").style.display = "block";
+        document.getElementById("gameCanvas").style.display = game.gameBackgroundEnabled ? "block" : "none";
         seaColor = [11, 72, 142];
         waveColor = [15, 120, 152];
         sunColor = [225, 230, 200];
     }
     else if (settings.visuals == "masterStyle") {
-        document.getElementById("gameCanvas").style.display = "block";
+        document.getElementById("gameCanvas").style.display = game.gameBackgroundEnabled ? "block" : "none";
         seaColor = [11, 122, 142];
         waveColor = [15, 120, 152];
         sunColor = [225, 230, 200];
     }
     else if (settings.visuals == "dragonStyle") {
         grade = Math.floor(level/50);
-        document.getElementById("gameCanvas").style.display = "block";
+        document.getElementById("gameCanvas").style.display = game.gameBackgroundEnabled ? "block" : "none";
         if (level >= 500) {
             seaColor = [30, 30, 30];
             waveColor = [70, 70, 70];
@@ -603,7 +612,7 @@ function startGame() {
         }
     }
     else if (settings.visuals == "onTheBeat") {
-        document.getElementById("gameCanvas").style.display = "block";
+        document.getElementById("gameCanvas").style.display = game.gameBackgroundEnabled ? "block" : "none";
         seaColor = [0, 0, 0];
         waveColor = [40, 40, 40];
         sunColor = [150, 150, 150];
@@ -3856,13 +3865,13 @@ function returnToMenu() {
     document.getElementById("game").style.display = "none";
     document.getElementById("effectOverlay").style.display = "none";
     document.getElementById("gameCanvas").style.display = "none";
-    document.getElementById("backgroundCanvas").style.display = "block";
+    document.getElementById("backgroundCanvas").style.display = game.menuBackgroundEnabled ? "block" : "none";
     document.getElementById("textOverlay").style.display = "none";
     document.getElementById("textOverlay").innerHTML = "";
     document.getElementsByClassName("container")[1].style.display = "block"; //Campaign screen
     document.getElementsByClassName("container")[2].style.display = "block"; //Custom game screen
     if (inCampaign) selectMenuMode(currentMenuMode);
-    document.body.style.backgroundColor = "#555";
+    document.body.style.backgroundColor = "#333";
     document.body.style.backgroundImage = "none";
     save();
 }

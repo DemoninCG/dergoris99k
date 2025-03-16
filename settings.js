@@ -1,10 +1,23 @@
 //User settings
 document.getElementById("boardBumpSetting").checked = game.boardBumpVisuals;
+document.getElementById("menuBackgroundSetting").checked = game.menuBackgroundEnabled;
+document.getElementById("gameBackgroundSetting").checked = game.gameBackgroundEnabled;
 document.getElementById("volumeSetting").value = (game.volume*100);
 document.getElementById("musicVolumeSetting").value = (game.musicVolume*100);
 
 function setBoardBump() {
     game.boardBumpVisuals = document.getElementById("boardBumpSetting").checked;
+    save();
+}
+
+function enableDisableMenuBackground() {
+    game.menuBackgroundEnabled = document.getElementById("menuBackgroundSetting").checked;
+    backgroundCanvas.style.display = game.menuBackgroundEnabled ? "block" : "none";
+    save();
+}
+
+function enableDisableGameBackground() {
+    game.gameBackgroundEnabled = document.getElementById("gameBackgroundSetting").checked;
     save();
 }
 
