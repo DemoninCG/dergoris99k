@@ -8,6 +8,14 @@ const piecePlacements = [
     [[0,1],[0,2],[0,3],[1,1]] //L
 ];
 
+const dergorisPieceOrientations = [ //The 9 digits are the 9 tiles of the piece (3 rows 3 columns), 0 is empty, 1 is filled
+    ["000111010", "010110010", "000010111", "010011010"], //T
+    ["000011110", "010011001", "000011110", "100110010"], //S
+    ["000110011", "001011010", "000110011", "010110100"], //Z
+    ["000111001", "010010110", "000100111", "011010010"], //J
+    ["000111100", "110010010", "000001111", "010010011"] //L
+];
+
 const classicStyleDropIntervals = [20, 17, 14, 11, 8, 6, 4, 3, 2, 1.5];
 const classicStyleGradeConditions = [0, 2000, 6000, 12500, 24000, 40000, 68000, 90000, 140000, Infinity];
 const classicStyleDAS = [6, 6, 6, 5, 5, 5, 4, 4, 4, 3];
@@ -20,7 +28,7 @@ const masterStyleIntervals = [21.333, 16, 10.666, 8, 5.333, 4, 3.2, 2.667, 2.286
 const masterStyleIntervalLevels = [0, 20, 40, 60, 80, 100, 125, 150, 175, 200, 220, 240, 260, 280, 300, 325, 350, 375, 400, 420, 450, 500, Infinity];
 const masterStyleGradeConditions = [0, 1200, 3500, 5800, 8600, 12000, 28000, 45000, 66000, 82000, 120000, 150000, 180000, Infinity];
 
-const dragonStyleDropIntervals = [3, 2, 1, 0.5, 0.333, 0.05, 0.05, 0.05, 0.05, 0.05];
+//const dragonStyleDropIntervals = [3, 2, 1, 0.5, 0.333, 0.05, 0.05, 0.05, 0.05, 0.05];
 const dragonStyleDASInitial = [12, 12, 11, 10, 8, 8, 8, 8, 8, 8];
 const dragonStyleARE = [18, 14, 14, 8, 7, 6, 6, 6, 6, 6];
 const dragonStyleARELineClear = [26, 14, 14, 14, 12, 10, 10, 10, 10, 10];

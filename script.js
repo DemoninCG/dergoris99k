@@ -136,7 +136,7 @@ function reset() {
     soundEnabled = true;
     gamePlaying = false;
     inCampaign = false;
-    keysHeld = [false, false, false, false, false, false, false, false]; //Left, Right, Up, Down, CW, CCW, CW alt, CCW alt
+    keysHeld = [false, false, false, false, 0, 0, 0, 0]; //Left, Right, Up, Down, CW, CCW, CW alt, CCW alt, rotations have 3 states
     keybindToReplace = "";
     timeOfLastUpdate = Date.now();
 }
@@ -914,6 +914,24 @@ function updateVariables() {
     if(resetDAS) {
         currentDASTime = getDAS();
     }*/
+
+    //Rotation
+    if (keysHeld[4] == 1) { //Clockwise
+        rotatePiece(true);
+        keysHeld[4] = 2;
+    }
+    if (keysHeld[6] == 1) { //Clockwise alt
+        rotatePiece(true, false, true);
+        keysHeld[6] = 2;
+    }
+    if (keysHeld[5] == 1) { //Anticlockwise
+        rotatePiece(false);
+        keysHeld[5] = 2;
+    }
+    if (keysHeld[7] == 1) { //Anticlockwise alt
+        rotatePiece(false, false, true);
+        keysHeld[7] = 2;
+    }
 
     //New DAS
     if (keysHeld[0] && !waitingForNextPiece) {
@@ -1785,8 +1803,8 @@ function landPiece() {
     else if (settings.gameMechanics == "classicStyle") {currentDropTime = 20;} //Classic style ARE
     else if (settings.gameMechanics == "masterStyle" && checkFullLines().length > 0) {currentDropTime = 40;} //Master style line clear ARE
     else if (settings.gameMechanics == "masterStyle") {currentDropTime = 20;} //Master style ARE
-    else if (settings.gameMechanics == "dragonStyle" && checkFullLines().length > 0) {currentDropTime = dragonStyleARELineClear[Math.floor(level/100)];} //Dragon style line clear ARE
-    else if (settings.gameMechanics == "dragonStyle") {currentDropTime = dragonStyleARE[Math.floor(level/100)];} //Dragon style ARE
+    else if (settings.gameMechanics == "dragonStyle" && checkFullLines().length > 0) {currentDropTime = dragonStyleARELineClear[Math.floor(level/100)]; console.log(currentDropTime)} //Dragon style line clear ARE
+    else if (settings.gameMechanics == "dragonStyle") {currentDropTime = dragonStyleARE[Math.floor(level/100)]; console.log(currentDropTime)} //Dragon style ARE
     else if (settings.gameMechanics == "onTheBeat") {currentDropTime = beatARESpeeds[currentBeatSpeed];} //GM on the Beat ARE
     else if (settings.gameMechanics == "gb" && checkFullLines().length > 0) {currentDropTime = 93;} //Game boy line clear ARE
     else if (settings.gameMechanics == "gb") {currentDropTime = 2;} //Game boy ARE
@@ -2435,10 +2453,10 @@ function moveRight() {
 }
 
 function rotatePiece(clockwise=true, override=false, alt=false) {
-    if (clockwise && !alt && keysHeld[4] && !override) return;
-    if (!clockwise && !alt && keysHeld[5] && !override) return;
-    if (clockwise && alt && keysHeld[6] && !override) return;
-    if (!clockwise && alt && keysHeld[7] && !override) return;
+    if (clockwise && !alt && keysHeld[4] == 2 && !override) return;
+    if (!clockwise && !alt && keysHeld[5] == 2 && !override) return;
+    if (clockwise && alt && keysHeld[6] == 2 && !override) return;
+    if (!clockwise && alt && keysHeld[7] == 2 && !override) return;
     if (!gamePlaying || waitingForNextPiece) return;
     //This should really be simplified
     let tempPiecePositions = [];
@@ -2481,13 +2499,13 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                 }
             }
             else if (settings.rotationSystem == "dx") {
-                if (pieceOrientation == 0) {
+                if (rotatedOrientation == 1) {
                     tempPiecePositions = [[tempY-1,tempX+2],[tempY,tempX+2],[tempY+1,tempX+2],[tempY+2,tempX+2]];
                 }
-                else if (pieceOrientation == 1) {
+                else if (rotatedOrientation == 2) {
                     tempPiecePositions = [[tempY+1,tempX],[tempY+1,tempX+1],[tempY+1,tempX+2],[tempY+1,tempX+3]];
                 }
-                else if (pieceOrientation == 2) {
+                else if (rotatedOrientation == 3) {
                     tempPiecePositions = [[tempY-1,tempX+1],[tempY,tempX+1],[tempY+1,tempX+1],[tempY+2,tempX+1]];
                 }
                 else {
@@ -2501,17 +2519,17 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                 }
                 //Alternate rotation point
                 else {
-                    if (pieceOrientation == 0) {
+                    if (rotatedOrientation == 1) {
                         tempX--;
                         tempY--;
                         tempPiecePositions = [[tempY-1,tempX+2],[tempY,tempX+2],[tempY+1,tempX+2],[tempY+2,tempX+2]];
                     }
-                    else if (pieceOrientation == 1) {
+                    else if (rotatedOrientation == 2) {
                         tempX++;
                         tempY--;
                         tempPiecePositions = [[tempY+1,tempX],[tempY+1,tempX+1],[tempY+1,tempX+2],[tempY+1,tempX+3]];
                     }
-                    else if (pieceOrientation == 2) {
+                    else if (rotatedOrientation == 3) {
                         tempX++;
                         tempY++;
                         tempPiecePositions = [[tempY-1,tempX+1],[tempY,tempX+1],[tempY+1,tempX+1],[tempY+2,tempX+1]];
@@ -2559,7 +2577,105 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                     pieceOrientation = rotatedOrientation;
                     if (!checkPieceLanded(piecePositions)) {
                         if (settings.lockReset == "step") locking = false;
-                        if (getDropInterval() <= 0.05) maxDrop(); //20G
+                        //if (getDropInterval() <= 0.05) maxDrop(); //20G (no longer needed with rotation changes)
+                    }
+                    updateVisuals();
+                }
+            }
+            else if (settings.rotationSystem == "dergoris") {
+                if (rotatedOrientation == 1) {
+                    tempPiecePositions = [[tempY-1,tempX+2],[tempY,tempX+2],[tempY+1,tempX+2],[tempY+2,tempX+2]];
+                }
+                else if (rotatedOrientation == 2) {
+                    tempPiecePositions = [[tempY+1,tempX],[tempY+1,tempX+1],[tempY+1,tempX+2],[tempY+1,tempX+3]];
+                }
+                else if (rotatedOrientation == 3) {
+                    tempPiecePositions = [[tempY-1,tempX+1],[tempY,tempX+1],[tempY+1,tempX+1],[tempY+2,tempX+1]];
+                }
+                else {
+                    tempPiecePositions = [[tempY,tempX],[tempY,tempX+1],[tempY,tempX+2],[tempY,tempX+3]];
+                }
+
+                //Kicks
+                let rightKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    rightKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    rightKickedPiecePositions[i][1]++;
+                }
+                let leftKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    leftKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    leftKickedPiecePositions[i][1]--;
+                }
+                let downKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    downKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    downKickedPiecePositions[i][0]++;
+                }
+                let downRightKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    downRightKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    downKickedPiecePositions[i][0]++;
+                    downRightKickedPiecePositions[i][1]++;
+                }
+                let downLeftKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    downLeftKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    downKickedPiecePositions[i][0]++;
+                    downLeftKickedPiecePositions[i][1]--;
+                }
+
+                if (clockwise) {
+                    canRotate = !checkPieceOverlap(tempPiecePositions);
+                    if (!canRotate && !checkPieceOverlap(rightKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...rightKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(leftKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...leftKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downRightKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downRightKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downLeftKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downLeftKickedPiecePositions[i]];
+                    }
+                }
+                else {
+                    canRotate = !checkPieceOverlap(tempPiecePositions);
+                    if (!canRotate && !checkPieceOverlap(leftKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...leftKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(rightKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...rightKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downLeftKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downLeftKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downRightKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downRightKickedPiecePositions[i]];
+                    }
+                }
+                if (canRotate) {
+                    for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
+                    pieceOrientation = rotatedOrientation;
+                    if (!checkPieceLanded(piecePositions)) {
+                        if (settings.lockReset == "step") locking = false;
                     }
                     updateVisuals();
                 }
@@ -2659,43 +2775,145 @@ function rotatePiece(clockwise=true, override=false, alt=false) {
                 let centerColumnOverlap = false;
                 if (currentPiece == 2 || currentPiece == 5 || currentPiece == 6) centerColumnOverlap = checkCenterColumnRule(tempPiecePositions, tempY, tempX); //Center column rule
 
+                let rightKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    rightKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    rightKickedPiecePositions[i][1]++;
+                }
+                let leftKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    leftKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    leftKickedPiecePositions[i][1]--;
+                }
+
                 if (canRotate) {
                     for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
                     pieceOrientation = rotatedOrientation;
                     if (!checkPieceLanded(piecePositions)) {
                         if (settings.lockReset == "step") locking = false;
-                        if (getDropInterval() <= 0.05) maxDrop(); //20G
+                        //if (getDropInterval() <= 0.05) maxDrop(); //20G (no longer needed with rotation changes)
                     }
                     updateVisuals();
                 }
                 else if (centerColumnOverlap) {return;} //Center column rule
-                else { //Right kick
+                else if (!checkPieceOverlap(rightKickedPiecePositions)) { //Right kick
                     for (let i=0;i<4;i++) tempPiecePositions[i][1]++;
+                    pieceTopCorner[1]++;
+                    for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
+                    pieceOrientation = rotatedOrientation;
+                    if (!checkPieceLanded(piecePositions)) {
+                        if (settings.lockReset == "step") locking = false;
+                        //if (getDropInterval() <= 0.05) maxDrop(); //20G (no longer needed with rotation changes)
+                    }
+                    updateVisuals();
+                }
+                else if (!checkPieceOverlap(leftKickedPiecePositions)) { //Left kick
+                    for (let i=0;i<4;i++) tempPiecePositions[i][1]--;
+                    pieceTopCorner[1]--;
+                    for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
+                    pieceOrientation = rotatedOrientation;
+                    if (!checkPieceLanded(piecePositions)) {
+                        if (settings.lockReset == "step") locking = false;
+                        //if (getDropInterval() <= 0.05) maxDrop(); //20G (no longer needed with rotation changes)
+                    }
+                    updateVisuals();
+                }
+            }
+            else if (settings.rotationSystem == "dergoris") {
+                for (let j=0;j<9;j++) {
+                    if (tgmPieceOrientations[currentPiece-2][rotatedOrientation][j] == 1) {
+                        tempPiecePositions.push([tempY+Math.floor(j/3),tempX+j%3]);
+                    }
+                }
+
+                let centerColumnOverlap = false;
+                if (currentPiece == 2 || currentPiece == 5 || currentPiece == 6) centerColumnOverlap = checkCenterColumnRule(tempPiecePositions, tempY, tempX); //Center column rule
+
+                //Kicks
+                let rightKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    rightKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    rightKickedPiecePositions[i][1]++;
+                }
+                let leftKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    leftKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    leftKickedPiecePositions[i][1]--;
+                }
+                let downKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    downKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    downKickedPiecePositions[i][0]++;
+                }
+                let downRightKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    downRightKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    downKickedPiecePositions[i][0]++;
+                    downRightKickedPiecePositions[i][1]++;
+                }
+                let downLeftKickedPiecePositions = [];
+                for (let i=0;i<4;i++) {
+                    downLeftKickedPiecePositions[i] = [...tempPiecePositions[i]];
+                    downKickedPiecePositions[i][0]++;
+                    downLeftKickedPiecePositions[i][1]--;
+                }
+
+                if (centerColumnOverlap) {
                     canRotate = !checkPieceOverlap(tempPiecePositions);
-                    if (canRotate) {
-                        pieceTopCorner[1]++;
-                        for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
-                        pieceOrientation = rotatedOrientation;
-                        if (!checkPieceLanded(piecePositions)) {
-                            if (settings.lockReset == "step") locking = false;
-                            if (getDropInterval() <= 0.05) maxDrop(); //20G
-                        }
-                        updateVisuals();
+                }
+                else if (clockwise) {
+                    canRotate = !checkPieceOverlap(tempPiecePositions);
+                    if (!canRotate && !checkPieceOverlap(rightKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...rightKickedPiecePositions[i]];
                     }
-                    else { //Left kick
-                        for (let i=0;i<4;i++) tempPiecePositions[i][1]-=2;
-                        canRotate = !checkPieceOverlap(tempPiecePositions);
-                        if (canRotate) {
-                            pieceTopCorner[1]--;
-                            for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
-                            pieceOrientation = rotatedOrientation;
-                            if (!checkPieceLanded(piecePositions)) {
-                                if (settings.lockReset == "step") locking = false;
-                                if (getDropInterval() <= 0.05) maxDrop(); //20G
-                            }
-                            updateVisuals();
-                        }
+                    if (!canRotate && !checkPieceOverlap(leftKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...leftKickedPiecePositions[i]];
                     }
+                    if (!canRotate && !checkPieceOverlap(downKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downRightKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downRightKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downLeftKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downLeftKickedPiecePositions[i]];
+                    }
+                }
+                else {
+                    canRotate = !checkPieceOverlap(tempPiecePositions);
+                    if (!canRotate && !checkPieceOverlap(leftKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...leftKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(rightKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...rightKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downLeftKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downLeftKickedPiecePositions[i]];
+                    }
+                    if (!canRotate && !checkPieceOverlap(downRightKickedPiecePositions)) {
+                        canRotate = true;
+                        for (let i=0;i<4;i++) tempPiecePositions[i] = [...downRightKickedPiecePositions[i]];
+                    }
+                }
+                if (canRotate) {
+                    for (let i=0;i<4;i++) piecePositions[i] = [...tempPiecePositions[i]];
+                    pieceOrientation = rotatedOrientation;
+                    if (!checkPieceLanded(piecePositions)) {
+                        if (settings.lockReset == "step") locking = false;
+                    }
+                    updateVisuals();
                 }
             }
             break;
@@ -2883,20 +3101,20 @@ document.addEventListener("keydown", function(event) {
             }
             break;
         case "rotClockwise":
-            rotatePiece(true);
-            keysHeld[4] = true;
+            //rotatePiece(true);
+            if (keysHeld[4] == 0) keysHeld[4] = 1;
             break;
         case "rotClockwiseAlt":
-            rotatePiece(true, false, true);
-            keysHeld[6] = true;
+            //rotatePiece(true, false, true);
+            if (keysHeld[6] == 0) keysHeld[6] = 1;
             break;
         case "rotAnticlockwise":
-            rotatePiece(false);
-            keysHeld[5] = true;
+            //rotatePiece(false);
+            if (keysHeld[5] == 0) keysHeld[5] = 1;
             break;
         case "rotAnticlockwiseAlt":
-            rotatePiece(false, false, true);
-            keysHeld[7] = true;
+            //rotatePiece(false, false, true);
+            if (keysHeld[7] == 0) keysHeld[7] = 1;
             break;
         case "exit":
             if (!gamePlaying && document.getElementById("keybindsContainer").style.display == "block") hideKeybinds();
@@ -2932,16 +3150,16 @@ document.addEventListener("keyup", function(event) {
             keysHeld[3] = false;
             break;
         case "rotClockwise":
-            keysHeld[4] = false;
+            keysHeld[4] = 0;
             break;
         case "rotClockwiseAlt":
-            keysHeld[6] = false;
+            keysHeld[6] = 0;
             break;
         case "rotAnticlockwise":
-            keysHeld[5] = false;
+            keysHeld[5] = 0;
             break;
         case "rotAnticlockwiseAlt":
-            keysHeld[7] = false;
+            keysHeld[7] = 0;
             break;
     }
 })
@@ -3517,7 +3735,7 @@ function endGame() {
         }
         else if (settings.gameMechanics == "dragonStyle") {
             power = (level+1)*20; //Level component
-            if (sectionTimes.length > 0) power += Math.max((1520000 / averageSectionTime - 20000), 0); //Section time component
+            if (sectionTimes.length > 0) power += Math.max((1640000 / averageSectionTime - 20000), 0); //Section time component
             if (inCampaign && power > game.bestPowers[2]) game.bestPowers[2] = power;
             if (inCampaign && score > game.bestScores[2]) game.bestScores[2] = score;
             if (inCampaign && level > game.bestLevels[2]) game.bestLevels[2] = level;
