@@ -1803,8 +1803,8 @@ function landPiece() {
     else if (settings.gameMechanics == "classicStyle") {currentDropTime = 20;} //Classic style ARE
     else if (settings.gameMechanics == "masterStyle" && checkFullLines().length > 0) {currentDropTime = 40;} //Master style line clear ARE
     else if (settings.gameMechanics == "masterStyle") {currentDropTime = 20;} //Master style ARE
-    else if (settings.gameMechanics == "dragonStyle" && checkFullLines().length > 0) {currentDropTime = dragonStyleARELineClear[Math.floor(level/100)]; console.log(currentDropTime)} //Dragon style line clear ARE
-    else if (settings.gameMechanics == "dragonStyle") {currentDropTime = dragonStyleARE[Math.floor(level/100)]; console.log(currentDropTime)} //Dragon style ARE
+    else if (settings.gameMechanics == "dragonStyle" && checkFullLines().length > 0) {currentDropTime = dragonStyleARELineClear[Math.floor(level/100)]} //Dragon style line clear ARE
+    else if (settings.gameMechanics == "dragonStyle") {currentDropTime = dragonStyleARE[Math.floor(level/100)]} //Dragon style ARE
     else if (settings.gameMechanics == "onTheBeat") {currentDropTime = beatARESpeeds[currentBeatSpeed];} //GM on the Beat ARE
     else if (settings.gameMechanics == "gb" && checkFullLines().length > 0) {currentDropTime = 93;} //Game boy line clear ARE
     else if (settings.gameMechanics == "gb") {currentDropTime = 2;} //Game boy ARE
