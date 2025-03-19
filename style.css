@@ -25,6 +25,16 @@ body {
 	position: fixed;
 	top: 0;
 	left: 0;
+	display: block;
+    z-index: -1;
+    transform-origin: top left;
+    transform: scale(4.01);
+}
+
+#gameCanvas {
+	position: fixed;
+	top: 0;
+	left: 0;
 	display: none;
     z-index: -1;
     transform-origin: top left;
