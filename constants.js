@@ -30,8 +30,8 @@ const masterStyleGradeConditions = [0, 1200, 3500, 5800, 8600, 12000, 28000, 450
 
 //const dragonStyleDropIntervals = [3, 2, 1, 0.5, 0.333, 0.05, 0.05, 0.05, 0.05, 0.05];
 const dragonStyleDASInitial = [12, 12, 11, 10, 8, 8, 8, 8, 8, 8];
-const dragonStyleARE = [18, 14, 14, 8, 7, 6, 6, 6, 6, 6];
-const dragonStyleARELineClear = [26, 14, 14, 14, 12, 10, 10, 10, 10, 10];
+const dragonStyleARE = [8, 8, 8, 8, 8, 6, 6, 6, 6, 6];
+const dragonStyleARELineClear = [12, 12, 12, 12, 12, 10, 10, 10, 10, 10];
 const dragonStyleLockDelay = [30, 26, 22, 18, 15, 15, 15, 15, 15, 15];
 const dragonStyleLineClear = [12, 6, 6, 6, 5, 4, 4, 4, 4, 4]
 

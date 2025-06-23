@@ -658,7 +658,7 @@ function readyGo(stage) {
     if (stage == 1) {
         let leftSide = 160-settings.boardWidth*4;
         //Get the current piece to display as the next piece
-        if (settings.gameMechanics == "onTheBeat") {
+        if (settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "onTheBeat") {
             onTheBeatNextPieces[0] = getRandomPiece();
             onTheBeatNextPieces[1] = getRandomPiece();
             onTheBeatNextPieces[2] = getRandomPiece();
@@ -761,7 +761,7 @@ function readyGo(stage) {
             ctx.drawImage(images.grades, 0, 32*grade, 48, 32, 211, 34, 48, 32);
 
             //Next piece
-            if (settings.gameMechanics == "onTheBeat") {
+            if (settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "onTheBeat") {
                 setNextPieceVisuals(onTheBeatNextPieces[0],0);
                 setNextPieceVisuals(onTheBeatNextPieces[1],1);
                 setNextPieceVisuals(onTheBeatNextPieces[2],2);
@@ -973,7 +973,7 @@ function updateVariables() {
     currentDropTime -= (timeMultiplier*60);
     while (currentDropTime <= 0.01) {
         if (waitingForNextPiece) {
-            if (settings.gameMechanics == "onTheBeat") {
+            if (settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "onTheBeat") {
                 placePiece(onTheBeatNextPieces[0]);
                 onTheBeatNextPieces[0] = onTheBeatNextPieces[1];
                 onTheBeatNextPieces[1] = onTheBeatNextPieces[2];
@@ -3697,7 +3697,7 @@ function endGame() {
                 else {ctx.drawImage(images.sideInfo2, parseInt(timeString[i])*4, sectionTimeColor*6, 4, 6, 145+i*4, 177, 4, 6);}
             }
 
-            if (level >= 999 && inCampaign() && settings.gameMechanics != "onTheBeat") {
+            if (level >= 999 && inCampaign && settings.gameMechanics != "onTheBeat") {
                 //Best average section time
                 if (settings.gameMechanics == "classicStyle" && averageSectionTime < game.bestAverageSectionTimes[0]) game.bestAverageSectionTimes[0] = averageSectionTime;
                 else if (settings.gameMechanics == "masterStyle" && averageSectionTime < game.bestAverageSectionTimes[1]) game.bestAverageSectionTimes[1] = averageSectionTime;
