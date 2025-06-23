@@ -660,6 +660,7 @@ function readyGo(stage) {
         //Get the current piece to display as the next piece
         if (settings.gameMechanics == "dragonStyle" || settings.gameMechanics == "onTheBeat") {
             onTheBeatNextPieces[0] = getRandomPiece();
+            TGMFirstMove = false;
             onTheBeatNextPieces[1] = getRandomPiece();
             onTheBeatNextPieces[2] = getRandomPiece();
         }
