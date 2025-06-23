@@ -3745,7 +3745,7 @@ function endGame() {
         }
         else if (settings.gameMechanics == "dragonStyle") {
             power = (level+1)*20; //Level component
-            if (sectionTimes.length > 0) power += Math.max((1640000 / averageSectionTime - 20000), 0); //Section time component
+            if (sectionTimes.length > 0) power += Math.max((1200000 / averageSectionTime - 20000), 0); //Section time component
             if (inCampaign && power > game.bestPowers[2]) game.bestPowers[2] = power;
             if (inCampaign && score > game.bestScores[2]) game.bestScores[2] = score;
             if (inCampaign && level > game.bestLevels[2]) game.bestLevels[2] = level;
