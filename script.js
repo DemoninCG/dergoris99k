@@ -3415,6 +3415,7 @@ function clearLines() {
         if (settings.visuals == "dragonStyle") {
             lineClearLength = dragonStyleLineClear[Math.floor(level/100)];
         }
+        console.log(lineClearLength)
         setTimeout(function() {mainClearLines([...fullLines])}, 1000 / 60 * lineClearLength);
     }
     

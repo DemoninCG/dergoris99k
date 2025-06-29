@@ -33,7 +33,7 @@ const dragonStyleDASInitial = [12, 12, 11, 10, 8, 8, 8, 8, 8, 8];
 const dragonStyleARE = [8, 8, 8, 8, 8, 6, 6, 6, 6, 6];
 const dragonStyleARELineClear = [12, 12, 12, 12, 12, 10, 10, 10, 10, 10];
 const dragonStyleLockDelay = [30, 26, 22, 18, 15, 15, 15, 15, 15, 15];
-const dragonStyleLineClear = [12, 6, 6, 6, 5, 4, 4, 4, 4, 4]
+const dragonStyleLineClear = [6, 6, 6, 6, 5, 4, 4, 4, 4, 4]
 
 const gameboyDropIntervals = [53, 49, 45, 41, 37, 33, 28, 22, 17, 11, 10, 9, 8, 7, 6, 6, 5, 5, 4, 4, 3];
 const gameboyPieceOrientations = [ //The 9 digits are the 9 tiles of the piece (3 rows 3 columns), 0 is empty, 1 is filled
