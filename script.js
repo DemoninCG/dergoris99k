@@ -1718,6 +1718,7 @@ function updateBeatVisuals() {
 
         //Hard drop
         boardVisualPosition[1] = 1.5; //Vertical bump
+        maxDrop(); //20G
         landPiece();
     }
     while (currentBeatTime > onTheBeatBeats[beatsPassed+1]) beatsPassed++;
